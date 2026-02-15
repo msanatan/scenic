@@ -1,2 +1,3 @@
-# unity-cli
-Interact with Unity via the command line
+# unibridge
+
+Interact with Unity via TypeScript and the command line!
