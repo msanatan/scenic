@@ -1,0 +1,21 @@
+{
+  "name": "com.msanatan.unibridge",
+  "version": "0.1.0",
+  "displayName": "UniBridge",
+  "description": "Bridge between external tools and Unity Editor",
+  "unity": "2021.3",
+  "author": {
+    "name": "Marcus Sanatan",
+    "email": "me@gameboymarcus.com",
+    "url": "https://gameboymarcus.com"
+  },
+  "keywords": [
+    "unity",
+    "editor",
+    "bridge",
+    "cli",
+    "sdk"
+  ],
+  "documentationUrl": "https://github.com/msanatan/unibridge",
+  "changelogUrl": "https://github.com/msanatan/unibridge/releases"
+}
