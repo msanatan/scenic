@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { PipeConnection } from './connection.ts'
 import { pipePath } from './hash.ts'
 import { findUnityProject } from './project.ts'
-import type { ClientOptions, ExecuteOptions, UniBridgeClient } from './types.ts'
+import type { ClientOptions, CommandResponse, StatusResult, UniBridgeClient } from './types.ts'
 
 export class UniBridgeError extends Error {
   constructor(message: string) {
@@ -11,13 +11,11 @@ export class UniBridgeError extends Error {
   }
 }
 
-interface TestConnection {
-  send: (req: { id: string; command: string; params: { code: string } }) => Promise<{
-    id: string
-    success: boolean
-    result?: unknown
-    error?: string
-  }>
+function unwrap(response: CommandResponse): unknown {
+  if (!response.success) {
+    throw new UniBridgeError(response.error ?? 'Command failed')
+  }
+  return response.result
 }
 
 export function createClient(options: ClientOptions = {}): UniBridgeClient {
@@ -30,14 +28,21 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
   })
   const callerExecuteEnabled = options.enableExecute ?? true
 
+  async function sendCommand(
+    command: string,
+    params: Record<string, unknown>,
+  ): Promise<CommandResponse> {
+    await connection.connect(pipePath(projectPath))
+    return connection.send({ id: randomUUID(), command, params })
+  }
+
   return {
     projectPath,
-    async execute(code: string, executeOptions: ExecuteOptions = {}): Promise<unknown> {
+
+    async execute(code: string): Promise<unknown> {
       if (!callerExecuteEnabled) {
         throw new UniBridgeError('Execute is disabled by client or plugin configuration.')
       }
-
-      await connection.connect(pipePath(projectPath))
 
       const metadata = connection.serverMetadata()
       const serverExecuteEnabled = metadata?.capabilities?.executeEnabled ?? true
@@ -45,43 +50,44 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
         throw new UniBridgeError('Execute is disabled by client or plugin configuration.')
       }
 
-      const response = await connection.send(
-        {
-          id: randomUUID(),
-          command: 'execute',
-          params: { code },
-        },
-        executeOptions,
-      )
-
-      if (!response.success) {
-        throw new UniBridgeError(response.error ?? 'Command execution failed')
-      }
-
-      return response.result
+      return unwrap(await sendCommand('execute', { code }))
     },
+
+    async status(): Promise<StatusResult> {
+      const result = unwrap(await sendCommand('status', {}))
+      return JSON.parse(result as string) as StatusResult
+    },
+
     close(): void {
       connection.disconnect()
     },
   }
 }
 
+interface TestConnection {
+  send: (req: { id: string; command: string; params: Record<string, unknown> }) => Promise<CommandResponse>
+}
+
 export function createClientForTests(connection: TestConnection): UniBridgeClient {
+  async function sendCommand(
+    command: string,
+    params: Record<string, unknown>,
+  ): Promise<CommandResponse> {
+    return connection.send({ id: randomUUID(), command, params })
+  }
+
   return {
     projectPath: '/tmp/test-project',
+
     async execute(code: string): Promise<unknown> {
-      const response = await connection.send({
-        id: randomUUID(),
-        command: 'execute',
-        params: { code },
-      })
-
-      if (!response.success) {
-        throw new UniBridgeError(response.error ?? 'Command execution failed')
-      }
-
-      return response.result
+      return unwrap(await sendCommand('execute', { code }))
     },
+
+    async status(): Promise<StatusResult> {
+      const result = unwrap(await sendCommand('status', {}))
+      return JSON.parse(result as string) as StatusResult
+    },
+
     close(): void {
       // no-op for test double
     },

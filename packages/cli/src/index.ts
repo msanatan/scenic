@@ -4,6 +4,7 @@ import path from 'node:path'
 import { program } from 'commander'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
+import { registerStatus } from './commands/status.ts'
 
 const { version } = JSON.parse(
   readFileSync(path.join(import.meta.dirname, '..', 'package.json'), 'utf-8'),
@@ -17,5 +18,6 @@ program
 
 registerInit(program)
 registerExecute(program)
+registerStatus(program)
 
 program.parse()

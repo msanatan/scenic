@@ -44,18 +44,10 @@ export interface ServerMetadata {
   projectPath?: string
 }
 
-export interface ExecuteParams {
-  code: string
-}
-
 export interface TimeoutOptions {
   connectTimeout?: number
   commandTimeout?: number
   reconnectTimeout?: number
-}
-
-export interface ExecuteOptions {
-  timeout?: number
 }
 
 export interface ClientOptions extends TimeoutOptions {
@@ -63,8 +55,17 @@ export interface ClientOptions extends TimeoutOptions {
   enableExecute?: boolean
 }
 
+export interface StatusResult {
+  projectPath: string
+  unityVersion: string
+  pluginVersion: string
+  activeScene: string
+  playMode: string
+}
+
 export interface UniBridgeClient {
   readonly projectPath: string
-  execute(code: string, options?: ExecuteOptions): Promise<unknown>
+  execute(code: string): Promise<unknown>
+  status(): Promise<StatusResult>
   close(): void
 }

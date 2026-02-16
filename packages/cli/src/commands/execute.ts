@@ -5,22 +5,12 @@ import { resolveCommandProject } from '../preflight.ts'
 interface ExecuteCommandOptions {
   project?: string
   json?: boolean
-  timeout?: string
 }
 
 interface ExecuteDeps {
-  execute: (code: string, options: { timeout: number }) => Promise<unknown>
+  execute: (code: string) => Promise<unknown>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
-}
-
-function parseTimeout(input: string | undefined): number {
-  const parsed = Number(input ?? '30000')
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error('Timeout must be a positive number of milliseconds.')
-  }
-
-  return parsed
 }
 
 export async function handleExecute(
@@ -29,7 +19,7 @@ export async function handleExecute(
   deps: ExecuteDeps,
 ): Promise<void> {
   try {
-    const result = await deps.execute(code, { timeout: parseTimeout(opts.timeout) })
+    const result = await deps.execute(code)
     if (opts.json) {
       deps.console.log(JSON.stringify({ success: true, result }))
     } else {
@@ -52,7 +42,6 @@ export function registerExecute(program: Command): void {
     .description('Execute C# code in the Unity Editor')
     .option('-p, --project <path>', 'Path to Unity project')
     .option('--json', 'Output result as JSON')
-    .option('--timeout <ms>', 'Command timeout in milliseconds', '30000')
     .action(async (code: string, opts: ExecuteCommandOptions, command: Command) => {
       let client: ReturnType<typeof createClient> | undefined
       try {
@@ -77,7 +66,7 @@ export function registerExecute(program: Command): void {
         })
 
         await handleExecute(code, opts, {
-          execute: (requestCode, executeOptions) => client?.execute(requestCode, executeOptions) ?? Promise.resolve(null),
+          execute: (requestCode) => client!.execute(requestCode),
           console,
           exit: (exitCode) => {
             process.exitCode = exitCode

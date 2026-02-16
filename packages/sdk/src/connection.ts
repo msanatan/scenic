@@ -6,7 +6,6 @@ import { stateDir } from './hash.ts'
 import type {
   CommandRequest,
   CommandResponse,
-  ExecuteOptions,
   ServerMetadata,
   TimeoutOptions,
 } from './types.ts'
@@ -52,14 +51,14 @@ export class PipeConnection {
     await this.ensureConnected(this.connectTimeout)
   }
 
-  async send(request: CommandRequest, options: ExecuteOptions = {}): Promise<CommandResponse> {
+  async send(request: CommandRequest): Promise<CommandResponse> {
     if (!this.pipePathValue) {
       throw new Error('Pipe path is not set. Call connect() before send().')
     }
 
     await this.ensureConnected(this.reconnectTimeout)
 
-    const timeout = options.timeout ?? this.commandTimeout
+    const timeout = this.commandTimeout
     return new Promise<CommandResponse>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(request.id)

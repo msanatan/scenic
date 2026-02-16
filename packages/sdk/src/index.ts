@@ -5,5 +5,6 @@ export type {
   InitResult,
   CommandResponse,
   ClientOptions,
+  StatusResult,
   UniBridgeClient,
 } from './types.ts'
