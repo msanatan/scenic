@@ -73,7 +73,7 @@ namespace UniBridge.Editor
             string projectPath,
             int protocolVersion = 1,
             bool executeEnabled = true,
-            string pluginVersion = "0.1.0")
+            string pluginVersion)
         {
             var directory = ResolveStateDirectory(hashOrDirectory);
             EnsureStateDirectory(directory);

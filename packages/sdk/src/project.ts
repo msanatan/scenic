@@ -4,9 +4,15 @@ import { cwd } from 'node:process'
 import type { InitOptions, InitResult } from './types.ts'
 
 const PLUGIN_NAME = 'com.msanatan.unibridge'
-const EXPECTED_PLUGIN_VERSION = '0.1.0'
+
+const SDK_VERSION = (
+  JSON.parse(
+    readFileSync(path.join(import.meta.dirname, '..', 'package.json'), 'utf-8'),
+  ) as { version: string }
+).version
+
 const DEFAULT_GIT_SOURCE =
-  'https://github.com/msanatan/unibridge.git?path=unity#v0.1.0'
+  `https://github.com/msanatan/unibridge.git?path=unity#v${SDK_VERSION}`
 
 interface Manifest {
   dependencies?: Record<string, string>
@@ -87,7 +93,7 @@ export async function init(options: InitOptions = {}): Promise<InitResult> {
   return {
     projectPath,
     unityVersion,
-    pluginVersion: EXPECTED_PLUGIN_VERSION,
+    pluginVersion: SDK_VERSION,
     pluginSource,
   }
 }

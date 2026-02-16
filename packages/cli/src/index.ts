@@ -1,12 +1,18 @@
 #!/usr/bin/env node
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import { program } from 'commander'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
 
+const { version } = JSON.parse(
+  readFileSync(path.join(import.meta.dirname, '..', 'package.json'), 'utf-8'),
+) as { version: string }
+
 program
   .name('unibridge')
   .description('Bridge between Unity and your code')
-  .version('0.1.0')
+  .version(version)
   .option('--no-execute', 'Disable execute tool for this invocation')
 
 registerInit(program)

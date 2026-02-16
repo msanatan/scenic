@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace UniBridge.Editor
@@ -33,11 +34,13 @@ namespace UniBridge.Editor
 
             StateManager.SetCurrentProjectHash(_projectHash);
             StateManager.EnsureStateDirectory(_projectHash);
+            var pluginVersion = PackageInfo.FindForAssembly(typeof(UniBridgeServer).Assembly)?.version ?? "0.0.0";
             StateManager.WriteServerJson(
                 _projectHash,
                 projectPath,
                 protocolVersion: 1,
-                executeEnabled: _settings.ExecuteEnabled);
+                executeEnabled: _settings.ExecuteEnabled,
+                pluginVersion: pluginVersion);
 
             _server = new PipeServer(_projectHash);
             _server.OnCommandReceived += OnCommand;
