@@ -10,6 +10,8 @@ namespace UniBridge.Editor
         private static object _evaluator;
         private static MethodInfo _evaluateMethod;
         private static StringWriter _errorWriter;
+        private static object _printer;
+        private static PropertyInfo _errorsCountProp;
 
         public static CommandResponse Execute(string id, string code)
         {
@@ -18,14 +20,15 @@ namespace UniBridge.Editor
                 EnsureInitialized();
 
                 _errorWriter.GetStringBuilder().Clear();
+                var errorsBefore = (int)(_errorsCountProp?.GetValue(_printer) ?? 0);
 
                 var args = new object[] { (code ?? string.Empty).Trim(), null, null };
                 var partial = _evaluateMethod.Invoke(_evaluator, args) as string;
 
-                var compilationErrors = _errorWriter.ToString().Trim();
-                if (!string.IsNullOrEmpty(compilationErrors))
+                var errorsAfter = (int)(_errorsCountProp?.GetValue(_printer) ?? 0);
+                if (errorsAfter > errorsBefore)
                 {
-                    return CommandResponse.Fail(id, compilationErrors);
+                    return CommandResponse.Fail(id, _errorWriter.ToString().Trim());
                 }
 
                 if (!string.IsNullOrEmpty(partial))
@@ -63,9 +66,11 @@ namespace UniBridge.Editor
             var evaluatorType = monoAssembly.GetType("Mono.CSharp.Evaluator");
 
             _errorWriter = new StringWriter();
-            var printer = Activator.CreateInstance(reportPrinterType, _errorWriter);
+            _printer = Activator.CreateInstance(reportPrinterType, _errorWriter);
+            _errorsCountProp = reportPrinterType.GetProperty("ErrorsCount")
+                ?? reportPrinterType.BaseType?.GetProperty("ErrorsCount");
             var settings = Activator.CreateInstance(compilerSettingsType);
-            var context = Activator.CreateInstance(compilerContextType, settings, printer);
+            var context = Activator.CreateInstance(compilerContextType, settings, _printer);
             _evaluator = Activator.CreateInstance(evaluatorType, context);
 
             var referenceAssemblyMethod = evaluatorType.GetMethod("ReferenceAssembly", new[] { typeof(Assembly) });
