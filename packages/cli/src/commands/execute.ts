@@ -1,11 +1,7 @@
 import type { Command } from 'commander'
 import { createClient } from '@unibridge/sdk'
 import { resolveCommandProject } from '../preflight.ts'
-
-interface ExecuteCommandOptions {
-  project?: string
-  json?: boolean
-}
+import { getGlobalOptions } from '../options.ts'
 
 interface ExecuteDeps {
   execute: (code: string) => Promise<unknown>
@@ -15,19 +11,19 @@ interface ExecuteDeps {
 
 export async function handleExecute(
   code: string,
-  opts: ExecuteCommandOptions,
+  jsonOutput: boolean,
   deps: ExecuteDeps,
 ): Promise<void> {
   try {
     const result = await deps.execute(code)
-    if (opts.json) {
+    if (jsonOutput) {
       deps.console.log(JSON.stringify({ success: true, result }))
     } else {
       deps.console.log(String(result))
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    if (opts.json) {
+    if (jsonOutput) {
       deps.console.log(JSON.stringify({ success: false, error: message }))
     } else {
       deps.console.error(`Error: ${message}`)
@@ -40,18 +36,16 @@ export function registerExecute(program: Command): void {
   program
     .command('execute <code>')
     .description('Execute C# code in the Unity Editor')
-    .option('-p, --project <path>', 'Path to Unity project')
-    .option('--json', 'Output result as JSON')
-    .action(async (code: string, opts: ExecuteCommandOptions, command: Command) => {
+    .action(async (code: string, _opts: Record<string, never>, command: Command) => {
       let client: ReturnType<typeof createClient> | undefined
       try {
-        const globalOpts = command.optsWithGlobals() as { execute?: boolean }
+        const globalOpts = getGlobalOptions(command)
         const envExecute = process.env.UNIBRIDGE_ENABLE_EXECUTE !== '0'
         const callerEnableExecute = globalOpts.execute !== false && envExecute
 
         const projectPath = resolveCommandProject(
           {
-            project: opts.project,
+            project: globalOpts.project,
             execute: callerEnableExecute,
           },
           {
@@ -65,7 +59,7 @@ export function registerExecute(program: Command): void {
           enableExecute: callerEnableExecute,
         })
 
-        await handleExecute(code, opts, {
+        await handleExecute(code, globalOpts.json === true, {
           execute: (requestCode) => client!.execute(requestCode),
           console,
           exit: (exitCode) => {

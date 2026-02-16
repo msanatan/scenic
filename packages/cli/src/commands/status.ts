@@ -2,11 +2,7 @@ import type { Command } from 'commander'
 import { createClient } from '@unibridge/sdk'
 import type { StatusResult } from '@unibridge/sdk'
 import { resolveCommandProject } from '../preflight.ts'
-
-interface StatusCommandOptions {
-  project?: string
-  json?: boolean
-}
+import { getGlobalOptions } from '../options.ts'
 
 interface StatusDeps {
   status: () => Promise<StatusResult>
@@ -15,12 +11,12 @@ interface StatusDeps {
 }
 
 export async function handleStatus(
-  opts: StatusCommandOptions,
+  jsonOutput: boolean,
   deps: StatusDeps,
 ): Promise<void> {
   try {
     const result = await deps.status()
-    if (opts.json) {
+    if (jsonOutput) {
       deps.console.log(JSON.stringify({ success: true, result }))
     } else {
       deps.console.log(`Project: ${result.projectPath}`)
@@ -31,7 +27,7 @@ export async function handleStatus(
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    if (opts.json) {
+    if (jsonOutput) {
       deps.console.log(JSON.stringify({ success: false, error: message }))
     } else {
       deps.console.error(`Error: ${message}`)
@@ -44,19 +40,18 @@ export function registerStatus(program: Command): void {
   program
     .command('status')
     .description('Show the current state of the Unity Editor')
-    .option('-p, --project <path>', 'Path to Unity project')
-    .option('--json', 'Output result as JSON')
-    .action(async (opts: StatusCommandOptions, command: Command) => {
+    .action(async (_opts: Record<string, never>, command: Command) => {
       let client: ReturnType<typeof createClient> | undefined
       try {
+        const globalOpts = getGlobalOptions(command)
         const projectPath = resolveCommandProject(
-          { project: opts.project },
+          { project: globalOpts.project },
           { requirePlugin: true },
         )
 
         client = createClient({ projectPath })
 
-        await handleStatus(opts, {
+        await handleStatus(globalOpts.json === true, {
           status: () => client!.status(),
           console,
           exit: (exitCode) => {

@@ -14,6 +14,8 @@ program
   .name('unibridge')
   .description('Bridge between Unity and your code')
   .version(version)
+  .option('-p, --project <path>', 'Path to Unity project')
+  .option('--json', 'Output result as JSON')
   .option('--no-execute', 'Disable execute tool for this invocation')
 
 registerInit(program)

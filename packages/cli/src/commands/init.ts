@@ -1,8 +1,8 @@
 import type { Command } from 'commander'
 import { init as sdkInit, type InitOptions, type InitResult } from '@unibridge/sdk'
+import { getGlobalOptions } from '../options.ts'
 
 interface InitCommandOptions {
-  project?: string
   local?: string
   git?: string
 }
@@ -14,6 +14,7 @@ interface InitHandlerDeps {
 
 export async function handleInit(
   opts: InitCommandOptions,
+  jsonOutput: boolean,
   deps: InitHandlerDeps = { init: sdkInit, console },
 ): Promise<void> {
   const source = opts.local
@@ -23,23 +24,33 @@ export async function handleInit(
       : undefined
 
   const result = await deps.init({
-    projectPath: opts.project,
     source,
   })
 
-  deps.console.log(`Found Unity ${result.unityVersion} at ${result.projectPath}`)
-  deps.console.log(`Installed com.msanatan.unibridge@${result.pluginVersion}`)
-  deps.console.log('Open Unity to load the plugin.')
+  if (jsonOutput) {
+    deps.console.log(JSON.stringify({ success: true, result }))
+  } else {
+    deps.console.log(`Found Unity ${result.unityVersion} at ${result.projectPath}`)
+    deps.console.log(`Installed com.msanatan.unibridge@${result.pluginVersion}`)
+    deps.console.log('Open Unity to load the plugin.')
+  }
 }
 
 export function registerInit(program: Command): void {
   program
     .command('init')
     .description('Install the unibridge plugin into a Unity project')
-    .option('-p, --project <path>', 'Path to Unity project (default: auto-detect)')
     .option('--local <path>', 'Install from a local path')
     .option('--git <url>', 'Install from a custom git URL')
-    .action(async (opts: InitCommandOptions) => {
-      await handleInit(opts)
+    .action(async (opts: InitCommandOptions, command: Command) => {
+      const globalOpts = getGlobalOptions(command)
+      await handleInit(
+        opts,
+        globalOpts.json === true,
+        {
+          init: (initOpts) => sdkInit({ ...initOpts, projectPath: globalOpts.project }),
+          console,
+        },
+      )
     })
 }
