@@ -2,7 +2,10 @@ import { afterEach, describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import net from 'node:net'
 import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { PipeConnection } from './connection.ts'
+import { stateDir } from './hash.ts'
 
 const SOCK_PATH = '/tmp/unibridge-test.sock'
 
@@ -52,6 +55,7 @@ function createMockServer(handler: (data: Buffer) => Buffer) {
 describe('PipeConnection', () => {
   let server: net.Server | undefined
   let conn: PipeConnection | undefined
+  let projectPath: string | undefined
 
   afterEach(async () => {
     conn?.disconnect()
@@ -62,6 +66,10 @@ describe('PipeConnection', () => {
       fs.unlinkSync(SOCK_PATH)
     } catch {
       // ignore missing socket
+    }
+    if (projectPath) {
+      fs.rmSync(projectPath, { recursive: true, force: true })
+      projectPath = undefined
     }
   })
 
@@ -85,6 +93,42 @@ describe('PipeConnection', () => {
 
     assert.equal(res.success, true)
     assert.equal(res.result, 'hello')
+  })
+
+  it('deletes persisted result file after socket response is processed', async () => {
+    projectPath = fs.mkdtempSync(path.join(os.tmpdir(), 'unibridge-project-'))
+    const stateDirectory = stateDir(projectPath)
+    fs.mkdirSync(path.join(stateDirectory, 'results'), { recursive: true })
+
+    server = createMockServer((msg) => {
+      const req = JSON.parse(msg.toString())
+      const resultPath = path.join(stateDirectory, 'results', `${req.id}.json`)
+      fs.writeFileSync(resultPath, JSON.stringify({
+        id: req.id,
+        success: true,
+        result: 'socket-path',
+        error: null,
+      }))
+
+      return Buffer.from(JSON.stringify({
+        id: req.id,
+        success: true,
+        result: 'socket-path',
+      }))
+    })
+
+    conn = new PipeConnection({ projectPath })
+    await conn.connect(SOCK_PATH)
+    const response = await conn.send({
+      id: 'cmd-socket-cleanup',
+      command: 'execute',
+      params: { code: 'Debug.Log("x")' },
+    })
+
+    assert.equal(response.success, true)
+    assert.equal(response.result, 'socket-path')
+    const resultPath = path.join(stateDirectory, 'results', 'cmd-socket-cleanup.json')
+    assert.equal(fs.existsSync(resultPath), false)
   })
 
   it('matches responses to requests by ID', async () => {
@@ -143,6 +187,80 @@ describe('PipeConnection', () => {
     assert.equal(res.result, 'reconnected')
   })
 
+  it('recovers pending response after reconnect without re-sending execute', async () => {
+    projectPath = fs.mkdtempSync(path.join(os.tmpdir(), 'unibridge-project-'))
+    const stateDirectory = stateDir(projectPath)
+    fs.mkdirSync(path.join(stateDirectory, 'results'), { recursive: true })
+
+    let sawExecute = false
+    server = createMockServer((msg) => {
+      const req = JSON.parse(msg.toString())
+      if (req.command === 'execute') {
+        sawExecute = true
+        setTimeout(() => {
+          server?.close()
+          try {
+            fs.unlinkSync(SOCK_PATH)
+          } catch {
+            // ignore missing socket
+          }
+          server = createMockServer((nextMsg) => {
+            const recoverReq = JSON.parse(nextMsg.toString())
+            if (recoverReq.command === 'recoverResults') {
+              const resultPath = path.join(stateDirectory, 'results', 'cmd-recover.json')
+              fs.writeFileSync(resultPath, JSON.stringify({
+                id: 'cmd-recover',
+                success: true,
+                result: 'recovered',
+                error: null,
+              }))
+              return Buffer.from(JSON.stringify({
+                id: recoverReq.id,
+                success: true,
+                result: JSON.stringify({
+                  results: [
+                    {
+                      id: 'cmd-recover',
+                      success: true,
+                      result: 'recovered',
+                      error: null,
+                    },
+                  ],
+                }),
+              }))
+            }
+            return Buffer.from(JSON.stringify({
+              id: recoverReq.id,
+              success: false,
+              error: 'unexpected command',
+            }))
+          })
+        }, 50)
+        return Buffer.alloc(0)
+      }
+
+      return Buffer.from(JSON.stringify({
+        id: req.id,
+        success: false,
+        error: 'unexpected command',
+      }))
+    })
+
+    conn = new PipeConnection({ projectPath, commandTimeout: 2000, reconnectTimeout: 5000 })
+    await conn.connect(SOCK_PATH)
+    const response = await conn.send({
+      id: 'cmd-recover',
+      command: 'execute',
+      params: { code: 'Debug.Log("x")' },
+    })
+
+    assert.equal(sawExecute, true)
+    assert.equal(response.success, true)
+    assert.equal(response.result, 'recovered')
+    const recoveredResultPath = path.join(stateDirectory, 'results', 'cmd-recover.json')
+    assert.equal(fs.existsSync(recoveredResultPath), false)
+  })
+
   it('does NOT re-send commands on reconnect', async () => {
     let commandCount = 0
     server = createMockServer(() => {
@@ -166,5 +284,47 @@ describe('PipeConnection', () => {
   it('fires connect timeout when no server', async () => {
     conn = new PipeConnection({ connectTimeout: 500 })
     await assert.rejects(conn.connect('/tmp/nonexistent.sock'), /Connect timeout/i)
+  })
+
+  it('returns file result when socket response is lost during reload window', async () => {
+    projectPath = fs.mkdtempSync(path.join(os.tmpdir(), 'unibridge-project-'))
+    const stateDirectory = stateDir(projectPath)
+    fs.mkdirSync(path.join(stateDirectory, 'results'), { recursive: true })
+
+    server = createMockServer((msg) => {
+      const req = JSON.parse(msg.toString())
+      if (req.command === 'execute') {
+        setTimeout(() => {
+          const resultPath = path.join(stateDirectory, 'results', `${req.id}.json`)
+          fs.writeFileSync(resultPath, JSON.stringify({
+            id: req.id,
+            success: true,
+            result: 'from-file',
+            error: null,
+          }))
+        }, 100)
+        return Buffer.alloc(0)
+      }
+
+      return Buffer.from(JSON.stringify({
+        id: req.id,
+        success: false,
+        error: 'unexpected command',
+      }))
+    })
+
+    conn = new PipeConnection({ projectPath, commandTimeout: 1000, reconnectTimeout: 1000 })
+    await conn.connect(SOCK_PATH)
+
+    const response = await conn.send({
+      id: 'cmd-file-fallback',
+      command: 'execute',
+      params: { code: 'Debug.Log("x")' },
+    })
+
+    assert.equal(response.success, true)
+    assert.equal(response.result, 'from-file')
+    const resultPath = path.join(stateDirectory, 'results', 'cmd-file-fallback.json')
+    assert.equal(fs.existsSync(resultPath), false)
   })
 })

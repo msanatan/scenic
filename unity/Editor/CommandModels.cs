@@ -20,6 +20,32 @@ namespace UniBridge.Editor
         public string Command = string.Empty;
         public CommandParams Params = new CommandParams();
 
+        public string ToJson()
+        {
+            var ids = Params != null && Params.Ids != null ? Params.Ids : Array.Empty<string>();
+            var idsJson = new StringBuilder();
+            idsJson.Append("[");
+            for (var i = 0; i < ids.Length; i++)
+            {
+                if (i > 0)
+                {
+                    idsJson.Append(",");
+                }
+
+                idsJson.Append(JsonCompat.Quote(ids[i]));
+            }
+            idsJson.Append("]");
+
+            return "{" +
+                   "\"id\":" + JsonCompat.Quote(Id) + "," +
+                   "\"command\":" + JsonCompat.Quote(Command) + "," +
+                   "\"params\":{" +
+                   "\"code\":" + JsonCompat.QuoteOrNull(Params == null ? null : Params.Code) + "," +
+                   "\"ids\":" + idsJson +
+                   "}" +
+                   "}";
+        }
+
         public static bool TryParse(string json, out CommandRequest request)
         {
             request = null;

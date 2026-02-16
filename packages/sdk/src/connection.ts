@@ -1,6 +1,6 @@
 import net from 'node:net'
 import { randomUUID } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, unlinkSync } from 'node:fs'
 import path from 'node:path'
 import { stateDir } from './hash.ts'
 import type {
@@ -38,6 +38,7 @@ export class PipeConnection {
   private readonly commandTimeout: number
   private readonly reconnectTimeout: number
   private readonly projectPath: string | undefined
+  private recoveryInFlight: Promise<void> | undefined
 
   constructor(options: PipeConnectionOptions = {}) {
     this.connectTimeout = options.connectTimeout ?? DEFAULT_CONNECT_TIMEOUT
@@ -62,6 +63,12 @@ export class PipeConnection {
     return new Promise<CommandResponse>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(request.id)
+        const fileResult = this.readResultFromDisk(request.id)
+        if (fileResult) {
+          resolve(fileResult)
+          return
+        }
+
         reject(new Error(`Command timeout (${Math.round(timeout / 1000)}s) — the command may have hung Unity's main thread`))
       }, timeout)
 
@@ -183,11 +190,13 @@ export class PipeConnection {
     socket.on('close', () => {
       if (!this.intentionalDisconnect) {
         this.connected = false
+        this.tryRecoverPending()
       }
     })
 
     socket.on('error', () => {
       this.connected = false
+      this.tryRecoverPending()
     })
   }
 
@@ -213,13 +222,15 @@ export class PipeConnection {
       }
 
       const pending = this.pending.get(parsed.id)
-      if (!pending) {
+      if (pending) {
+        clearTimeout(pending.timer)
+        this.pending.delete(parsed.id)
+        this.deleteResultFile(parsed.id)
+        pending.resolve(parsed)
         continue
       }
 
-      clearTimeout(pending.timer)
-      this.pending.delete(parsed.id)
-      pending.resolve(parsed)
+      this.tryResolveRecoveredPayload(parsed)
     }
   }
 
@@ -258,6 +269,114 @@ export class PipeConnection {
       command: 'recoverResults',
       params: { ids: [...this.pending.keys()] },
     })
+  }
+
+  private tryRecoverPending(): void {
+    if (this.pending.size === 0 || this.recoveryInFlight) {
+      return
+    }
+
+    this.recoveryInFlight = this.ensureConnected(this.reconnectTimeout)
+      .catch(() => {
+        // Per-request timeouts and file fallback will handle failure.
+      })
+      .finally(() => {
+        this.recoveryInFlight = undefined
+      })
+  }
+
+  private tryResolveRecoveredPayload(response: CommandResponse): void {
+    if (typeof response.result !== 'string') {
+      return
+    }
+
+    let payload: unknown
+    try {
+      payload = JSON.parse(response.result)
+    } catch {
+      return
+    }
+
+    if (!payload || typeof payload !== 'object' || !('results' in payload)) {
+      return
+    }
+
+    const maybeResults = (payload as { results?: unknown }).results
+    if (!Array.isArray(maybeResults)) {
+      return
+    }
+
+    for (const item of maybeResults) {
+      if (!item || typeof item !== 'object' || !('id' in item) || typeof item.id !== 'string') {
+        continue
+      }
+      const recoveredItem = item as Partial<CommandResponse> & { id: string }
+
+      const pending = this.pending.get(recoveredItem.id)
+      if (!pending) {
+        continue
+      }
+
+      const recovered: CommandResponse = {
+        id: recoveredItem.id,
+        success: typeof recoveredItem.success === 'boolean' ? recoveredItem.success : false,
+        result: recoveredItem.result,
+        error: typeof recoveredItem.error === 'string' ? recoveredItem.error : undefined,
+      }
+
+      clearTimeout(pending.timer)
+      this.pending.delete(recoveredItem.id)
+      this.deleteResultFile(recoveredItem.id)
+      pending.resolve(recovered)
+    }
+  }
+
+  private readResultFromDisk(requestId: string): CommandResponse | null {
+    if (!this.projectPath) {
+      return null
+    }
+
+    const resultPath = path.join(stateDir(this.projectPath), 'results', `${requestId}.json`)
+    if (!existsSync(resultPath)) {
+      return null
+    }
+
+    try {
+      const parsed = JSON.parse(readFileSync(resultPath, 'utf-8')) as Partial<CommandResponse>
+      if (typeof parsed.id !== 'string' || parsed.id !== requestId) {
+        return null
+      }
+
+      const response: CommandResponse = {
+        id: parsed.id,
+        success: Boolean(parsed.success),
+        result: parsed.result,
+        error: typeof parsed.error === 'string' ? parsed.error : undefined,
+      }
+
+      this.deleteResultFile(requestId)
+
+      return response
+    } catch {
+      return null
+    }
+  }
+
+  private deleteResultFile(requestId: string): void {
+    if (!this.projectPath) {
+      return
+    }
+
+    const resultPath = path.join(stateDir(this.projectPath), 'results', `${requestId}.json`)
+    if (!existsSync(resultPath)) {
+      return
+    }
+
+    try {
+      unlinkSync(resultPath)
+    } catch {
+      // Best-effort cleanup.
+    }
   }
 }
 

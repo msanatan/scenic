@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace UniBridge.Editor
 {
@@ -24,7 +25,39 @@ namespace UniBridge.Editor
 
             if (string.Equals(request.Command, "recoverResults", StringComparison.OrdinalIgnoreCase))
             {
-                return CommandResponse.Ok(request.Id, new { recovered = true });
+                var ids = request.Params == null || request.Params.Ids == null
+                    ? Array.Empty<string>()
+                    : request.Params.Ids;
+                var stateDirectory = StateManager.CurrentStateDirectory();
+                var recovered = new StringBuilder();
+                recovered.Append("{\"results\":[");
+                var first = true;
+
+                for (var i = 0; i < ids.Length; i++)
+                {
+                    var id = ids[i];
+                    if (string.IsNullOrWhiteSpace(id))
+                    {
+                        continue;
+                    }
+
+                    var result = StateManager.ReadResult(stateDirectory, id);
+                    if (result == null)
+                    {
+                        continue;
+                    }
+
+                    if (!first)
+                    {
+                        recovered.Append(',');
+                    }
+
+                    recovered.Append(result.ToJson());
+                    first = false;
+                }
+
+                recovered.Append("]}");
+                return CommandResponse.Ok(request.Id, recovered.ToString());
             }
 
             return CommandResponse.Fail(request.Id, $"Unknown command: {request.Command}");
