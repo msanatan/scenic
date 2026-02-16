@@ -12,7 +12,7 @@
     "test:cli": "npm run test --workspace=unibridge",
     "test:local": "npm run build && npm run test",
     "smoke:execute": "node packages/cli/dist/index.js execute -p \"TestProjects/UniBridge3Dv6.3\" \"UnityEngine.Debug.Log(\\\"unibridge smoke test\\\");\"",
-    "bump": "node --experimental-strip-types scripts/bump-version.ts"
+    "bump": "node scripts/bump-version.ts"
   },
   "repository": {
     "type": "git",
