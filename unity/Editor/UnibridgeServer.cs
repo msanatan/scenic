@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
@@ -12,12 +13,14 @@ namespace UniBridge.Editor
         private static PipeServer _server;
         private static UniBridgeSettings _settings;
         private static string _projectHash;
+        private static readonly ConcurrentQueue<CommandRequest> _commandQueue = new ConcurrentQueue<CommandRequest>();
 
         static UniBridgeServer()
         {
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeReload;
             AssemblyReloadEvents.afterAssemblyReload += OnAfterReload;
             EditorApplication.quitting += OnQuit;
+            EditorApplication.update += ProcessCommandQueue;
 
             Start();
         }
@@ -45,20 +48,30 @@ namespace UniBridge.Editor
         private static void OnCommand(CommandRequest request)
         {
             UnityEngine.Debug.Log($"Received command: {request.Command} with id: {request.Id}");
-            EditorApplication.delayCall += () =>
+            _commandQueue.Enqueue(request);
+        }
+
+        private static void ProcessCommandQueue()
+        {
+            while (_commandQueue.TryDequeue(out var request))
             {
+                if (_server == null)
+                {
+                    continue;
+                }
+
                 if (!_settings.ExecuteEnabled && string.Equals(request.Command, "execute", StringComparison.OrdinalIgnoreCase))
                 {
                     var disabled = CommandResponse.Fail(request.Id, "Execute is disabled by plugin configuration.");
                     StateManager.WriteResultForCurrentProject(request.Id, disabled);
                     _server.Send(disabled);
-                    return;
+                    continue;
                 }
 
                 var response = CommandRouter.Route(request);
                 StateManager.WriteResultForCurrentProject(request.Id, response);
                 _server.Send(response);
-            };
+            }
         }
 
         private static void OnBeforeReload()
