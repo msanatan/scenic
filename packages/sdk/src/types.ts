@@ -1,3 +1,6 @@
+import type { ExecuteResult } from './commands/execute/contract.ts'
+import type { StatusResult } from './commands/status/contract.ts'
+
 export interface InitOptions {
   projectPath?: string
   source?: GitSource | LocalSource
@@ -55,17 +58,9 @@ export interface ClientOptions extends TimeoutOptions {
   enableExecute?: boolean
 }
 
-export interface StatusResult {
-  projectPath: string
-  unityVersion: string
-  pluginVersion: string
-  activeScene: string
-  playMode: string
-}
-
 export interface UniBridgeClient {
   readonly projectPath: string
-  execute(code: string): Promise<unknown>
+  execute(code: string): Promise<ExecuteResult>
   status(): Promise<StatusResult>
   close(): void
 }

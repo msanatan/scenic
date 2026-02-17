@@ -1,6 +1,7 @@
 import type { Command } from 'commander'
 import { init as sdkInit, type InitOptions, type InitResult } from '@unibridge/sdk'
 import { getGlobalOptions } from '../options.ts'
+import { runWithOutput } from './output.ts'
 
 interface InitCommandOptions {
   local?: string
@@ -9,7 +10,7 @@ interface InitCommandOptions {
 
 interface InitHandlerDeps {
   init: (options?: InitOptions) => Promise<InitResult>
-  console: Pick<Console, 'log'>
+  console: Pick<Console, 'log' | 'error'>
 }
 
 export async function handleInit(
@@ -23,17 +24,16 @@ export async function handleInit(
       ? { type: 'git' as const, url: opts.git }
       : undefined
 
-  const result = await deps.init({
-    source,
-  })
-
-  if (jsonOutput) {
-    deps.console.log(JSON.stringify({ success: true, result }))
-  } else {
-    deps.console.log(`Found Unity ${result.unityVersion} at ${result.projectPath}`)
-    deps.console.log(`Installed com.msanatan.unibridge@${result.pluginVersion}`)
-    deps.console.log('Open Unity to load the plugin.')
-  }
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.init({ source }),
+    (result, output) => {
+      output.log(`Found Unity ${result.unityVersion} at ${result.projectPath}`)
+      output.log(`Installed com.msanatan.unibridge@${result.pluginVersion}`)
+      output.log('Open Unity to load the plugin.')
+    },
+  )
 }
 
 export function registerInit(program: Command): void {

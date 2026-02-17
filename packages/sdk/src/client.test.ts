@@ -45,3 +45,35 @@ describe('client.execute', () => {
     await assert.rejects(client.execute('badCode'), /Compilation failed/)
   })
 })
+
+describe('client.status', () => {
+  it('returns parsed status result', async () => {
+    const mockSend = mock.fn(async (req: { id: string }) => ({
+      id: req.id,
+      success: true,
+      result: JSON.stringify({
+        projectPath: '/tmp/project',
+        unityVersion: '6000.3.5f2',
+        pluginVersion: '0.2.0',
+        activeScene: 'Assets/Main.unity',
+        playMode: 'edit',
+      }),
+    }))
+
+    const client = createClientForTests({ send: mockSend })
+    const result = await client.status()
+    assert.equal(result.projectPath, '/tmp/project')
+    assert.equal(result.playMode, 'edit')
+  })
+
+  it('throws on invalid status payload', async () => {
+    const mockSend = mock.fn(async (req: { id: string }) => ({
+      id: req.id,
+      success: true,
+      result: { bad: true },
+    }))
+
+    const client = createClientForTests({ send: mockSend })
+    await assert.rejects(client.status(), /invalid payload/i)
+  })
+})
