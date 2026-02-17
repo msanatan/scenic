@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { spawnSync } from 'node:child_process'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 
@@ -67,6 +68,18 @@ function main(): void {
     writeJson(relativePath, parsed)
     console.log(`  updated ${relativePath}`)
   }
+
+  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+  const lockUpdate = spawnSync(npmCmd, ['install', '--package-lock-only'], {
+    cwd: ROOT,
+    stdio: 'inherit',
+  })
+
+  if (lockUpdate.status !== 0) {
+    throw new Error('Failed to update package-lock.json')
+  }
+
+  console.log('  updated package-lock.json')
 }
 
 main()
