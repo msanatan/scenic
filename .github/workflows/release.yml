@@ -71,13 +71,9 @@ jobs:
         run: npm run build
 
       - name: Publish SDK to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --workspace=@unibridge/sdk --access public
 
       - name: Publish CLI to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --workspace=@unibridge/cli --access public
 
       - name: Create GitHub release notes
