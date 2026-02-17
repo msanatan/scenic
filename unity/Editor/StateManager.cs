@@ -71,9 +71,9 @@ namespace UniBridge.Editor
         public static void WriteServerJson(
             string hashOrDirectory,
             string projectPath,
+            string pluginVersion = "0.0.0",
             int protocolVersion = 1,
-            bool executeEnabled = true,
-            string pluginVersion)
+            bool executeEnabled = true)
         {
             var directory = ResolveStateDirectory(hashOrDirectory);
             EnsureStateDirectory(directory);

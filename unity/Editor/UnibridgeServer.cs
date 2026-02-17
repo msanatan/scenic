@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using PMPackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace UniBridge.Editor
 {
@@ -34,7 +34,7 @@ namespace UniBridge.Editor
 
             StateManager.SetCurrentProjectHash(_projectHash);
             StateManager.EnsureStateDirectory(_projectHash);
-            var pluginVersion = PackageInfo.FindForAssembly(typeof(UniBridgeServer).Assembly)?.version ?? "0.0.0";
+            var pluginVersion = PMPackageInfo.FindForAssembly(typeof(UniBridgeServer).Assembly)?.version ?? "0.0.0";
             StateManager.WriteServerJson(
                 _projectHash,
                 projectPath,
@@ -96,16 +96,7 @@ namespace UniBridge.Editor
                     continue;
                 }
 
-                if (!_settings.ExecuteEnabled && string.Equals(request.Command, "execute", StringComparison.OrdinalIgnoreCase))
-                {
-                    var disabled = CommandResponse.Fail(request.Id, "Execute is disabled by plugin configuration.");
-                    StateManager.WriteResultForCurrentProject(request.Id, disabled);
-                    _server.Send(disabled);
-                    StateManager.DeleteRequestForCurrentProject(request.Id);
-                    continue;
-                }
-
-                var response = CommandRouter.Route(request);
+                var response = CommandRouter.Route(request, _settings.ExecuteEnabled);
                 StateManager.WriteResultForCurrentProject(request.Id, response);
                 _server.Send(response);
                 StateManager.DeleteRequestForCurrentProject(request.Id);

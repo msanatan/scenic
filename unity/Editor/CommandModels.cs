@@ -7,42 +7,18 @@ using System.Text.RegularExpressions;
 namespace UniBridge.Editor
 {
     [Serializable]
-    public class CommandParams
-    {
-        public string Code;
-        public string[] Ids;
-    }
-
-    [Serializable]
     public class CommandRequest
     {
         public string Id = string.Empty;
         public string Command = string.Empty;
-        public CommandParams Params = new CommandParams();
+        public string ParamsJson = "{}";
 
         public string ToJson()
         {
-            var ids = Params != null && Params.Ids != null ? Params.Ids : Array.Empty<string>();
-            var idsJson = new StringBuilder();
-            idsJson.Append("[");
-            for (var i = 0; i < ids.Length; i++)
-            {
-                if (i > 0)
-                {
-                    idsJson.Append(",");
-                }
-
-                idsJson.Append(JsonCompat.Quote(ids[i]));
-            }
-            idsJson.Append("]");
-
             return "{" +
                    "\"id\":" + JsonCompat.Quote(Id) + "," +
                    "\"command\":" + JsonCompat.Quote(Command) + "," +
-                   "\"params\":{" +
-                   "\"code\":" + JsonCompat.QuoteOrNull(Params == null ? null : Params.Code) + "," +
-                   "\"ids\":" + idsJson +
-                   "}" +
+                   "\"params\":" + (string.IsNullOrWhiteSpace(ParamsJson) ? "{}" : ParamsJson) +
                    "}";
         }
 
@@ -61,18 +37,25 @@ namespace UniBridge.Editor
                 return false;
             }
 
+            var paramsObject = JsonCompat.ExtractObject(json, "params") ?? "{}";
             request = new CommandRequest
             {
                 Id = id,
                 Command = command,
-                Params = new CommandParams
-                {
-                    Code = JsonCompat.ExtractString(json, "code"),
-                    Ids = JsonCompat.ExtractStringArray(json, "ids"),
-                },
+                ParamsJson = paramsObject,
             };
 
             return true;
+        }
+
+        public string GetStringParam(string key)
+        {
+            return JsonCompat.ExtractString(ParamsJson, key);
+        }
+
+        public string[] GetStringArrayParam(string key)
+        {
+            return JsonCompat.ExtractStringArray(ParamsJson, key);
         }
     }
 
@@ -150,6 +133,91 @@ namespace UniBridge.Editor
             }
 
             return values.ToArray();
+        }
+
+        public static string ExtractObject(string json, string key)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            var keyPattern = "\"" + key + "\"";
+            var keyIndex = json.IndexOf(keyPattern, StringComparison.Ordinal);
+            if (keyIndex < 0)
+            {
+                return null;
+            }
+
+            var colonIndex = json.IndexOf(':', keyIndex + keyPattern.Length);
+            if (colonIndex < 0)
+            {
+                return null;
+            }
+
+            var start = -1;
+            for (var i = colonIndex + 1; i < json.Length; i++)
+            {
+                var c = json[i];
+                if (char.IsWhiteSpace(c))
+                {
+                    continue;
+                }
+
+                start = c == '{' ? i : -1;
+                break;
+            }
+
+            if (start < 0)
+            {
+                return null;
+            }
+
+            var depth = 0;
+            var inString = false;
+            var escaped = false;
+            for (var i = start; i < json.Length; i++)
+            {
+                var c = json[i];
+                if (inString)
+                {
+                    if (escaped)
+                    {
+                        escaped = false;
+                    }
+                    else if (c == '\\')
+                    {
+                        escaped = true;
+                    }
+                    else if (c == '"')
+                    {
+                        inString = false;
+                    }
+
+                    continue;
+                }
+
+                if (c == '"')
+                {
+                    inString = true;
+                    continue;
+                }
+
+                if (c == '{')
+                {
+                    depth++;
+                }
+                else if (c == '}')
+                {
+                    depth--;
+                    if (depth == 0)
+                    {
+                        return json.Substring(start, i - start + 1);
+                    }
+                }
+            }
+
+            return null;
         }
 
         public static string QuoteOrNull(string value)

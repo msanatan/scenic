@@ -69,11 +69,7 @@ namespace UniBridge.Tests.Editor
             {
                 Id = "cmd-req-1",
                 Command = "execute",
-                Params = new CommandParams
-                {
-                    Code = "UnityEngine.Debug.Log(\"hi\")",
-                    Ids = new[] { "a", "b" },
-                },
+                ParamsJson = "{\"code\":\"UnityEngine.Debug.Log(\\\"hi\\\")\",\"ids\":[\"a\",\"b\"]}",
             };
 
             StateManager.WriteRequest(_testDir, request);
@@ -82,8 +78,8 @@ namespace UniBridge.Tests.Editor
             Assert.IsNotNull(loaded);
             Assert.AreEqual("cmd-req-1", loaded.Id);
             Assert.AreEqual("execute", loaded.Command);
-            Assert.AreEqual("UnityEngine.Debug.Log(\"hi\")", loaded.Params.Code);
-            Assert.AreEqual(2, loaded.Params.Ids.Length);
+            Assert.AreEqual("UnityEngine.Debug.Log(\"hi\")", loaded.GetStringParam("code"));
+            Assert.AreEqual(2, loaded.GetStringArrayParam("ids").Length);
         }
 
         [Test]
@@ -95,14 +91,14 @@ namespace UniBridge.Tests.Editor
             {
                 Id = "cmd-pending",
                 Command = "execute",
-                Params = new CommandParams { Code = "1+1" },
+                ParamsJson = "{\"code\":\"1+1\"}",
             });
 
             StateManager.WriteRequest(_testDir, new CommandRequest
             {
                 Id = "cmd-complete",
                 Command = "execute",
-                Params = new CommandParams { Code = "2+2" },
+                ParamsJson = "{\"code\":\"2+2\"}",
             });
             StateManager.WriteResult(_testDir, new CommandResponse
             {
@@ -124,7 +120,7 @@ namespace UniBridge.Tests.Editor
             {
                 Id = "cmd-delete",
                 Command = "execute",
-                Params = new CommandParams { Code = "3+3" },
+                ParamsJson = "{\"code\":\"3+3\"}",
             });
 
             StateManager.DeleteRequest(_testDir, "cmd-delete");

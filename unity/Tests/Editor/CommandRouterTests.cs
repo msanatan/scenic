@@ -14,10 +14,10 @@ namespace UniBridge.Tests.Editor
             {
                 Id = "cmd-unknown",
                 Command = "bad",
-                Params = new CommandParams(),
+                ParamsJson = "{}",
             };
 
-            var response = CommandRouter.Route(request);
+            var response = CommandRouter.Route(request, executeEnabled: true);
             Assert.IsFalse(response.Success);
             Assert.IsNotNull(response.Error);
         }
@@ -29,10 +29,10 @@ namespace UniBridge.Tests.Editor
             {
                 Id = "cmd-missing-code",
                 Command = "execute",
-                Params = new CommandParams(),
+                ParamsJson = "{}",
             };
 
-            var response = CommandRouter.Route(request);
+            var response = CommandRouter.Route(request, executeEnabled: true);
             Assert.IsFalse(response.Success);
             Assert.IsNotNull(response.Error);
         }
@@ -57,10 +57,10 @@ namespace UniBridge.Tests.Editor
                 {
                     Id = "recover-1",
                     Command = "recoverResults",
-                    Params = new CommandParams { Ids = new[] { "cmd-recover" } },
+                    ParamsJson = "{\"ids\":[\"cmd-recover\"]}",
                 };
 
-                var response = CommandRouter.Route(request);
+                var response = CommandRouter.Route(request, executeEnabled: true);
                 Assert.IsTrue(response.Success);
                 Assert.That(response.Result, Does.Contain("cmd-recover"));
             }
