@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace UniBridge.Editor
 {
@@ -15,11 +14,14 @@ namespace UniBridge.Editor
 
         public string ToJson()
         {
-            return "{" +
-                   "\"id\":" + JsonCompat.Quote(Id) + "," +
-                   "\"command\":" + JsonCompat.Quote(Command) + "," +
-                   "\"params\":" + (string.IsNullOrWhiteSpace(ParamsJson) ? "{}" : ParamsJson) +
-                   "}";
+            var payload = new JObject
+            {
+                ["id"] = Id ?? string.Empty,
+                ["command"] = Command ?? string.Empty,
+                ["params"] = ParseParamsObject(ParamsJson),
+            };
+
+            return payload.ToString(Formatting.None);
         }
 
         public static bool TryParse(string json, out CommandRequest request)
@@ -30,41 +32,97 @@ namespace UniBridge.Editor
                 return false;
             }
 
-            var id = JsonCompat.ExtractString(json, "id") ?? string.Empty;
-            var command = JsonCompat.ExtractString(json, "command") ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(command))
+            try
+            {
+                var payload = JObject.Parse(json);
+                var id = payload.Value<string>("id") ?? string.Empty;
+                var command = payload.Value<string>("command") ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(command))
+                {
+                    return false;
+                }
+
+                var parameters = payload["params"] as JObject ?? new JObject();
+                request = new CommandRequest
+                {
+                    Id = id,
+                    Command = command,
+                    ParamsJson = parameters.ToString(Formatting.None),
+                };
+
+                return true;
+            }
+            catch
             {
                 return false;
             }
-
-            var paramsObject = JsonCompat.ExtractObject(json, "params") ?? "{}";
-            request = new CommandRequest
-            {
-                Id = id,
-                Command = command,
-                ParamsJson = paramsObject,
-            };
-
-            return true;
         }
 
         public string GetStringParam(string key)
         {
-            return JsonCompat.ExtractString(ParamsJson, key);
+            var token = ParseParamsObject(ParamsJson)[key];
+            if (token == null || token.Type == JTokenType.Null)
+            {
+                return null;
+            }
+
+            return token.Type == JTokenType.String ? token.Value<string>() : token.ToString(Formatting.None);
         }
 
         public string[] GetStringArrayParam(string key)
         {
-            return JsonCompat.ExtractStringArray(ParamsJson, key);
+            var token = ParseParamsObject(ParamsJson)[key] as JArray;
+            if (token == null)
+            {
+                return Array.Empty<string>();
+            }
+
+            var result = new string[token.Count];
+            for (var i = 0; i < token.Count; i++)
+            {
+                var item = token[i];
+                result[i] = item == null || item.Type == JTokenType.Null
+                    ? string.Empty
+                    : item.Type == JTokenType.String
+                        ? item.Value<string>()
+                        : item.ToString(Formatting.None);
+            }
+
+            return result;
+        }
+
+        private static JObject ParseParamsObject(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new JObject();
+            }
+
+            try
+            {
+                var token = JToken.Parse(json);
+                return token as JObject ?? new JObject();
+            }
+            catch
+            {
+                return new JObject();
+            }
         }
     }
 
     [Serializable]
     public class CommandResponse
     {
+        [JsonProperty("id")]
         public string Id = string.Empty;
+
+        [JsonProperty("success")]
         public bool Success;
+
+        [JsonProperty("result")]
         public string Result;
+
+        [JsonProperty("error")]
         public string Error;
 
         public static CommandResponse Ok(string id, object result)
@@ -73,7 +131,7 @@ namespace UniBridge.Editor
             {
                 Id = id,
                 Success = true,
-                Result = result == null ? null : Convert.ToString(result, CultureInfo.InvariantCulture),
+                Result = SerializeResult(result),
                 Error = null,
             };
         }
@@ -91,182 +149,63 @@ namespace UniBridge.Editor
 
         public string ToJson()
         {
-            return "{" +
-                   "\"id\":" + JsonCompat.Quote(Id) + "," +
-                   "\"success\":" + (Success ? "true" : "false") + "," +
-                   "\"result\":" + JsonCompat.QuoteOrNull(Result) + "," +
-                   "\"error\":" + JsonCompat.QuoteOrNull(Error) +
-                   "}";
-        }
-    }
-
-    internal static class JsonCompat
-    {
-        private static readonly Regex StringPattern = new Regex("\\\"{0}\\\"\\s*:\\s*\\\"(?<v>(?:\\\\.|[^\\\"])*)\\\"", RegexOptions.Compiled);
-
-        public static string ExtractString(string json, string key)
-        {
-            var pattern = string.Format(CultureInfo.InvariantCulture, StringPattern.ToString(), Regex.Escape(key));
-            var match = Regex.Match(json, pattern, RegexOptions.Singleline);
-            if (!match.Success)
-            {
-                return null;
-            }
-
-            return Unescape(match.Groups["v"].Value);
+            return JsonConvert.SerializeObject(this);
         }
 
-        public static string[] ExtractStringArray(string json, string key)
+        public static bool TryParse(string json, out CommandResponse response)
         {
-            var arrayPattern = "\\\"" + Regex.Escape(key) + "\\\"\\s*:\\s*\\[(?<arr>.*?)\\]";
-            var arrayMatch = Regex.Match(json, arrayPattern, RegexOptions.Singleline);
-            if (!arrayMatch.Success)
-            {
-                return Array.Empty<string>();
-            }
-
-            var values = new List<string>();
-            var itemMatches = Regex.Matches(arrayMatch.Groups["arr"].Value, "\\\"(?<v>(?:\\\\.|[^\\\"])*)\\\"");
-            foreach (Match item in itemMatches)
-            {
-                values.Add(Unescape(item.Groups["v"].Value));
-            }
-
-            return values.ToArray();
-        }
-
-        public static string ExtractObject(string json, string key)
-        {
+            response = null;
             if (string.IsNullOrWhiteSpace(json))
             {
-                return null;
+                return false;
             }
 
-            var keyPattern = "\"" + key + "\"";
-            var keyIndex = json.IndexOf(keyPattern, StringComparison.Ordinal);
-            if (keyIndex < 0)
+            try
             {
-                return null;
+                var payload = JObject.Parse(json);
+                response = new CommandResponse
+                {
+                    Id = payload.Value<string>("id") ?? string.Empty,
+                    Success = payload.Value<bool?>("success") ?? false,
+                    Result = ExtractOptionalString(payload["result"]),
+                    Error = ExtractOptionalString(payload["error"]),
+                };
+                return true;
             }
-
-            var colonIndex = json.IndexOf(':', keyIndex + keyPattern.Length);
-            if (colonIndex < 0)
+            catch
             {
-                return null;
+                return false;
             }
-
-            var start = -1;
-            for (var i = colonIndex + 1; i < json.Length; i++)
-            {
-                var c = json[i];
-                if (char.IsWhiteSpace(c))
-                {
-                    continue;
-                }
-
-                start = c == '{' ? i : -1;
-                break;
-            }
-
-            if (start < 0)
-            {
-                return null;
-            }
-
-            var depth = 0;
-            var inString = false;
-            var escaped = false;
-            for (var i = start; i < json.Length; i++)
-            {
-                var c = json[i];
-                if (inString)
-                {
-                    if (escaped)
-                    {
-                        escaped = false;
-                    }
-                    else if (c == '\\')
-                    {
-                        escaped = true;
-                    }
-                    else if (c == '"')
-                    {
-                        inString = false;
-                    }
-
-                    continue;
-                }
-
-                if (c == '"')
-                {
-                    inString = true;
-                    continue;
-                }
-
-                if (c == '{')
-                {
-                    depth++;
-                }
-                else if (c == '}')
-                {
-                    depth--;
-                    if (depth == 0)
-                    {
-                        return json.Substring(start, i - start + 1);
-                    }
-                }
-            }
-
-            return null;
         }
 
-        public static string QuoteOrNull(string value)
+        private static string SerializeResult(object result)
         {
-            return value == null ? "null" : Quote(value);
-        }
-
-        public static string Quote(string value)
-        {
-            if (value == null)
-            {
-                return "null";
-            }
-
-            return "\"" + Escape(value) + "\"";
-        }
-
-        public static string Escape(string value)
-        {
-            var sb = new StringBuilder(value.Length + 8);
-            foreach (var c in value)
-            {
-                switch (c)
-                {
-                    case '\\': sb.Append("\\\\"); break;
-                    case '"': sb.Append("\\\""); break;
-                    case '\n': sb.Append("\\n"); break;
-                    case '\r': sb.Append("\\r"); break;
-                    case '\t': sb.Append("\\t"); break;
-                    default: sb.Append(c); break;
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public static string Unescape(string value)
-        {
-            if (value == null)
+            if (result == null)
             {
                 return null;
             }
 
-            return value
-                .Replace("\\\"", "\"")
-                .Replace("\\n", "\n")
-                .Replace("\\r", "\r")
-                .Replace("\\t", "\t")
-                .Replace("\\\\", "\\");
+            if (result is string text)
+            {
+                return text;
+            }
+
+            if (result is bool || result is int || result is long || result is float || result is double || result is decimal)
+            {
+                return Convert.ToString(result, CultureInfo.InvariantCulture);
+            }
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        private static string ExtractOptionalString(JToken token)
+        {
+            if (token == null || token.Type == JTokenType.Null)
+            {
+                return null;
+            }
+
+            return token.Type == JTokenType.String ? token.Value<string>() : token.ToString(Formatting.None);
         }
     }
 }

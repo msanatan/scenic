@@ -41,7 +41,7 @@ namespace UniBridge.Editor.Commands.Status
                 PlayMode = playMode,
             };
 
-            return CommandResponse.Ok(request == null ? string.Empty : request.Id, result.ToJson());
+            return CommandResponse.Ok(request == null ? string.Empty : request.Id, result);
         }
     }
 }

@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace UniBridge.Editor.Commands.Recovery
 {
     public sealed class RecoverResultsCommandParams
@@ -11,5 +13,11 @@ namespace UniBridge.Editor.Commands.Recovery
                 Ids = request == null ? null : request.GetStringArrayParam("ids"),
             };
         }
+    }
+
+    public sealed class RecoverResultsCommandResult
+    {
+        [JsonProperty("results")]
+        public CommandResponse[] Results;
     }
 }

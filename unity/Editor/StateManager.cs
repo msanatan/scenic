@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace UniBridge.Editor
 {
@@ -78,16 +79,16 @@ namespace UniBridge.Editor
             var directory = ResolveStateDirectory(hashOrDirectory);
             EnsureStateDirectory(directory);
 
-            var payload =
-            "{" +
-            "\"port\":null," +
-            "\"pid\":" + Process.GetCurrentProcess().Id + "," +
-            "\"unityVersion\":" + JsonCompat.Quote(UnityEngine.Application.unityVersion) + "," +
-            "\"pluginVersion\":" + JsonCompat.Quote(pluginVersion) + "," +
-            "\"protocolVersion\":" + protocolVersion + "," +
-            "\"capabilities\":{\"executeEnabled\":" + (executeEnabled ? "true" : "false") + "}," +
-            "\"projectPath\":" + JsonCompat.Quote(projectPath) +
-            "}";
+            var payload = JsonConvert.SerializeObject(new
+            {
+                port = (object)null,
+                pid = Process.GetCurrentProcess().Id,
+                unityVersion = UnityEngine.Application.unityVersion,
+                pluginVersion,
+                protocolVersion,
+                capabilities = new { executeEnabled },
+                projectPath,
+            });
 
             WriteAtomic(Path.Combine(directory, "server.json"), payload);
         }
@@ -154,14 +155,17 @@ namespace UniBridge.Editor
             }
 
             var content = File.ReadAllText(path);
-            return new CommandResponse
+            if (!CommandResponse.TryParse(content, out var response))
             {
-                Id = JsonCompat.ExtractString(content, "id") ?? requestId,
-                Success = string.Equals(JsonCompat.ExtractString(content, "success"), "true", StringComparison.OrdinalIgnoreCase)
-                    || content.Contains("\"success\":true"),
-                Result = JsonCompat.ExtractString(content, "result"),
-                Error = JsonCompat.ExtractString(content, "error"),
-            };
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(response.Id))
+            {
+                response.Id = requestId;
+            }
+
+            return response;
         }
 
         public static CommandResponse ReadResultForCurrentProject(string requestId)

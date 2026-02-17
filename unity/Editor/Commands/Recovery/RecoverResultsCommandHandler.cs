@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using System.Collections.Generic;
 
 namespace UniBridge.Editor.Commands.Recovery
 {
@@ -11,9 +11,7 @@ namespace UniBridge.Editor.Commands.Recovery
             var parameters = RecoverResultsCommandParams.From(request);
             var ids = parameters.Ids ?? Array.Empty<string>();
             var stateDirectory = StateManager.CurrentStateDirectory();
-            var recovered = new StringBuilder();
-            recovered.Append("{\"results\":[");
-            var first = true;
+            var recovered = new List<CommandResponse>(ids.Length);
 
             for (var i = 0; i < ids.Length; i++)
             {
@@ -29,17 +27,12 @@ namespace UniBridge.Editor.Commands.Recovery
                     continue;
                 }
 
-                if (!first)
-                {
-                    recovered.Append(',');
-                }
-
-                recovered.Append(result.ToJson());
-                first = false;
+                recovered.Add(result);
             }
 
-            recovered.Append("]}");
-            return CommandResponse.Ok(request == null ? string.Empty : request.Id, recovered.ToString());
+            return CommandResponse.Ok(
+                request == null ? string.Empty : request.Id,
+                new RecoverResultsCommandResult { Results = recovered.ToArray() });
         }
     }
 }
