@@ -2,7 +2,7 @@ using System.IO;
 using NUnit.Framework;
 using UniBridge.Editor;
 
-namespace UniBridge.Tests.Editor
+namespace UniBridge.Editor.Tests
 {
     [TestFixture]
     public class StateManagerTests

@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System.IO;
 using UniBridge.Editor;
 
-namespace UniBridge.Tests.Editor
+namespace UniBridge.Editor.Tests
 {
     [TestFixture]
     public class CommandRouterTests

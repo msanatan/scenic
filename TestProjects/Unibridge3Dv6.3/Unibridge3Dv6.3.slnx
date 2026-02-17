@@ -1,6 +1,6 @@
 ﻿<Solution>
+  <Project Path="com.msanatan.unibridge.tests.editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="com.msanatan.unibridge.editor.csproj" />
-  <Project Path="com.msanatan.unibridge.tests.editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
 </Solution>
