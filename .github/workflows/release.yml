@@ -70,6 +70,14 @@ jobs:
       - name: Build packages
         run: npm run build
 
+      - name: Validate npm publish artifacts
+        run: |
+          SDK_PACK_JSON=$(npm pack --dry-run --json --workspace=@unibridge/sdk)
+          CLI_PACK_JSON=$(npm pack --dry-run --json --workspace=@unibridge/cli)
+
+          SDK_PACK_JSON="$SDK_PACK_JSON" node -e "const pack = JSON.parse(process.env.SDK_PACK_JSON)[0]; if (!pack.files.some((file) => file.path === 'dist/index.js')) { throw new Error('@unibridge/sdk tarball missing dist/index.js'); }"
+          CLI_PACK_JSON="$CLI_PACK_JSON" node -e "const pack = JSON.parse(process.env.CLI_PACK_JSON)[0]; if (!pack.files.some((file) => file.path === 'dist/index.js')) { throw new Error('@unibridge/cli tarball missing dist/index.js'); }"
+
       - name: Publish SDK to npm
         run: npm publish --workspace=@unibridge/sdk --access public
 
