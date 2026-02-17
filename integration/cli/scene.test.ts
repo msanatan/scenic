@@ -54,4 +54,32 @@ describe('CLI: scene', () => {
       assert.equal(typeof payload.result?.scene.isDirty, 'boolean')
     })
   })
+
+  describe('create', () => {
+    const testScenePath = 'Assets/Scenes/__CliTestCreated__.unity'
+
+    after(async () => {
+      await runCli('execute', `UnityEditor.AssetDatabase.DeleteAsset("${testScenePath}")`)
+      await runCli('scene', 'open', 'Assets/Scenes/SampleScene.unity')
+    })
+
+    it('creates a new scene at the given path', async () => {
+      const payload = (await runCli('scene', 'create', testScenePath)) as {
+        success: boolean
+        result?: {
+          scene: {
+            name: string
+            path: string
+            isDirty: boolean
+          }
+        }
+        error?: string
+      }
+
+      assert.equal(payload.success, true)
+      assert.equal(typeof payload.result?.scene.name, 'string')
+      assert.equal(payload.result?.scene.path, testScenePath)
+      assert.equal(typeof payload.result?.scene.isDirty, 'boolean')
+    })
+  })
 })

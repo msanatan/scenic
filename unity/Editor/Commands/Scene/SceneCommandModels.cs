@@ -38,4 +38,23 @@ namespace UniBridge.Editor.Commands.Scene
         [JsonProperty("scene")]
         public SceneInfo Scene;
     }
+
+    public sealed class SceneCreateCommandParams
+    {
+        public string Path;
+
+        public static SceneCreateCommandParams From(CommandRequest request)
+        {
+            return new SceneCreateCommandParams
+            {
+                Path = request == null ? null : request.GetStringParam("path"),
+            };
+        }
+    }
+
+    public sealed class SceneCreateCommandResult
+    {
+        [JsonProperty("scene")]
+        public SceneInfo Scene;
+    }
 }

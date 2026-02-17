@@ -41,4 +41,22 @@ describe('SDK: scene', () => {
       assert.equal(result.scene.path, 'Assets/Scenes/SampleScene.unity')
     })
   })
+
+  describe('create', () => {
+    const testScenePath = 'Assets/Scenes/__TestCreated__.unity'
+
+    after(async () => {
+      await client.execute(
+        `UnityEditor.AssetDatabase.DeleteAsset("${testScenePath}")`,
+      )
+      await client.sceneOpen('Assets/Scenes/SampleScene.unity')
+    })
+
+    it('creates a new scene at the given path', async () => {
+      const result = await client.sceneCreate(testScenePath)
+      assert.equal(typeof result.scene.name, 'string')
+      assert.equal(result.scene.path, testScenePath)
+      assert.equal(typeof result.scene.isDirty, 'boolean')
+    })
+  })
 })

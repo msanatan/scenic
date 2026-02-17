@@ -29,6 +29,18 @@ export const sceneOpenCommand = defineCommand({
   result: SceneOpenResultSchema,
 })
 
+export const SceneCreateResultSchema = v.object({
+  scene: SceneInfoSchema,
+})
+
+export const sceneCreateCommand = defineCommand({
+  method: 'sceneCreate',
+  wire: 'scene.create',
+  params: (path: string) => ({ path }),
+  result: SceneCreateResultSchema,
+})
+
 export type SceneInfo = v.InferOutput<typeof SceneInfoSchema>
 export type SceneActiveResult = InferResult<typeof sceneActiveCommand>
 export type SceneOpenResult = InferResult<typeof sceneOpenCommand>
+export type SceneCreateResult = InferResult<typeof sceneCreateCommand>
