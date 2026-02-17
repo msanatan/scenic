@@ -4,6 +4,9 @@
   "displayName": "UniBridge",
   "description": "Bridge between external tools and Unity Editor",
   "unity": "2021.3",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
   "author": {
     "name": "Marcus Sanatan",
     "email": "me@gameboymarcus.com",
