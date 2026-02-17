@@ -19,4 +19,23 @@ namespace UniBridge.Editor.Commands.Scene
         [JsonProperty("scene")]
         public SceneInfo Scene;
     }
+
+    public sealed class SceneOpenCommandParams
+    {
+        public string Path;
+
+        public static SceneOpenCommandParams From(CommandRequest request)
+        {
+            return new SceneOpenCommandParams
+            {
+                Path = request == null ? null : request.GetStringParam("path"),
+            };
+        }
+    }
+
+    public sealed class SceneOpenCommandResult
+    {
+        [JsonProperty("scene")]
+        public SceneInfo Scene;
+    }
 }

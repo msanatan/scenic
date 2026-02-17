@@ -20,4 +20,25 @@ describe('SDK: scene', () => {
     assert.equal(typeof scene.scene.isDirty, 'boolean')
     assert.ok(scene.scene.name.length > 0)
   })
+
+  describe('open', () => {
+    let originalScenePath: string
+
+    before(async () => {
+      const active = await client.sceneActive()
+      originalScenePath = active.scene.path
+    })
+
+    after(async () => {
+      await client.sceneOpen(originalScenePath)
+    })
+
+    it('opens a scene by path', async () => {
+      const result = await client.sceneOpen('Assets/Scenes/SampleScene.unity')
+      assert.equal(typeof result.scene.name, 'string')
+      assert.equal(typeof result.scene.path, 'string')
+      assert.equal(typeof result.scene.isDirty, 'boolean')
+      assert.equal(result.scene.path, 'Assets/Scenes/SampleScene.unity')
+    })
+  })
 })

@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { SceneActiveResult } from '@unibridge/sdk'
+import type { SceneActiveResult, SceneOpenResult } from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -25,6 +25,29 @@ export async function handleSceneActive(
   )
 }
 
+interface SceneOpenDeps {
+  open: (path: string) => Promise<SceneOpenResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+export async function handleSceneOpen(
+  path: string,
+  jsonOutput: boolean,
+  deps: SceneOpenDeps,
+): Promise<void> {
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.open(path),
+    (result, output) => {
+      output.log(`Name:    ${result.scene.name}`)
+      output.log(`Path:    ${result.scene.path}`)
+      output.log(`Dirty:   ${result.scene.isDirty ? 'yes' : 'no'}`)
+    },
+  )
+}
+
 export function registerScene(program: Command): void {
   const scene = program
     .command('scene')
@@ -40,6 +63,25 @@ export function registerScene(program: Command): void {
         async (client, ctx) => {
           await handleSceneActive(ctx.jsonOutput, {
             active: () => client.sceneActive(),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  scene
+    .command('open <path>')
+    .description('Open a scene by project-relative path')
+    .action(async (path: string, _opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleSceneOpen(path, ctx.jsonOutput, {
+            open: (scenePath) => client.sceneOpen(scenePath),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode
