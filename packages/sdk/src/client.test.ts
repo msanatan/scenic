@@ -51,13 +51,13 @@ describe('client.status', () => {
     const mockSend = mock.fn(async (req: { id: string }) => ({
       id: req.id,
       success: true,
-      result: JSON.stringify({
+      result: {
         projectPath: '/tmp/project',
         unityVersion: '6000.3.5f2',
         pluginVersion: '0.2.0',
         activeScene: 'Assets/Main.unity',
         playMode: 'edit',
-      }),
+      },
     }))
 
     const client = createClientForTests({ send: mockSend })
@@ -66,7 +66,7 @@ describe('client.status', () => {
     assert.equal(result.playMode, 'edit')
   })
 
-  it('throws on invalid status payload', async () => {
+  it('passes through status payload without runtime validation', async () => {
     const mockSend = mock.fn(async (req: { id: string }) => ({
       id: req.id,
       success: true,
@@ -74,6 +74,7 @@ describe('client.status', () => {
     }))
 
     const client = createClientForTests({ send: mockSend })
-    await assert.rejects(client.status(), /invalid payload/i)
+    const result = await client.status()
+    assert.deepEqual(result, { bad: true })
   })
 })

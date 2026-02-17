@@ -285,15 +285,13 @@ export class PipeConnection {
   }
 
   private tryResolveRecoveredPayload(response: CommandResponse): void {
-    if (typeof response.result !== 'string') {
-      return
-    }
-
-    let payload: unknown
-    try {
-      payload = JSON.parse(response.result)
-    } catch {
-      return
+    let payload: unknown = response.result
+    if (typeof payload === 'string') {
+      try {
+        payload = JSON.parse(payload)
+      } catch {
+        return
+      }
     }
 
     if (!payload || typeof payload !== 'object' || !('results' in payload)) {

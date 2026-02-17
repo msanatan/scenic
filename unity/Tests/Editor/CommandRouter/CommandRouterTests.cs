@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.IO;
 using UniBridge.Editor;
+using UniBridge.Editor.Commands.Recovery;
 
 namespace UniBridge.Editor.Tests
 {
@@ -62,7 +63,11 @@ namespace UniBridge.Editor.Tests
 
                 var response = CommandRouter.Route(request, executeEnabled: true);
                 Assert.IsTrue(response.Success);
-                Assert.That(response.Result, Does.Contain("cmd-recover"));
+                var result = response.Result as RecoverResultsCommandResult;
+                Assert.IsNotNull(result);
+                Assert.IsNotNull(result.Results);
+                Assert.AreEqual(1, result.Results.Length);
+                Assert.AreEqual("cmd-recover", result.Results[0].Id);
             }
             finally
             {

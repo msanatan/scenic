@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -120,7 +119,7 @@ namespace UniBridge.Editor
         public bool Success;
 
         [JsonProperty("result")]
-        public string Result;
+        public object Result;
 
         [JsonProperty("error")]
         public string Error;
@@ -131,7 +130,7 @@ namespace UniBridge.Editor
             {
                 Id = id,
                 Success = true,
-                Result = SerializeResult(result),
+                Result = result,
                 Error = null,
             };
         }
@@ -162,50 +161,20 @@ namespace UniBridge.Editor
 
             try
             {
-                var payload = JObject.Parse(json);
-                response = new CommandResponse
+                var parsed = JsonConvert.DeserializeObject<CommandResponse>(json);
+                if (parsed == null)
                 {
-                    Id = payload.Value<string>("id") ?? string.Empty,
-                    Success = payload.Value<bool?>("success") ?? false,
-                    Result = ExtractOptionalString(payload["result"]),
-                    Error = ExtractOptionalString(payload["error"]),
-                };
-                return true;
+                    return false;
+                }
+
+                parsed.Id = parsed.Id ?? string.Empty;
+                response = parsed;
+                return !string.IsNullOrWhiteSpace(response.Id);
             }
             catch
             {
                 return false;
             }
-        }
-
-        private static string SerializeResult(object result)
-        {
-            if (result == null)
-            {
-                return null;
-            }
-
-            if (result is string text)
-            {
-                return text;
-            }
-
-            if (result is bool || result is int || result is long || result is float || result is double || result is decimal)
-            {
-                return Convert.ToString(result, CultureInfo.InvariantCulture);
-            }
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        private static string ExtractOptionalString(JToken token)
-        {
-            if (token == null || token.Type == JTokenType.Null)
-            {
-                return null;
-            }
-
-            return token.Type == JTokenType.String ? token.Value<string>() : token.ToString(Formatting.None);
         }
     }
 }

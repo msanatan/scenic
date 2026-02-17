@@ -6,7 +6,7 @@ namespace UniBridge.Editor.Commands.Recovery
     [UniBridgeCommand("recoverResults")]
     public sealed class RecoverResultsCommandHandler : ICommandHandler
     {
-        public CommandResponse Handle(CommandRequest request)
+        public object Handle(CommandRequest request)
         {
             var parameters = RecoverResultsCommandParams.From(request);
             var ids = parameters.Ids ?? Array.Empty<string>();
@@ -30,9 +30,7 @@ namespace UniBridge.Editor.Commands.Recovery
                 recovered.Add(result);
             }
 
-            return CommandResponse.Ok(
-                request == null ? string.Empty : request.Id,
-                new RecoverResultsCommandResult { Results = recovered.ToArray() });
+            return new RecoverResultsCommandResult { Results = recovered.ToArray() };
         }
     }
 }

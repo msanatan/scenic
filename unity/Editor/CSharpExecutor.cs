@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using UniBridge.Editor.Commands;
 
 namespace UniBridge.Editor
 {
@@ -13,32 +14,40 @@ namespace UniBridge.Editor
         private static object _printer;
         private static PropertyInfo _errorsCountProp;
 
+        public static object Evaluate(string code)
+        {
+            EnsureInitialized();
+
+            _errorWriter.GetStringBuilder().Clear();
+            var errorsBefore = (int)(_errorsCountProp?.GetValue(_printer) ?? 0);
+
+            var args = new object[] { (code ?? string.Empty).Trim(), null, null };
+            var partial = _evaluateMethod.Invoke(_evaluator, args) as string;
+
+            var errorsAfter = (int)(_errorsCountProp?.GetValue(_printer) ?? 0);
+            if (errorsAfter > errorsBefore)
+            {
+                throw new CommandHandlingException(_errorWriter.ToString().Trim());
+            }
+
+            if (!string.IsNullOrEmpty(partial))
+            {
+                throw new CommandHandlingException(partial);
+            }
+
+            var resultSet = args[2] is bool b && b;
+            return resultSet ? Serialize(args[1]) : null;
+        }
+
         public static CommandResponse Execute(string id, string code)
         {
             try
             {
-                EnsureInitialized();
-
-                _errorWriter.GetStringBuilder().Clear();
-                var errorsBefore = (int)(_errorsCountProp?.GetValue(_printer) ?? 0);
-
-                var args = new object[] { (code ?? string.Empty).Trim(), null, null };
-                var partial = _evaluateMethod.Invoke(_evaluator, args) as string;
-
-                var errorsAfter = (int)(_errorsCountProp?.GetValue(_printer) ?? 0);
-                if (errorsAfter > errorsBefore)
-                {
-                    return CommandResponse.Fail(id, _errorWriter.ToString().Trim());
-                }
-
-                if (!string.IsNullOrEmpty(partial))
-                {
-                    return CommandResponse.Fail(id, partial);
-                }
-
-                var resultSet = args[2] is bool b && b;
-                var value = resultSet ? Serialize(args[1]) : null;
-                return CommandResponse.Ok(id, value);
+                return CommandResponse.Ok(id, Evaluate(code));
+            }
+            catch (CommandHandlingException ex)
+            {
+                return CommandResponse.Fail(id, ex.Message);
             }
             catch (Exception ex)
             {

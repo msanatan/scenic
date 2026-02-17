@@ -5,7 +5,7 @@ namespace UniBridge.Editor.Commands.Scene
     [UniBridgeCommand("scene.active")]
     public sealed class SceneActiveCommandHandler : ICommandHandler
     {
-        public CommandResponse Handle(CommandRequest request)
+        public object Handle(CommandRequest request)
         {
             var activeScene = EditorSceneManager.GetActiveScene();
             var pathValue = string.IsNullOrWhiteSpace(activeScene.path) ? activeScene.name : activeScene.path;
@@ -23,8 +23,7 @@ namespace UniBridge.Editor.Commands.Scene
                     IsDirty = activeScene.isDirty,
                 },
             };
-
-            return CommandResponse.Ok(request == null ? string.Empty : request.Id, result);
+            return result;
         }
     }
 }

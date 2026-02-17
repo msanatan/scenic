@@ -21,7 +21,19 @@ namespace UniBridge.Editor
                 return CommandResponse.Fail(request.Id, "Execute is disabled by plugin configuration.");
             }
 
-            return registration.Handler.Handle(request);
+            try
+            {
+                var result = registration.Handler.Handle(request);
+                return CommandResponse.Ok(request.Id, result);
+            }
+            catch (CommandHandlingException ex)
+            {
+                return CommandResponse.Fail(request.Id, ex.Message);
+            }
+            catch (System.Exception ex)
+            {
+                return CommandResponse.Fail(request.Id, ex.Message);
+            }
         }
     }
 }

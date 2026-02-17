@@ -10,7 +10,7 @@ namespace UniBridge.Editor.Commands.Status
     [UniBridgeCommand("status")]
     public sealed class StatusCommandHandler : ICommandHandler
     {
-        public CommandResponse Handle(CommandRequest request)
+        public object Handle(CommandRequest request)
         {
             var projectPath = Path.GetDirectoryName(Application.dataPath) ?? string.Empty;
             var pluginVersion = PMPackageInfo.FindForAssembly(typeof(UniBridgeServer).Assembly)?.version ?? "0.0.0";
@@ -40,8 +40,7 @@ namespace UniBridge.Editor.Commands.Status
                 ActiveScene = activeSceneValue,
                 PlayMode = playMode,
             };
-
-            return CommandResponse.Ok(request == null ? string.Empty : request.Id, result);
+            return result;
         }
     }
 }
