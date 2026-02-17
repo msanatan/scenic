@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { program } from 'commander'
+import { registerDomain } from './commands/domain.ts'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
 import { registerStatus } from './commands/status.ts'
@@ -19,6 +20,7 @@ program
   .option('--json', 'Output result as JSON')
   .option('--no-execute', 'Disable execute tool for this invocation')
 
+registerDomain(program)
 registerInit(program)
 registerExecute(program)
 registerStatus(program)
