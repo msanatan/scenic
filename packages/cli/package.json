@@ -1,17 +1,42 @@
 {
   "name": "@unibridge/cli",
   "version": "0.5.0",
-  "description": "",
+  "description": "UniBridge is a CLI for interacting with the Unity Editor.",
   "main": "./dist/index.js",
   "scripts": {
     "test": "node --test src/*.test.ts src/**/*.test.ts",
     "build": "tsc -p tsconfig.json",
     "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "unibridge",
+    "unity",
+    "cli",
+    "automation",
+    "tooling"
+  ],
+  "author": {
+    "name": "Marcus Sanatan",
+    "url": "https://gameboymarcus.com"
+  },
   "license": "ISC",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msanatan/unibridge.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/msanatan/unibridge/tree/main/packages/cli",
+  "bugs": {
+    "url": "https://github.com/msanatan/unibridge/issues"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "unibridge": "./dist/index.js"
   },
