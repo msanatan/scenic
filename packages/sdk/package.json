@@ -15,5 +15,8 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js"
+  },
+  "dependencies": {
+    "valibot": "^1.2.0"
   }
 }
