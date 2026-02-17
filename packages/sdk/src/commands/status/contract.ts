@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import { defineCommand, type InferResult } from '../define.ts'
 
 export const StatusResultSchema = v.object({
   projectPath: v.string(),
@@ -8,4 +9,11 @@ export const StatusResultSchema = v.object({
   playMode: v.string(),
 })
 
-export type StatusResult = v.InferOutput<typeof StatusResultSchema>
+export const statusCommand = defineCommand({
+  method: 'status',
+  wire: 'status',
+  params: () => ({}),
+  result: StatusResultSchema,
+})
+
+export type StatusResult = InferResult<typeof statusCommand>

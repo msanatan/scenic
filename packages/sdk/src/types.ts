@@ -1,6 +1,5 @@
-import type { ExecuteResult } from './commands/execute/contract.ts'
-import type { SceneActiveResult } from './commands/scene/contract.ts'
-import type { StatusResult } from './commands/status/contract.ts'
+import type { CommandMethods } from './commands/define.ts'
+import type { allCommands } from './commands/registry.ts'
 
 export interface InitOptions {
   projectPath?: string
@@ -59,10 +58,7 @@ export interface ClientOptions extends TimeoutOptions {
   enableExecute?: boolean
 }
 
-export interface UniBridgeClient {
+export type UniBridgeClient = CommandMethods<typeof allCommands> & {
   readonly projectPath: string
-  execute(code: string): Promise<ExecuteResult>
-  status(): Promise<StatusResult>
-  sceneActive(): Promise<SceneActiveResult>
   close(): void
 }

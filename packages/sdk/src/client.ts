@@ -3,10 +3,9 @@ import { PipeConnection } from './connection.ts'
 import { pipePath } from './hash.ts'
 import { findUnityProject } from './project.ts'
 import type { ClientOptions, CommandResponse, UniBridgeClient } from './types.ts'
-import { runExecute } from './commands/execute/client.ts'
-import { runSceneActive } from './commands/scene/client.ts'
-import { runStatus } from './commands/status/client.ts'
+import { buildClientMethods } from './commands/define.ts'
 import type { CommandRuntime, ExecuteGuard } from './commands/runtime.ts'
+import { allCommands } from './commands/registry.ts'
 
 export class UniBridgeError extends Error {
   constructor(message: string) {
@@ -68,19 +67,7 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
 
   return {
     projectPath,
-
-    async execute(code: string): Promise<unknown> {
-      return runExecute(runtime, code)
-    },
-
-    async status() {
-      return runStatus(runtime)
-    },
-
-    async sceneActive() {
-      return runSceneActive(runtime)
-    },
-
+    ...buildClientMethods(runtime, allCommands),
     close(): void {
       connection.disconnect()
     },
@@ -105,19 +92,7 @@ export function createClientForTests(connection: TestConnection): UniBridgeClien
 
   return {
     projectPath: '/tmp/test-project',
-
-    async execute(code: string): Promise<unknown> {
-      return runExecute(runtime, code)
-    },
-
-    async status() {
-      return runStatus(runtime)
-    },
-
-    async sceneActive() {
-      return runSceneActive(runtime)
-    },
-
+    ...buildClientMethods(runtime, allCommands),
     close(): void {
       // no-op for test double
     },
