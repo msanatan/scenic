@@ -66,7 +66,7 @@ describe('client.status', () => {
     assert.equal(result.playMode, 'edit')
   })
 
-  it('passes through status payload without runtime validation', async () => {
+  it('rejects malformed status payload', async () => {
     const mockSend = mock.fn(async (req: { id: string }) => ({
       id: req.id,
       success: true,
@@ -74,7 +74,6 @@ describe('client.status', () => {
     }))
 
     const client = createClientForTests({ send: mockSend })
-    const result = await client.status()
-    assert.deepEqual(result, { bad: true })
+    await assert.rejects(client.status(), /ValiError/)
   })
 })
