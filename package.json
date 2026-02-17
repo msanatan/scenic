@@ -1,6 +1,6 @@
 {
   "name": "@unibridge/monorepo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Interact with Unity via TypeScript and the command line!",
   "main": "index.js",
   "scripts": {

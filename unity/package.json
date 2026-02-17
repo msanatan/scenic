@@ -1,6 +1,6 @@
 {
   "name": "com.msanatan.unibridge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "UniBridge",
   "description": "Bridge between external tools and Unity Editor",
   "unity": "2021.3",
