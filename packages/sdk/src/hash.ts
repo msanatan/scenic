@@ -3,7 +3,7 @@ import { realpathSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-export function canonicalizeProjectPath(projectPath: string): string {
+function canonicalizeProjectPath(projectPath: string): string {
   const resolved = path.resolve(projectPath)
   let canonical = resolved
 

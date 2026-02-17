@@ -26,11 +26,6 @@ namespace UniBridge.Editor.Commands
             return _commands.TryGetValue(name ?? string.Empty, out registration);
         }
 
-        internal static bool RequiresExecuteEnabled(string name)
-        {
-            return TryResolve(name, out var registration) && registration.RequiresExecuteEnabled;
-        }
-
         private static void RegisterFromAssembly(Assembly assembly)
         {
             var types = assembly.GetTypes();

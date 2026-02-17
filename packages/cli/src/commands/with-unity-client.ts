@@ -10,8 +10,6 @@ interface ClientCommandRequirements {
 
 interface GlobalCommandContext {
   jsonOutput: boolean
-  projectPath: string
-  executeEnabled: boolean
 }
 
 export async function withUnityClient(
@@ -41,8 +39,6 @@ export async function withUnityClient(
 
     await run(client, {
       jsonOutput: globalOpts.json === true,
-      projectPath,
-      executeEnabled,
     })
   } finally {
     client?.close()
