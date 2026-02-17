@@ -39,7 +39,8 @@ export async function handleInit(
 export function registerInit(program: Command): void {
   program
     .command('init')
-    .description('Install the unibridge plugin into a Unity project')
+    .alias('update')
+    .description('Install or update the unibridge plugin into a Unity project (alias: update)')
     .option('--local <path>', 'Install from a local path')
     .option('--git <url>', 'Install from a custom git URL')
     .action(async (opts: InitCommandOptions, command: Command) => {

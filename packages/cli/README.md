@@ -31,6 +31,12 @@ Install the Unity plugin in the current Unity project:
 unibridge init
 ```
 
+`update` is an alias for `init` and can be used to re-run this idempotently after SDK/CLI upgrades:
+
+```bash
+unibridge update
+```
+
 Or provide a specific project path:
 
 ```bash

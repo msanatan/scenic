@@ -21,7 +21,7 @@ describe('resolveCommandProject', () => {
   it('throws when plugin is missing for command execution', () => {
     assert.throws(
       () => resolveCommandProject({ project: projectPath, execute: true }, { requirePlugin: true, requiresExecute: true }),
-      /Run `unibridge init` first/,
+      /Run `unibridge init` \(or `unibridge update`\) first/,
     )
   })
 

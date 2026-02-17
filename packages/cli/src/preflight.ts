@@ -16,7 +16,7 @@ export function resolveCommandProject(
   }
 
   if (config.requirePlugin && !isPluginInstalled(projectPath)) {
-    throw new Error('com.msanatan.unibridge is not installed. Run `unibridge init` first.')
+    throw new Error('com.msanatan.unibridge is not installed. Run `unibridge init` (or `unibridge update`) first.')
   }
 
   return projectPath
