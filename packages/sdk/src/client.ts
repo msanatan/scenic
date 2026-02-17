@@ -74,27 +74,3 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
   }
 }
 
-interface TestConnection {
-  send: (req: { id: string; command: string; params: Record<string, unknown> }) => Promise<CommandResponse>
-}
-
-export function createClientForTests(connection: TestConnection): UniBridgeClient {
-  async function sendCommand(
-    command: string,
-    params: Record<string, unknown>,
-  ): Promise<CommandResponse> {
-    return connection.send({ id: randomUUID(), command, params })
-  }
-
-  const runtime = createRuntime(sendCommand, () => {
-    // no-op in test client
-  })
-
-  return {
-    projectPath: '/tmp/test-project',
-    ...buildClientMethods(runtime, allCommands),
-    close(): void {
-      // no-op for test double
-    },
-  }
-}
