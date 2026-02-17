@@ -35,6 +35,7 @@ export async function withUnityClient(
     client = createClient({
       projectPath,
       enableExecute: executeEnabled,
+      connectTimeout: 10_000,
     })
 
     await run(client, {
