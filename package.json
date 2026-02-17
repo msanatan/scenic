@@ -6,10 +6,10 @@
   "scripts": {
     "build": "npm run build:sdk && npm run build:cli",
     "build:sdk": "npm run build --workspace=@unibridge/sdk",
-    "build:cli": "npm run build --workspace=unibridge",
+    "build:cli": "npm run build --workspace=@unibridge/cli",
     "test": "npm run test:sdk && npm run test:cli",
     "test:sdk": "npm run test --workspace=@unibridge/sdk",
-    "test:cli": "npm run test --workspace=unibridge",
+    "test:cli": "npm run test --workspace=@unibridge/cli",
     "test:integration": "npm run build && node --test 'integration/sdk/*.test.ts' 'integration/cli/*.test.ts'",
     "test:integration:sdk": "npm run build:sdk && node --test 'integration/sdk/*.test.ts'",
     "test:integration:cli": "npm run build:cli && node --test 'integration/cli/*.test.ts'",

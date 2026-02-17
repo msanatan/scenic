@@ -1,5 +1,5 @@
 {
-  "name": "unibridge",
+  "name": "@unibridge/cli",
   "version": "0.4.0",
   "description": "",
   "main": "./dist/index.js",
