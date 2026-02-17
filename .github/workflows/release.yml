@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: Version bump type
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: Mark GitHub Release as pre-release
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Bump, tag, and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        run: npm run bump -- ${{ github.event.inputs.bump_type }}
+
+      - name: Read new version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version changes
+        run: |
+          git add package.json package-lock.json packages/*/package.json unity/package.json
+          git commit -m "chore(release): v${{ steps.version.outputs.value }}"
+
+      - name: Create and push tag
+        run: |
+          git tag "v${{ steps.version.outputs.value }}"
+          git push origin HEAD
+          git push origin "v${{ steps.version.outputs.value }}"
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Publish SDK to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --workspace=@unibridge/sdk --access public
+
+      - name: Publish CLI to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --workspace=unibridge
+
+      - name: Create GitHub release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v${{ steps.version.outputs.value }}"
+          if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            gh release create "$TAG" --title "$TAG" --generate-notes --prerelease
+          else
+            gh release create "$TAG" --title "$TAG" --generate-notes
+          fi
