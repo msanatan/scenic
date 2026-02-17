@@ -1,0 +1,51 @@
+import type { Command } from 'commander'
+import type { SceneActiveResult } from '@unibridge/sdk'
+import { runWithOutput } from './output.ts'
+import { withUnityClient } from './with-unity-client.ts'
+
+interface SceneActiveDeps {
+  active: () => Promise<SceneActiveResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+export async function handleSceneActive(
+  jsonOutput: boolean,
+  deps: SceneActiveDeps,
+): Promise<void> {
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.active(),
+    (result, output) => {
+      output.log(`Name:    ${result.scene.name}`)
+      output.log(`Path:    ${result.scene.path}`)
+      output.log(`Dirty:   ${result.scene.isDirty ? 'yes' : 'no'}`)
+    },
+  )
+}
+
+export function registerScene(program: Command): void {
+  const scene = program
+    .command('scene')
+    .description('Read and modify Unity scenes')
+
+  scene
+    .command('active')
+    .description('Show the active scene')
+    .action(async (_opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleSceneActive(ctx.jsonOutput, {
+            active: () => client.sceneActive(),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+}

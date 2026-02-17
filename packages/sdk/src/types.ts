@@ -1,4 +1,5 @@
 import type { ExecuteResult } from './commands/execute/contract.ts'
+import type { SceneActiveResult } from './commands/scene/contract.ts'
 import type { StatusResult } from './commands/status/contract.ts'
 
 export interface InitOptions {
@@ -62,5 +63,6 @@ export interface UniBridgeClient {
   readonly projectPath: string
   execute(code: string): Promise<ExecuteResult>
   status(): Promise<StatusResult>
+  sceneActive(): Promise<SceneActiveResult>
   close(): void
 }

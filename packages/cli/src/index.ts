@@ -5,6 +5,7 @@ import { program } from 'commander'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
 import { registerStatus } from './commands/status.ts'
+import { registerScene } from './commands/scene.ts'
 
 const { version } = JSON.parse(
   readFileSync(path.join(import.meta.dirname, '..', 'package.json'), 'utf-8'),
@@ -21,5 +22,6 @@ program
 registerInit(program)
 registerExecute(program)
 registerStatus(program)
+registerScene(program)
 
 program.parse()

@@ -4,6 +4,7 @@ import { pipePath } from './hash.ts'
 import { findUnityProject } from './project.ts'
 import type { ClientOptions, CommandResponse, UniBridgeClient } from './types.ts'
 import { runExecute } from './commands/execute/client.ts'
+import { runSceneActive } from './commands/scene/client.ts'
 import { runStatus } from './commands/status/client.ts'
 import type { CommandRuntime, ExecuteGuard } from './commands/runtime.ts'
 
@@ -76,6 +77,10 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
       return runStatus(runtime)
     },
 
+    async sceneActive() {
+      return runSceneActive(runtime)
+    },
+
     close(): void {
       connection.disconnect()
     },
@@ -107,6 +112,10 @@ export function createClientForTests(connection: TestConnection): UniBridgeClien
 
     async status() {
       return runStatus(runtime)
+    },
+
+    async sceneActive() {
+      return runSceneActive(runtime)
     },
 
     close(): void {
