@@ -4,6 +4,9 @@ export type { LogEntry, LogsQuery, LogsResult, LogsSeverity } from './log/contra
 export type {
   SceneActiveResult,
   SceneCreateResult,
+  SceneHierarchyNode,
+  SceneHierarchyQuery,
+  SceneHierarchyResult,
   SceneInfo,
   SceneListItem,
   SceneListQuery,

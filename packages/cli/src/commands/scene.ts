@@ -1,5 +1,13 @@
 import type { Command } from 'commander'
-import type { SceneActiveResult, SceneCreateResult, SceneListQuery, SceneListResult, SceneOpenResult } from '@unibridge/sdk'
+import type {
+  SceneActiveResult,
+  SceneCreateResult,
+  SceneHierarchyQuery,
+  SceneHierarchyResult,
+  SceneListQuery,
+  SceneListResult,
+  SceneOpenResult,
+} from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -60,6 +68,17 @@ interface SceneListDeps {
   exit?: (code: number) => void
 }
 
+interface SceneHierarchyCommandOptions {
+  limit?: string
+  offset?: string
+}
+
+interface SceneHierarchyDeps {
+  hierarchy: (query?: SceneHierarchyQuery) => Promise<SceneHierarchyResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
 function parseIntWithMinimum(
   value: string | undefined,
   label: string,
@@ -100,6 +119,30 @@ export async function handleSceneList(
       output.log(`Scenes: ${result.scenes.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const scene of result.scenes) {
         output.log(`${scene.path}`)
+      }
+    },
+  )
+}
+
+export async function handleSceneHierarchy(
+  opts: SceneHierarchyCommandOptions,
+  jsonOutput: boolean,
+  deps: SceneHierarchyDeps,
+): Promise<void> {
+  const query: SceneHierarchyQuery = {
+    limit: parseIntWithMinimum(opts.limit, '--limit', 200, 1),
+    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.hierarchy(query),
+    (result, output) => {
+      output.log(`Hierarchy: ${result.nodes.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
+      for (const node of result.nodes) {
+        const indent = '  '.repeat(node.depth)
+        output.log(`${indent}${node.path} (${node.isActive ? 'active' : 'inactive'}) [sibling=${node.siblingIndex}]`)
       }
     },
   )
@@ -165,6 +208,27 @@ export function registerScene(program: Command): void {
         async (client, ctx) => {
           await handleSceneList(opts, ctx.jsonOutput, {
             list: (query) => client.sceneList(query),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  scene
+    .command('hierarchy')
+    .description('List the active scene hierarchy as a paginated flattened tree')
+    .option('--limit <number>', 'Number of hierarchy nodes to return (default: 200)')
+    .option('--offset <number>', 'Offset into hierarchy nodes (default: 0)')
+    .action(async (opts: SceneHierarchyCommandOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleSceneHierarchy(opts, ctx.jsonOutput, {
+            hierarchy: (query) => client.sceneHierarchy(query),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

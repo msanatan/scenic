@@ -40,6 +40,9 @@ console.log(logs)
 const tests = await client.testList({ mode: 'edit', limit: 50, offset: 0 })
 console.log(tests)
 
+const hierarchy = await client.sceneHierarchy({ limit: 200, offset: 0 })
+console.log(hierarchy)
+
 const run = await client.testRun({ mode: 'edit', filter: 'DomainReloadCommandHandlerTests' })
 console.log(run)
 

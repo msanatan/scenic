@@ -44,6 +44,55 @@ namespace UniBridge.Editor.Commands.Scene
         public int Offset;
     }
 
+    public sealed class SceneHierarchyCommandParams
+    {
+        public PaginationParams Paging;
+
+        public static SceneHierarchyCommandParams From(CommandRequest request)
+        {
+            return new SceneHierarchyCommandParams
+            {
+                Paging = PaginationParams.From(request, defaultLimit: 200, defaultOffset: 0),
+            };
+        }
+    }
+
+    public sealed class SceneHierarchyNode
+    {
+        [JsonProperty("name")]
+        public string Name;
+
+        [JsonProperty("path")]
+        public string Path;
+
+        [JsonProperty("isActive")]
+        public bool IsActive;
+
+        [JsonProperty("depth")]
+        public int Depth;
+
+        [JsonProperty("parentIndex")]
+        public int ParentIndex;
+
+        [JsonProperty("siblingIndex")]
+        public int SiblingIndex;
+    }
+
+    public sealed class SceneHierarchyCommandResult
+    {
+        [JsonProperty("nodes")]
+        public SceneHierarchyNode[] Nodes;
+
+        [JsonProperty("total")]
+        public int Total;
+
+        [JsonProperty("limit")]
+        public int Limit;
+
+        [JsonProperty("offset")]
+        public int Offset;
+    }
+
     public sealed class SceneInfo
     {
         [JsonProperty("name")]

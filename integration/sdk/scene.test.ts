@@ -34,6 +34,23 @@ describe('SDK: scene', () => {
     }
   })
 
+  it('returns a flattened scene hierarchy with parent links', async () => {
+    const result = await client.sceneHierarchy({ limit: 200, offset: 0 })
+    assert.equal(result.limit, 200)
+    assert.equal(result.offset, 0)
+    assert.equal(typeof result.total, 'number')
+    assert.ok(Array.isArray(result.nodes))
+    if (result.nodes.length > 0) {
+      const first = result.nodes[0]
+      assert.equal(typeof first.name, 'string')
+      assert.equal(typeof first.path, 'string')
+      assert.equal(typeof first.isActive, 'boolean')
+      assert.equal(typeof first.depth, 'number')
+      assert.equal(typeof first.parentIndex, 'number')
+      assert.equal(typeof first.siblingIndex, 'number')
+    }
+  })
+
   describe('open', () => {
     let originalScenePath: string
 

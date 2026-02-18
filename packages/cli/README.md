@@ -53,6 +53,7 @@ unibridge test run --mode edit --filter DomainReloadCommandHandlerTests
 unibridge domain reload
 unibridge scene active
 unibridge scene list --limit 50 --offset 0
+unibridge scene hierarchy --limit 200 --offset 0
 unibridge scene create Assets/Scenes/NewScene.unity
 unibridge scene open Assets/Scenes/SampleScene.unity
 ```
