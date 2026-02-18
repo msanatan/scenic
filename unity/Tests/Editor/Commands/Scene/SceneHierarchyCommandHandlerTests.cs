@@ -14,13 +14,13 @@ namespace UniBridge.Editor.Tests.Commands.Scene
         {
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            var root = new GameObject("Root");
-            var childA = new GameObject("Child");
+            var root = new UnityEngine.GameObject("Root");
+            var childA = new UnityEngine.GameObject("Child");
             childA.transform.SetParent(root.transform, false);
-            var childB = new GameObject("Child");
+            var childB = new UnityEngine.GameObject("Child");
             childB.transform.SetParent(root.transform, false);
             childB.SetActive(false);
-            var grandchild = new GameObject("Leaf");
+            var grandchild = new UnityEngine.GameObject("Leaf");
             grandchild.transform.SetParent(childA.transform, false);
 
             var response = CommandRouter.Route(
@@ -61,7 +61,7 @@ namespace UniBridge.Editor.Tests.Commands.Scene
             Assert.AreEqual(childAIndex, result.Nodes[leafIndex].ParentIndex);
             Assert.AreEqual(2, result.Nodes[leafIndex].Depth);
 
-            Object.DestroyImmediate(root);
+            UnityEngine.Object.DestroyImmediate(root);
         }
 
         private static int FindIndexByPath(SceneHierarchyNode[] nodes, string path)

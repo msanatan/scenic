@@ -5,6 +5,7 @@ import { program } from 'commander'
 import { registerDomain } from './commands/domain.ts'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
+import { registerGameObject } from './commands/gameobject.ts'
 import { registerLogs } from './commands/logs.ts'
 import { registerStatus } from './commands/status.ts'
 import { registerScene } from './commands/scene.ts'
@@ -25,6 +26,7 @@ program
 registerDomain(program)
 registerInit(program)
 registerExecute(program)
+registerGameObject(program)
 registerLogs(program)
 registerStatus(program)
 registerScene(program)

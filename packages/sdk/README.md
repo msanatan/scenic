@@ -37,6 +37,13 @@ console.log(status)
 const logs = await client.logs({ severity: 'warn', limit: 50, offset: 0 })
 console.log(logs)
 
+const created = await client.gameObjectCreate({
+  name: 'Player',
+  dimension: '2d',
+  transform: { space: 'local', position: { x: 0, y: 1, z: 0 } },
+})
+console.log(created)
+
 const tests = await client.testList({ mode: 'edit', limit: 50, offset: 0 })
 console.log(tests)
 

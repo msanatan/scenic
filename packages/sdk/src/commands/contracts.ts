@@ -1,5 +1,14 @@
 export type { DomainReloadResult } from './domain/contract.ts'
 export type { ExecuteResult } from './execute/contract.ts'
+export type {
+  CreateTransform,
+  GameObjectCreateInput,
+  GameObjectCreateResult,
+  GameObjectDimension,
+  PrimitiveTypeName,
+  TransformSpace,
+  Vector3Value,
+} from './gameobject/contract.ts'
 export type { LogEntry, LogsQuery, LogsResult, LogsSeverity } from './log/contract.ts'
 export type {
   SceneActiveResult,
