@@ -34,6 +34,9 @@ const client = createClient({ projectPath: '/path/to/UnityProject' })
 const status = await client.status()
 console.log(status)
 
+const logs = await client.logs({ severity: 'warn', limit: 50, offset: 0 })
+console.log(logs)
+
 client.close()
 ```
 
