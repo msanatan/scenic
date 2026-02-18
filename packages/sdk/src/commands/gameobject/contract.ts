@@ -18,6 +18,12 @@ const CreateTransformSchema = v.object({
   scale: v.optional(Vector3Schema),
 })
 
+const TransformSnapshotSchema = v.object({
+  position: Vector3Schema,
+  rotation: Vector3Schema,
+  scale: Vector3Schema,
+})
+
 export const GameObjectCreateInputSchema = v.object({
   name: v.string(),
   parent: v.optional(v.string()),
@@ -71,6 +77,41 @@ export const gameObjectDestroyCommand = defineCommand({
   result: GameObjectDestroyResultSchema,
 })
 
+export const GameObjectUpdateInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+  name: v.optional(v.string()),
+  tag: v.optional(v.string()),
+  layer: v.optional(v.string()),
+  isStatic: v.optional(v.boolean()),
+  transform: v.optional(CreateTransformSchema),
+})
+
+export const GameObjectUpdateResultSchema = v.object({
+  name: v.string(),
+  path: v.string(),
+  instanceId: v.number(),
+  tag: v.string(),
+  layer: v.string(),
+  isStatic: v.boolean(),
+  transform: TransformSnapshotSchema,
+})
+
+export const gameObjectUpdateCommand = defineCommand({
+  method: 'gameObjectUpdate',
+  wire: 'gameobject.update',
+  params: (input: GameObjectUpdateInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+    name: input.name,
+    tag: input.tag,
+    layer: input.layer,
+    isStatic: input.isStatic,
+    transform: input.transform,
+  }),
+  result: GameObjectUpdateResultSchema,
+})
+
 export type GameObjectDimension = v.InferOutput<typeof GameObjectDimensionSchema>
 export type PrimitiveTypeName = v.InferOutput<typeof PrimitiveSchema>
 export type TransformSpace = v.InferOutput<typeof TransformSpaceSchema>
@@ -80,3 +121,5 @@ export type GameObjectCreateInput = v.InferOutput<typeof GameObjectCreateInputSc
 export type GameObjectCreateResult = InferResult<typeof gameObjectCreateCommand>
 export type GameObjectDestroyInput = v.InferOutput<typeof GameObjectDestroyInputSchema>
 export type GameObjectDestroyResult = InferResult<typeof gameObjectDestroyCommand>
+export type GameObjectUpdateInput = v.InferOutput<typeof GameObjectUpdateInputSchema>
+export type GameObjectUpdateResult = InferResult<typeof gameObjectUpdateCommand>

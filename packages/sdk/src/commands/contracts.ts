@@ -6,6 +6,8 @@ export type {
   GameObjectCreateResult,
   GameObjectDestroyInput,
   GameObjectDestroyResult,
+  GameObjectUpdateInput,
+  GameObjectUpdateResult,
   GameObjectDimension,
   PrimitiveTypeName,
   TransformSpace,

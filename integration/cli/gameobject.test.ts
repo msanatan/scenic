@@ -128,4 +128,66 @@ describe('CLI: gameobject', () => {
     assert.equal(existsPayload.success, true)
     assert.equal(existsPayload.result, false)
   })
+
+  it('updates gameobject properties by instance id', async () => {
+    const originalName = `CliGoUpdate_${Date.now()}`
+    const updatedName = `${originalName}_Renamed`
+    createdNames.push(originalName, updatedName)
+
+    const createPayload = (await runCli(
+      'gameobject',
+      'create',
+      originalName,
+      '--dimension',
+      '3d',
+      '--primitive',
+      'cube',
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+
+    assert.equal(createPayload.success, true)
+
+    const updatePayload = (await runCli(
+      'gameobject',
+      'update',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--name',
+      updatedName,
+      '--tag',
+      'EditorOnly',
+      '--layer',
+      'Default',
+      '--is-static',
+      'true',
+      '--position',
+      '2,3,4',
+    )) as {
+      success: boolean
+      result?: {
+        name: string
+        tag: string
+        layer: string
+        isStatic: boolean
+        instanceId: number
+        transform: {
+          position: { x: number; y: number; z: number }
+        }
+      }
+    }
+
+    assert.equal(updatePayload.success, true)
+    assert.equal(updatePayload.result?.name, updatedName)
+    assert.equal(updatePayload.result?.tag, 'EditorOnly')
+    assert.equal(updatePayload.result?.layer, 'Default')
+    assert.equal(updatePayload.result?.isStatic, true)
+    assert.equal(updatePayload.result?.instanceId, createPayload.result?.instanceId)
+    assert.equal(updatePayload.result?.transform.position.x, 2)
+    assert.equal(updatePayload.result?.transform.position.y, 3)
+    assert.equal(updatePayload.result?.transform.position.z, 4)
+  })
 })

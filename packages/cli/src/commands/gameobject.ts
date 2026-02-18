@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { CreateTransform, GameObjectCreateInput, GameObjectCreateResult, GameObjectDestroyInput, GameObjectDestroyResult, GameObjectDimension, PrimitiveTypeName, TransformSpace } from '@unibridge/sdk'
+import type { CreateTransform, GameObjectCreateInput, GameObjectCreateResult, GameObjectDestroyInput, GameObjectDestroyResult, GameObjectDimension, GameObjectUpdateInput, GameObjectUpdateResult, PrimitiveTypeName, TransformSpace } from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -27,6 +27,25 @@ interface GameObjectDestroyOptions {
 
 interface GameObjectDestroyDeps {
   destroy: (input: GameObjectDestroyInput) => Promise<GameObjectDestroyResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface GameObjectUpdateOptions {
+  path?: string
+  instanceId?: string
+  name?: string
+  tag?: string
+  layer?: string
+  isStatic?: string
+  space?: string
+  position?: string
+  rotation?: string
+  scale?: string
+}
+
+interface GameObjectUpdateDeps {
+  update: (input: GameObjectUpdateInput) => Promise<GameObjectUpdateResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -109,6 +128,19 @@ function parseInstanceId(value: string | undefined, label: string): number | und
   return parsed
 }
 
+function parseBoolean(value: string | undefined, label: string): boolean | undefined {
+  if (value == null) {
+    return undefined
+  }
+  if (value === 'true') {
+    return true
+  }
+  if (value === 'false') {
+    return false
+  }
+  throw new Error(`${label} must be true or false.`)
+}
+
 export async function handleGameObjectCreate(
   name: string,
   opts: GameObjectCreateOptions,
@@ -168,6 +200,53 @@ export async function handleGameObjectDestroy(
   )
 }
 
+export async function handleGameObjectUpdate(
+  opts: GameObjectUpdateOptions,
+  jsonOutput: boolean,
+  deps: GameObjectUpdateDeps,
+): Promise<void> {
+  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+  const path = opts.path
+
+  if ((path == null || path.length === 0) && instanceId == null) {
+    throw new Error('Provide either --path or --instance-id.')
+  }
+  if (path != null && instanceId != null) {
+    throw new Error('Use either --path or --instance-id, not both.')
+  }
+
+  const transform = parseTransform(opts)
+  const isStatic = parseBoolean(opts.isStatic, '--is-static')
+  const hasAnyUpdate = opts.name != null || opts.tag != null || opts.layer != null || isStatic != null || transform != null
+  if (!hasAnyUpdate) {
+    throw new Error('Provide at least one update field.')
+  }
+
+  const input: GameObjectUpdateInput = {
+    path,
+    instanceId,
+    name: opts.name,
+    tag: opts.tag,
+    layer: opts.layer,
+    isStatic,
+    transform,
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.update(input),
+    (result, output) => {
+      output.log(`Updated: ${result.path}`)
+      output.log(`Id:      ${result.instanceId}`)
+      output.log(`Tag:     ${result.tag}`)
+      output.log(`Layer:   ${result.layer}`)
+      output.log(`Static:  ${result.isStatic ? 'yes' : 'no'}`)
+      output.log(`Pos:     ${result.transform.position.x},${result.transform.position.y},${result.transform.position.z}`)
+    },
+  )
+}
+
 export function registerGameObject(program: Command): void {
   const gameObject = program
     .command('gameobject')
@@ -212,6 +291,35 @@ export function registerGameObject(program: Command): void {
         async (client, ctx) => {
           await handleGameObjectDestroy(opts, ctx.jsonOutput, {
             destroy: (input) => client.gameObjectDestroy(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  gameObject
+    .command('update')
+    .description('Update GameObject properties by path or instance ID')
+    .option('--path <path>', 'GameObject path, e.g. /Environment/Enemy_01')
+    .option('--instance-id <id>', 'GameObject instance ID (session-local)')
+    .option('--name <name>', 'Updated GameObject name')
+    .option('--tag <tag>', 'Updated Unity tag')
+    .option('--layer <layer>', 'Updated Unity layer name or index')
+    .option('--is-static <true|false>', 'Set static flag')
+    .option('--space <space>', 'Transform space (local|world)')
+    .option('--position <x,y,z>', 'Updated position vector')
+    .option('--rotation <x,y,z>', 'Updated euler rotation vector')
+    .option('--scale <x,y,z>', 'Updated local scale vector')
+    .action(async (opts: GameObjectUpdateOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleGameObjectUpdate(opts, ctx.jsonOutput, {
+            update: (input) => client.gameObjectUpdate(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

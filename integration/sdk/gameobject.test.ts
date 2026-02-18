@@ -71,4 +71,37 @@ describe('SDK: gameobject', () => {
     const exists = await client.execute(`UnityEngine.GameObject.Find("${name}") != null`)
     assert.equal(exists, false)
   })
+
+  it('updates gameobject properties by instance id', async () => {
+    const originalName = `SdkGoUpdate_${Date.now()}`
+    const updatedName = `${originalName}_Renamed`
+    createdNames.push(originalName, updatedName)
+
+    const created = await client.gameObjectCreate({
+      name: originalName,
+      dimension: '3d',
+      primitive: 'cube',
+    })
+
+    const updated = await client.gameObjectUpdate({
+      instanceId: created.instanceId,
+      name: updatedName,
+      tag: 'EditorOnly',
+      layer: 'Default',
+      isStatic: true,
+      transform: {
+        space: 'local',
+        position: { x: 2, y: 3, z: 4 },
+      },
+    })
+
+    assert.equal(updated.name, updatedName)
+    assert.equal(updated.tag, 'EditorOnly')
+    assert.equal(updated.layer, 'Default')
+    assert.equal(updated.isStatic, true)
+    assert.equal(updated.instanceId, created.instanceId)
+    assert.equal(updated.transform.position.x, 2)
+    assert.equal(updated.transform.position.y, 3)
+    assert.equal(updated.transform.position.z, 4)
+  })
 })

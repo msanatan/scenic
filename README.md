@@ -41,3 +41,11 @@ https://github.com/msanatan/unibridge.git?path=unity
 3. Use package-specific docs:
    - SDK usage and examples: [`packages/sdk/README.md`](./packages/sdk/README.md)
    - CLI usage and examples: [`packages/cli/README.md`](./packages/cli/README.md)
+
+## Future Work
+
+Planned improvements include command-level batch mutations for GameObjects.
+
+- Add `gameobject.createMany` / `unibridge gameobject create-many` for creating multiple GameObjects in one request.
+- Add `gameobject.destroyMany` / `unibridge gameobject destroy-many` for deleting multiple GameObjects in one request.
+- Batch support is planned per command (not a mixed-command batch endpoint), with per-item success/error reporting.
