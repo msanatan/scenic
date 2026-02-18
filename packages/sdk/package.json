@@ -1,6 +1,6 @@
 {
   "name": "@unibridge/sdk",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "UniBridge is a TypeScript SDK for interacting with the Unity Editor.",
   "main": "./dist/index.js",
   "scripts": {
