@@ -128,4 +128,19 @@ describe('SDK: gameobject', () => {
     assert.equal(reparented.parentPath, `/${newParentName}`)
     assert.equal(reparented.path, `/${newParentName}/${childName}`)
   })
+
+  it('gets gameobject info by instance id', async () => {
+    const name = `SdkGoGet_${Date.now()}`
+    createdNames.push(name)
+
+    const created = await client.gameObjectCreate({ name, dimension: '3d' })
+    const info = await client.gameObjectGet({ instanceId: created.instanceId })
+
+    assert.equal(info.instanceId, created.instanceId)
+    assert.equal(info.name, name)
+    assert.equal(info.path, `/${name}`)
+    assert.equal(typeof info.isActive, 'boolean')
+    assert.equal(typeof info.siblingIndex, 'number')
+    assert.equal(typeof info.transform.position.x, 'number')
+  })
 })

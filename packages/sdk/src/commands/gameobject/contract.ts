@@ -143,6 +143,34 @@ export const gameObjectReparentCommand = defineCommand({
   result: GameObjectReparentResultSchema,
 })
 
+export const GameObjectGetInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+})
+
+export const GameObjectGetResultSchema = v.object({
+  name: v.string(),
+  path: v.string(),
+  instanceId: v.number(),
+  isActive: v.boolean(),
+  tag: v.string(),
+  layer: v.string(),
+  isStatic: v.boolean(),
+  parentPath: v.nullable(v.string()),
+  siblingIndex: v.number(),
+  transform: TransformSnapshotSchema,
+})
+
+export const gameObjectGetCommand = defineCommand({
+  method: 'gameObjectGet',
+  wire: 'gameobject.get',
+  params: (input: GameObjectGetInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+  }),
+  result: GameObjectGetResultSchema,
+})
+
 export type GameObjectDimension = v.InferOutput<typeof GameObjectDimensionSchema>
 export type PrimitiveTypeName = v.InferOutput<typeof PrimitiveSchema>
 export type TransformSpace = v.InferOutput<typeof TransformSpaceSchema>
@@ -156,3 +184,5 @@ export type GameObjectUpdateInput = v.InferOutput<typeof GameObjectUpdateInputSc
 export type GameObjectUpdateResult = InferResult<typeof gameObjectUpdateCommand>
 export type GameObjectReparentInput = v.InferOutput<typeof GameObjectReparentInputSchema>
 export type GameObjectReparentResult = InferResult<typeof gameObjectReparentCommand>
+export type GameObjectGetInput = v.InferOutput<typeof GameObjectGetInputSchema>
+export type GameObjectGetResult = InferResult<typeof gameObjectGetCommand>

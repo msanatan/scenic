@@ -244,4 +244,42 @@ describe('CLI: gameobject', () => {
     assert.equal(reparentPayload.result?.parentPath, `/${newParentName}`)
     assert.equal(reparentPayload.result?.path, `/${newParentName}/${childName}`)
   })
+
+  it('gets gameobject info by instance id', async () => {
+    const name = `CliGoGet_${Date.now()}`
+    createdNames.push(name)
+
+    const createPayload = (await runCli('gameobject', 'create', name, '--dimension', '3d')) as {
+      success: boolean
+      result?: { instanceId: number }
+    }
+    assert.equal(createPayload.success, true)
+
+    const getPayload = (await runCli(
+      'gameobject',
+      'get',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+        name: string
+        path: string
+        isActive: boolean
+        siblingIndex: number
+        transform: {
+          position: { x: number; y: number; z: number }
+        }
+      }
+    }
+
+    assert.equal(getPayload.success, true)
+    assert.equal(getPayload.result?.instanceId, createPayload.result?.instanceId)
+    assert.equal(getPayload.result?.name, name)
+    assert.equal(getPayload.result?.path, `/${name}`)
+    assert.equal(typeof getPayload.result?.isActive, 'boolean')
+    assert.equal(typeof getPayload.result?.siblingIndex, 'number')
+    assert.equal(typeof getPayload.result?.transform.position.x, 'number')
+  })
 })

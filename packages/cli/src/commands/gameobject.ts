@@ -6,6 +6,8 @@ import type {
   GameObjectDestroyInput,
   GameObjectDestroyResult,
   GameObjectDimension,
+  GameObjectGetInput,
+  GameObjectGetResult,
   GameObjectReparentInput,
   GameObjectReparentResult,
   GameObjectUpdateInput,
@@ -74,6 +76,17 @@ interface GameObjectReparentOptions {
 
 interface GameObjectReparentDeps {
   reparent: (input: GameObjectReparentInput) => Promise<GameObjectReparentResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface GameObjectGetOptions {
+  path?: string
+  instanceId?: string
+}
+
+interface GameObjectGetDeps {
+  get: (input: GameObjectGetInput) => Promise<GameObjectGetResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -324,6 +337,38 @@ export async function handleGameObjectReparent(
   )
 }
 
+export async function handleGameObjectGet(
+  opts: GameObjectGetOptions,
+  jsonOutput: boolean,
+  deps: GameObjectGetDeps,
+): Promise<void> {
+  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+  const path = opts.path
+
+  if ((path == null || path.length === 0) && instanceId == null) {
+    throw new Error('Provide target via --path or --instance-id.')
+  }
+  if (path != null && instanceId != null) {
+    throw new Error('Use either --path or --instance-id, not both.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.get({ path, instanceId }),
+    (result, output) => {
+      output.log(`GameObject: ${result.path}`)
+      output.log(`Id:         ${result.instanceId}`)
+      output.log(`Parent:     ${result.parentPath ?? '(root)'}`)
+      output.log(`Active:     ${result.isActive ? 'yes' : 'no'}`)
+      output.log(`Tag:        ${result.tag}`)
+      output.log(`Layer:      ${result.layer}`)
+      output.log(`Static:     ${result.isStatic ? 'yes' : 'no'}`)
+      output.log(`Sibling:    ${result.siblingIndex}`)
+    },
+  )
+}
+
 export function registerGameObject(program: Command): void {
   const gameObject = program
     .command('gameobject')
@@ -397,6 +442,27 @@ export function registerGameObject(program: Command): void {
         async (client, ctx) => {
           await handleGameObjectUpdate(opts, ctx.jsonOutput, {
             update: (input) => client.gameObjectUpdate(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  gameObject
+    .command('get')
+    .description('Get GameObject info by path or instance ID')
+    .option('--path <path>', 'Target GameObject path, e.g. /Environment/Enemy_01')
+    .option('--instance-id <id>', 'Target GameObject instance ID (session-local)')
+    .action(async (opts: GameObjectGetOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleGameObjectGet(opts, ctx.jsonOutput, {
+            get: (input) => client.gameObjectGet(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode
