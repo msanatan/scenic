@@ -48,6 +48,8 @@ unibridge --project /path/to/UnityProject init
 ```bash
 unibridge status
 unibridge logs --severity warn --limit 100 --offset 0
+unibridge test list --mode edit --limit 50 --offset 0
+unibridge test run --mode edit --filter DomainReloadCommandHandlerTests
 unibridge domain reload
 unibridge scene active
 unibridge scene create Assets/Scenes/NewScene.unity

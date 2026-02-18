@@ -37,6 +37,12 @@ console.log(status)
 const logs = await client.logs({ severity: 'warn', limit: 50, offset: 0 })
 console.log(logs)
 
+const tests = await client.testList({ mode: 'edit', limit: 50, offset: 0 })
+console.log(tests)
+
+const run = await client.testRun({ mode: 'edit', filter: 'DomainReloadCommandHandlerTests' })
+console.log(run)
+
 client.close()
 ```
 

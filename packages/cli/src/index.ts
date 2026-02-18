@@ -8,6 +8,7 @@ import { registerExecute } from './commands/execute.ts'
 import { registerLogs } from './commands/logs.ts'
 import { registerStatus } from './commands/status.ts'
 import { registerScene } from './commands/scene.ts'
+import { registerTest } from './commands/test.ts'
 
 const { version } = JSON.parse(
   readFileSync(path.join(import.meta.dirname, '..', 'package.json'), 'utf-8'),
@@ -27,5 +28,6 @@ registerExecute(program)
 registerLogs(program)
 registerStatus(program)
 registerScene(program)
+registerTest(program)
 
 program.parse()

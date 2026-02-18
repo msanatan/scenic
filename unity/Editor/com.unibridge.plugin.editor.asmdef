@@ -1,6 +1,8 @@
 {
   "name": "com.msanatan.unibridge.editor",
-  "references": [],
+  "references": [
+    "UnityEditor.TestRunner"
+  ],
   "includePlatforms": [
     "Editor"
   ],
@@ -10,6 +12,12 @@
   "precompiledReferences": [],
   "autoReferenced": true,
   "defineConstraints": [],
-  "versionDefines": [],
+  "versionDefines": [
+    {
+      "name": "com.unity.test-framework",
+      "expression": "",
+      "define": "UNITY_TESTS_FRAMEWORK"
+    }
+  ],
   "noEngineReferences": false
 }
