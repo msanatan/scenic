@@ -112,6 +112,37 @@ export const gameObjectUpdateCommand = defineCommand({
   result: GameObjectUpdateResultSchema,
 })
 
+export const GameObjectReparentInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+  parentPath: v.optional(v.string()),
+  parentInstanceId: v.optional(v.number()),
+  toRoot: v.optional(v.boolean()),
+  worldPositionStays: v.optional(v.boolean()),
+})
+
+export const GameObjectReparentResultSchema = v.object({
+  name: v.string(),
+  path: v.string(),
+  instanceId: v.number(),
+  parentPath: v.nullable(v.string()),
+  siblingIndex: v.number(),
+})
+
+export const gameObjectReparentCommand = defineCommand({
+  method: 'gameObjectReparent',
+  wire: 'gameobject.reparent',
+  params: (input: GameObjectReparentInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+    parentPath: input.parentPath,
+    parentInstanceId: input.parentInstanceId,
+    toRoot: input.toRoot,
+    worldPositionStays: input.worldPositionStays,
+  }),
+  result: GameObjectReparentResultSchema,
+})
+
 export type GameObjectDimension = v.InferOutput<typeof GameObjectDimensionSchema>
 export type PrimitiveTypeName = v.InferOutput<typeof PrimitiveSchema>
 export type TransformSpace = v.InferOutput<typeof TransformSpaceSchema>
@@ -123,3 +154,5 @@ export type GameObjectDestroyInput = v.InferOutput<typeof GameObjectDestroyInput
 export type GameObjectDestroyResult = InferResult<typeof gameObjectDestroyCommand>
 export type GameObjectUpdateInput = v.InferOutput<typeof GameObjectUpdateInputSchema>
 export type GameObjectUpdateResult = InferResult<typeof gameObjectUpdateCommand>
+export type GameObjectReparentInput = v.InferOutput<typeof GameObjectReparentInputSchema>
+export type GameObjectReparentResult = InferResult<typeof gameObjectReparentCommand>

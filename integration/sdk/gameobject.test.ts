@@ -104,4 +104,28 @@ describe('SDK: gameobject', () => {
     assert.equal(updated.transform.position.y, 3)
     assert.equal(updated.transform.position.z, 4)
   })
+
+  it('reparents a gameobject by instance id', async () => {
+    const parentName = `SdkParent_${Date.now()}`
+    const childName = `${parentName}_Child`
+    const newParentName = `${parentName}_NewParent`
+    createdNames.push(parentName, childName, newParentName)
+
+    const parent = await client.gameObjectCreate({ name: parentName, dimension: '3d' })
+    const child = await client.gameObjectCreate({
+      name: childName,
+      parentInstanceId: parent.instanceId,
+      dimension: '3d',
+    })
+    const newParent = await client.gameObjectCreate({ name: newParentName, dimension: '3d' })
+
+    const reparented = await client.gameObjectReparent({
+      instanceId: child.instanceId,
+      parentInstanceId: newParent.instanceId,
+    })
+
+    assert.equal(reparented.instanceId, child.instanceId)
+    assert.equal(reparented.parentPath, `/${newParentName}`)
+    assert.equal(reparented.path, `/${newParentName}/${childName}`)
+  })
 })

@@ -1,5 +1,18 @@
 import type { Command } from 'commander'
-import type { CreateTransform, GameObjectCreateInput, GameObjectCreateResult, GameObjectDestroyInput, GameObjectDestroyResult, GameObjectDimension, GameObjectUpdateInput, GameObjectUpdateResult, PrimitiveTypeName, TransformSpace } from '@unibridge/sdk'
+import type {
+  CreateTransform,
+  GameObjectCreateInput,
+  GameObjectCreateResult,
+  GameObjectDestroyInput,
+  GameObjectDestroyResult,
+  GameObjectDimension,
+  GameObjectReparentInput,
+  GameObjectReparentResult,
+  GameObjectUpdateInput,
+  GameObjectUpdateResult,
+  PrimitiveTypeName,
+  TransformSpace,
+} from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -46,6 +59,21 @@ interface GameObjectUpdateOptions {
 
 interface GameObjectUpdateDeps {
   update: (input: GameObjectUpdateInput) => Promise<GameObjectUpdateResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface GameObjectReparentOptions {
+  path?: string
+  instanceId?: string
+  parent?: string
+  parentInstanceId?: string
+  toRoot?: boolean
+  worldPositionStays?: boolean
+}
+
+interface GameObjectReparentDeps {
+  reparent: (input: GameObjectReparentInput) => Promise<GameObjectReparentResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -247,6 +275,55 @@ export async function handleGameObjectUpdate(
   )
 }
 
+export async function handleGameObjectReparent(
+  opts: GameObjectReparentOptions,
+  jsonOutput: boolean,
+  deps: GameObjectReparentDeps,
+): Promise<void> {
+  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+  const path = opts.path
+
+  if ((path == null || path.length === 0) && instanceId == null) {
+    throw new Error('Provide target via --path or --instance-id.')
+  }
+  if (path != null && instanceId != null) {
+    throw new Error('Use either --path or --instance-id for target, not both.')
+  }
+
+  const parentInstanceId = parseInstanceId(opts.parentInstanceId, '--parent-instance-id')
+  const parentPath = opts.parent
+  const toRoot = opts.toRoot === true
+
+  if (toRoot && (parentPath != null || parentInstanceId != null)) {
+    throw new Error('Use either --to-root or a parent selector, not both.')
+  }
+  if (!toRoot && (parentPath == null && parentInstanceId == null)) {
+    throw new Error('Provide destination via --parent/--parent-instance-id, or set --to-root.')
+  }
+  if (parentPath != null && parentInstanceId != null) {
+    throw new Error('Use either --parent or --parent-instance-id, not both.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.reparent({
+      path,
+      instanceId,
+      parentPath,
+      parentInstanceId,
+      toRoot,
+      worldPositionStays: opts.worldPositionStays === true,
+    }),
+    (result, output) => {
+      output.log(`Reparented: ${result.path}`)
+      output.log(`Id:        ${result.instanceId}`)
+      output.log(`Parent:    ${result.parentPath ?? '(root)'}`)
+      output.log(`Sibling:   ${result.siblingIndex}`)
+    },
+  )
+}
+
 export function registerGameObject(program: Command): void {
   const gameObject = program
     .command('gameobject')
@@ -320,6 +397,31 @@ export function registerGameObject(program: Command): void {
         async (client, ctx) => {
           await handleGameObjectUpdate(opts, ctx.jsonOutput, {
             update: (input) => client.gameObjectUpdate(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  gameObject
+    .command('reparent')
+    .description('Reparent a GameObject to another parent or root')
+    .option('--path <path>', 'Target GameObject path, e.g. /Environment/Enemy_01')
+    .option('--instance-id <id>', 'Target GameObject instance ID (session-local)')
+    .option('--parent <path>', 'Destination parent GameObject path')
+    .option('--parent-instance-id <id>', 'Destination parent instance ID')
+    .option('--to-root', 'Move target to scene root')
+    .option('--world-position-stays', 'Preserve world transform while reparenting')
+    .action(async (opts: GameObjectReparentOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleGameObjectReparent(opts, ctx.jsonOutput, {
+            reparent: (input) => client.gameObjectReparent(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

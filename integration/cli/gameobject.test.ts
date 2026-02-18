@@ -190,4 +190,58 @@ describe('CLI: gameobject', () => {
     assert.equal(updatePayload.result?.transform.position.y, 3)
     assert.equal(updatePayload.result?.transform.position.z, 4)
   })
+
+  it('reparents a gameobject by instance id', async () => {
+    const parentName = `CliParent_${Date.now()}`
+    const childName = `${parentName}_Child`
+    const newParentName = `${parentName}_NewParent`
+    createdNames.push(parentName, childName, newParentName)
+
+    const parentPayload = (await runCli('gameobject', 'create', parentName, '--dimension', '3d')) as {
+      success: boolean
+      result?: { instanceId: number }
+    }
+    assert.equal(parentPayload.success, true)
+
+    const childPayload = (await runCli(
+      'gameobject',
+      'create',
+      childName,
+      '--dimension',
+      '3d',
+      '--parent-instance-id',
+      String(parentPayload.result?.instanceId),
+    )) as {
+      success: boolean
+      result?: { instanceId: number }
+    }
+    assert.equal(childPayload.success, true)
+
+    const newParentPayload = (await runCli('gameobject', 'create', newParentName, '--dimension', '3d')) as {
+      success: boolean
+      result?: { instanceId: number }
+    }
+    assert.equal(newParentPayload.success, true)
+
+    const reparentPayload = (await runCli(
+      'gameobject',
+      'reparent',
+      '--instance-id',
+      String(childPayload.result?.instanceId),
+      '--parent-instance-id',
+      String(newParentPayload.result?.instanceId),
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+        parentPath: string | null
+        path: string
+      }
+    }
+
+    assert.equal(reparentPayload.success, true)
+    assert.equal(reparentPayload.result?.instanceId, childPayload.result?.instanceId)
+    assert.equal(reparentPayload.result?.parentPath, `/${newParentName}`)
+    assert.equal(reparentPayload.result?.path, `/${newParentName}/${childName}`)
+  })
 })
