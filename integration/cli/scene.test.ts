@@ -30,6 +30,33 @@ describe('CLI: scene', () => {
     assert.equal(typeof payload.result?.scene.isDirty, 'boolean')
   })
 
+  it('lists scenes with pagination', async () => {
+    const payload = (await runCli('scene', 'list', '--limit', '10', '--offset', '0')) as {
+      success: boolean
+      result?: {
+        scenes: Array<{
+          name: string
+          path: string
+        }>
+        total: number
+        limit: number
+        offset: number
+      }
+      error?: string
+    }
+
+    assert.equal(payload.success, true)
+    assert.equal(payload.result?.limit, 10)
+    assert.equal(payload.result?.offset, 0)
+    assert.equal(typeof payload.result?.total, 'number')
+    assert.ok(Array.isArray(payload.result?.scenes))
+    if ((payload.result?.scenes.length ?? 0) > 0) {
+      assert.equal(typeof payload.result?.scenes[0].name, 'string')
+      assert.equal(typeof payload.result?.scenes[0].path, 'string')
+      assert.ok((payload.result?.scenes[0].path ?? '').endsWith('.unity'))
+    }
+  })
+
   describe('open', () => {
     after(async () => {
       await runCli('scene', 'open', 'Assets/Scenes/SampleScene.unity')

@@ -21,6 +21,19 @@ describe('SDK: scene', () => {
     assert.ok(scene.scene.name.length > 0)
   })
 
+  it('lists scenes with pagination', async () => {
+    const result = await client.sceneList({ limit: 10, offset: 0 })
+    assert.equal(result.limit, 10)
+    assert.equal(result.offset, 0)
+    assert.equal(typeof result.total, 'number')
+    assert.ok(Array.isArray(result.scenes))
+    if (result.scenes.length > 0) {
+      assert.equal(typeof result.scenes[0].name, 'string')
+      assert.equal(typeof result.scenes[0].path, 'string')
+      assert.ok(result.scenes[0].path.endsWith('.unity'))
+    }
+  })
+
   describe('open', () => {
     let originalScenePath: string
 

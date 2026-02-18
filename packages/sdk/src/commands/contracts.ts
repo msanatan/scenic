@@ -1,7 +1,15 @@
 export type { DomainReloadResult } from './domain/contract.ts'
 export type { ExecuteResult } from './execute/contract.ts'
 export type { LogEntry, LogsQuery, LogsResult, LogsSeverity } from './log/contract.ts'
-export type { SceneActiveResult, SceneCreateResult, SceneInfo, SceneOpenResult } from './scene/contract.ts'
+export type {
+  SceneActiveResult,
+  SceneCreateResult,
+  SceneInfo,
+  SceneListItem,
+  SceneListQuery,
+  SceneListResult,
+  SceneOpenResult,
+} from './scene/contract.ts'
 export type { StatusResult } from './status/contract.ts'
 export type {
   TestListItem,
