@@ -11,9 +11,9 @@
     "test": "npm run test:sdk && npm run test:cli",
     "test:sdk": "npm run test --workspace=@unibridge/sdk",
     "test:cli": "npm run test --workspace=@unibridge/cli",
-    "test:integration": "npm run build && node --test 'integration/sdk/*.test.ts' 'integration/cli/*.test.ts'",
-    "test:integration:sdk": "npm run build:sdk && node --test 'integration/sdk/*.test.ts'",
-    "test:integration:cli": "npm run build:cli && node --test 'integration/cli/*.test.ts'",
+    "test:integration": "npm run build && npm run test:integration:sdk && npm run test:integration:cli",
+    "test:integration:sdk": "npm run build:sdk && node --test --test-concurrency=1 'integration/sdk/*.test.ts'",
+    "test:integration:cli": "npm run build:cli && node --test --test-concurrency=1 'integration/cli/*.test.ts'",
     "test:local": "npm run build && npm run test",
     "smoke:execute": "node packages/cli/dist/index.js execute -p \"TestProjects/UniBridge3Dv6.3\" \"UnityEngine.Debug.Log(\\\"unibridge smoke test\\\");\"",
     "bump": "node scripts/bump-version.ts"
