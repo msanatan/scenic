@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace UniBridge.Editor.Commands.GameObject
@@ -13,7 +10,8 @@ namespace UniBridge.Editor.Commands.GameObject
         {
             var parameters = GameObjectCreateCommandParams.From(request);
 
-            var parent = ResolveTransform(parameters.Parent, parameters.ParentInstanceId);
+            var parentObject = GameObjectLookup.ResolveOptional(parameters.Parent, parameters.ParentInstanceId, "Parent");
+            var parent = parentObject == null ? null : parentObject.transform;
             var go = CreateBaseObject(parameters);
             go.name = parameters.Name;
 
@@ -27,7 +25,7 @@ namespace UniBridge.Editor.Commands.GameObject
             return new GameObjectCreateCommandResult
             {
                 Name = go.name,
-                Path = BuildPath(go.transform),
+                Path = GameObjectLookup.BuildPath(go.transform),
                 IsActive = go.activeSelf,
                 SiblingIndex = go.transform.GetSiblingIndex(),
                 InstanceId = go.GetInstanceID(),
@@ -113,88 +111,5 @@ namespace UniBridge.Editor.Commands.GameObject
             }
         }
 
-        private static string BuildPath(Transform transform)
-        {
-            var names = new Stack<string>();
-            var current = transform;
-            while (current != null)
-            {
-                names.Push(current.gameObject.name);
-                current = current.parent;
-            }
-
-            return "/" + string.Join("/", names.ToArray());
-        }
-
-        private static Transform ResolveTransform(string path, int? instanceId)
-        {
-            if (instanceId.HasValue)
-            {
-                var parentById = EditorUtility.EntityIdToObject(instanceId.Value) as UnityEngine.GameObject;
-                if (parentById == null)
-                {
-                    throw new CommandHandlingException($"Parent GameObject not found for instanceId: {instanceId.Value}");
-                }
-
-                return parentById.transform;
-            }
-
-            return ResolveTransformByPath(path);
-        }
-
-        private static Transform ResolveTransformByPath(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return null;
-            }
-
-            if (!path.StartsWith("/", StringComparison.Ordinal))
-            {
-                throw new CommandHandlingException("Parent path must start with '/'.");
-            }
-
-            var activeScene = EditorSceneManager.GetActiveScene();
-            if (!activeScene.IsValid())
-            {
-                throw new CommandHandlingException("No active scene is loaded.");
-            }
-
-            var roots = activeScene.GetRootGameObjects();
-            for (var i = 0; i < roots.Length; i++)
-            {
-                var match = FindByPath(roots[i].transform, path, parentPath: string.Empty);
-                if (match != null)
-                {
-                    return match;
-                }
-            }
-
-            throw new CommandHandlingException($"Parent GameObject not found: {path}");
-        }
-
-        private static Transform FindByPath(Transform current, string targetPath, string parentPath)
-        {
-            var currentPath = string.IsNullOrWhiteSpace(parentPath)
-                ? $"/{current.gameObject.name}"
-                : $"{parentPath}/{current.gameObject.name}";
-
-            if (string.Equals(currentPath, targetPath, StringComparison.Ordinal))
-            {
-                return current;
-            }
-
-            for (var i = 0; i < current.childCount; i++)
-            {
-                var child = current.GetChild(i);
-                var found = FindByPath(child, targetPath, currentPath);
-                if (found != null)
-                {
-                    return found;
-                }
-            }
-
-            return null;
-        }
     }
 }

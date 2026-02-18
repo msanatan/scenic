@@ -49,6 +49,28 @@ export const gameObjectCreateCommand = defineCommand({
   result: GameObjectCreateResultSchema,
 })
 
+export const GameObjectDestroyInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+})
+
+export const GameObjectDestroyResultSchema = v.object({
+  destroyed: v.boolean(),
+  name: v.string(),
+  path: v.string(),
+  instanceId: v.number(),
+})
+
+export const gameObjectDestroyCommand = defineCommand({
+  method: 'gameObjectDestroy',
+  wire: 'gameobject.destroy',
+  params: (input: GameObjectDestroyInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+  }),
+  result: GameObjectDestroyResultSchema,
+})
+
 export type GameObjectDimension = v.InferOutput<typeof GameObjectDimensionSchema>
 export type PrimitiveTypeName = v.InferOutput<typeof PrimitiveSchema>
 export type TransformSpace = v.InferOutput<typeof TransformSpaceSchema>
@@ -56,3 +78,5 @@ export type Vector3Value = v.InferOutput<typeof Vector3Schema>
 export type CreateTransform = v.InferOutput<typeof CreateTransformSchema>
 export type GameObjectCreateInput = v.InferOutput<typeof GameObjectCreateInputSchema>
 export type GameObjectCreateResult = InferResult<typeof gameObjectCreateCommand>
+export type GameObjectDestroyInput = v.InferOutput<typeof GameObjectDestroyInputSchema>
+export type GameObjectDestroyResult = InferResult<typeof gameObjectDestroyCommand>

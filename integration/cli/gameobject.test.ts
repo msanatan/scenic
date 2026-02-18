@@ -81,4 +81,51 @@ describe('CLI: gameobject', () => {
     assert.equal(typeof payload.result?.instanceId, 'number')
     assert.notEqual(payload.result?.instanceId, 0)
   })
+
+  it('destroys an object by instance id', async () => {
+    const name = `CliGoDestroy_${Date.now()}`
+    createdNames.push(name)
+
+    const createPayload = (await runCli(
+      'gameobject',
+      'create',
+      name,
+      '--dimension',
+      '3d',
+      '--primitive',
+      'cube',
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+
+    assert.equal(createPayload.success, true)
+    assert.equal(typeof createPayload.result?.instanceId, 'number')
+
+    const destroyPayload = (await runCli(
+      'gameobject',
+      'destroy',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+    )) as {
+      success: boolean
+      result?: {
+        destroyed: boolean
+        instanceId: number
+      }
+    }
+
+    assert.equal(destroyPayload.success, true)
+    assert.equal(destroyPayload.result?.destroyed, true)
+    assert.equal(destroyPayload.result?.instanceId, createPayload.result?.instanceId)
+
+    const existsPayload = (await runCli('execute', `UnityEngine.GameObject.Find("${name}") != null`)) as {
+      success: boolean
+      result?: unknown
+    }
+    assert.equal(existsPayload.success, true)
+    assert.equal(existsPayload.result, false)
+  })
 })

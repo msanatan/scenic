@@ -50,6 +50,7 @@ unibridge status
 unibridge logs --severity warn --limit 100 --offset 0
 unibridge gameobject create Player --dimension 2d --position 0,1,0
 unibridge gameobject create Enemy --parent-instance-id 12345 --primitive cube
+unibridge gameobject destroy --instance-id 12345
 unibridge test list --mode edit --limit 50 --offset 0
 unibridge test run --mode edit --filter DomainReloadCommandHandlerTests
 unibridge domain reload

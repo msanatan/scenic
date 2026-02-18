@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { CreateTransform, GameObjectCreateInput, GameObjectCreateResult, GameObjectDimension, PrimitiveTypeName, TransformSpace } from '@unibridge/sdk'
+import type { CreateTransform, GameObjectCreateInput, GameObjectCreateResult, GameObjectDestroyInput, GameObjectDestroyResult, GameObjectDimension, PrimitiveTypeName, TransformSpace } from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -16,6 +16,17 @@ interface GameObjectCreateOptions {
 
 interface GameObjectCreateDeps {
   create: (input: GameObjectCreateInput) => Promise<GameObjectCreateResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface GameObjectDestroyOptions {
+  path?: string
+  instanceId?: string
+}
+
+interface GameObjectDestroyDeps {
+  destroy: (input: GameObjectDestroyInput) => Promise<GameObjectDestroyResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -87,6 +98,17 @@ function parseParentInstanceId(value: string | undefined): number | undefined {
   return parsed
 }
 
+function parseInstanceId(value: string | undefined, label: string): number | undefined {
+  if (value == null) {
+    return undefined
+  }
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isInteger(parsed)) {
+    throw new Error(`${label} must be an integer.`)
+  }
+  return parsed
+}
+
 export async function handleGameObjectCreate(
   name: string,
   opts: GameObjectCreateOptions,
@@ -119,6 +141,33 @@ export async function handleGameObjectCreate(
   )
 }
 
+export async function handleGameObjectDestroy(
+  opts: GameObjectDestroyOptions,
+  jsonOutput: boolean,
+  deps: GameObjectDestroyDeps,
+): Promise<void> {
+  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+  const path = opts.path
+
+  if ((path == null || path.length === 0) && instanceId == null) {
+    throw new Error('Provide either --path or --instance-id.')
+  }
+  if (path != null && instanceId != null) {
+    throw new Error('Use either --path or --instance-id, not both.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.destroy({ path, instanceId }),
+    (result, output) => {
+      output.log(`Destroyed: ${result.path}`)
+      output.log(`Id:        ${result.instanceId}`)
+      output.log(`Name:      ${result.name}`)
+    },
+  )
+}
+
 export function registerGameObject(program: Command): void {
   const gameObject = program
     .command('gameobject')
@@ -142,6 +191,27 @@ export function registerGameObject(program: Command): void {
         async (client, ctx) => {
           await handleGameObjectCreate(name, opts, ctx.jsonOutput, {
             create: (input) => client.gameObjectCreate(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  gameObject
+    .command('destroy')
+    .description('Destroy a GameObject by path or instance ID')
+    .option('--path <path>', 'GameObject path, e.g. /Environment/Enemy_01')
+    .option('--instance-id <id>', 'GameObject instance ID (session-local)')
+    .action(async (opts: GameObjectDestroyOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleGameObjectDestroy(opts, ctx.jsonOutput, {
+            destroy: (input) => client.gameObjectDestroy(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

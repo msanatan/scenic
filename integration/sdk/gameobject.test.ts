@@ -54,4 +54,21 @@ describe('SDK: gameobject', () => {
     assert.equal(typeof result.instanceId, 'number')
     assert.notEqual(result.instanceId, 0)
   })
+
+  it('destroys an object by instance id', async () => {
+    const name = `SdkGoDestroy_${Date.now()}`
+
+    const created = await client.gameObjectCreate({
+      name,
+      dimension: '3d',
+      primitive: 'cube',
+    })
+
+    const destroyed = await client.gameObjectDestroy({ instanceId: created.instanceId })
+    assert.equal(destroyed.destroyed, true)
+    assert.equal(destroyed.instanceId, created.instanceId)
+
+    const exists = await client.execute(`UnityEngine.GameObject.Find("${name}") != null`)
+    assert.equal(exists, false)
+  })
 })
