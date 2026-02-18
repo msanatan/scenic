@@ -6,14 +6,14 @@ namespace UniBridge.Editor.Commands.Logs
         public object Handle(CommandRequest request)
         {
             var parameters = LogsCommandParams.From(request);
-            var page = LogBuffer.Query(parameters.Severity, parameters.Limit, parameters.Offset, out var total);
+            var page = LogBuffer.Query(parameters.Severity, parameters.Paging, out var total);
 
             return new LogsCommandResult
             {
                 Logs = page,
                 Total = total,
-                Limit = parameters.Limit,
-                Offset = parameters.Offset,
+                Limit = parameters.Paging.Limit,
+                Offset = parameters.Paging.Offset,
             };
         }
     }

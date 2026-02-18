@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UniBridge.Editor.Commands;
 using UnityEditor;
 using UnityEngine;
 
@@ -38,7 +39,7 @@ namespace UniBridge.Editor.Commands.Logs
             }
         }
 
-        public static LogEntry[] Query(string severity, int limit, int offset, out int total)
+        public static LogEntry[] Query(string severity, PaginationParams paging, out int total)
         {
             var filtered = new List<LogEntry>();
 
@@ -56,20 +57,7 @@ namespace UniBridge.Editor.Commands.Logs
                 }
             }
 
-            total = filtered.Count;
-            if (offset >= total)
-            {
-                return Array.Empty<LogEntry>();
-            }
-
-            var pageSize = Math.Min(limit, total - offset);
-            var page = new LogEntry[pageSize];
-            for (var i = 0; i < pageSize; i++)
-            {
-                page[i] = filtered[offset + i];
-            }
-
-            return page;
+            return Pagination.Slice(filtered, paging, out total);
         }
 
         private static string SeverityFrom(LogType type)

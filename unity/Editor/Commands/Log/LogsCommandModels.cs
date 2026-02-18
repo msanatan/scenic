@@ -1,12 +1,12 @@
 using Newtonsoft.Json;
+using UniBridge.Editor.Commands;
 
 namespace UniBridge.Editor.Commands.Logs
 {
     public sealed class LogsCommandParams
     {
         public string Severity;
-        public int Limit;
-        public int Offset;
+        public PaginationParams Paging;
 
         private const int DefaultLimit = 50;
         private const int DefaultOffset = 0;
@@ -15,44 +15,13 @@ namespace UniBridge.Editor.Commands.Logs
         {
             var severity = request == null ? null : request.GetStringParam("severity");
             var normalizedSeverity = NormalizeSeverity(severity);
-
-            var limitText = request == null ? null : request.GetStringParam("limit");
-            var offsetText = request == null ? null : request.GetStringParam("offset");
-
-            var limit = ParseOrDefault(limitText, DefaultLimit, "limit");
-            var offset = ParseOrDefault(offsetText, DefaultOffset, "offset");
-
-            if (limit <= 0)
-            {
-                throw new CommandHandlingException("params.limit must be a positive integer.");
-            }
-
-            if (offset < 0)
-            {
-                throw new CommandHandlingException("params.offset must be a non-negative integer.");
-            }
+            var paging = PaginationParams.From(request, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset);
 
             return new LogsCommandParams
             {
                 Severity = normalizedSeverity,
-                Limit = limit,
-                Offset = offset,
+                Paging = paging,
             };
-        }
-
-        private static int ParseOrDefault(string value, int defaultValue, string label)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return defaultValue;
-            }
-
-            if (!int.TryParse(value, out var parsed))
-            {
-                throw new CommandHandlingException($"params.{label} must be an integer.");
-            }
-
-            return parsed;
         }
 
         private static string NormalizeSeverity(string value)
