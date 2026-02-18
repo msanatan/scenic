@@ -6,7 +6,7 @@ Interact with Unity Editor projects using TypeScript and the command line.
 
 - SDK: [`@unibridge/sdk`](./packages/sdk/README.md)
 - CLI: [`@unibridge/cli`](./packages/cli/README.md)
-- Unity plugin (UPM package): [`unity/package.json`](./unity/package.json)
+- Unity plugin (UPM package): [`unity`](./unity/README.md)
 
 ## Install
 
@@ -41,14 +41,3 @@ https://github.com/msanatan/unibridge.git?path=unity
 3. Use package-specific docs:
    - SDK usage and examples: [`packages/sdk/README.md`](./packages/sdk/README.md)
    - CLI usage and examples: [`packages/cli/README.md`](./packages/cli/README.md)
-
-## Project Status
-
-UniBridge is in active development. The current docs focus on setup, basics, and release-aligned usage.
-
-## Documentation Direction
-
-Planned documentation improvements:
-
-- Generated SDK API docs from TypeScript types
-- Generated CLI reference from command help output
