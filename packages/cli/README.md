@@ -49,6 +49,7 @@ unibridge --project /path/to/UnityProject init
 unibridge status
 unibridge logs --severity warn --limit 100 --offset 0
 unibridge gameobject create Player --dimension 2d --position 0,1,0
+unibridge gameobject create Enemy --parent-instance-id 12345 --primitive cube
 unibridge test list --mode edit --limit 50 --offset 0
 unibridge test run --mode edit --filter DomainReloadCommandHandlerTests
 unibridge domain reload
@@ -64,3 +65,9 @@ Run commands with JSON output:
 ```bash
 unibridge --json status
 ```
+
+## Identity
+
+- `gameobject create` responses include `instanceId` and `path`.
+- `scene hierarchy` node entries include `instanceId`, `path`, `parentIndex`, and `siblingIndex`.
+- `instanceId` is session-local and ideal for follow-up commands during an active Unity session.

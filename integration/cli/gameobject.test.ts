@@ -41,12 +41,15 @@ describe('CLI: gameobject', () => {
         path: string
         isActive: boolean
         siblingIndex: number
+        instanceId: number
       }
     }
 
     assert.equal(payload.success, true)
     assert.equal(payload.result?.name, name)
     assert.ok((payload.result?.path ?? '').endsWith(`/${name}`))
+    assert.equal(typeof payload.result?.instanceId, 'number')
+    assert.notEqual(payload.result?.instanceId, 0)
   })
 
   it('creates a 3d primitive', async () => {
@@ -68,11 +71,14 @@ describe('CLI: gameobject', () => {
         path: string
         isActive: boolean
         siblingIndex: number
+        instanceId: number
       }
     }
 
     assert.equal(payload.success, true)
     assert.equal(payload.result?.name, name)
     assert.ok((payload.result?.path ?? '').endsWith(`/${name}`))
+    assert.equal(typeof payload.result?.instanceId, 'number')
+    assert.notEqual(payload.result?.instanceId, 0)
   })
 })

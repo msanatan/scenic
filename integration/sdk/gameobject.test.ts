@@ -35,6 +35,8 @@ describe('SDK: gameobject', () => {
 
     assert.equal(result.name, name)
     assert.ok(result.path.endsWith(`/${name}`))
+    assert.equal(typeof result.instanceId, 'number')
+    assert.notEqual(result.instanceId, 0)
   })
 
   it('creates a 3d primitive', async () => {
@@ -49,5 +51,7 @@ describe('SDK: gameobject', () => {
 
     assert.equal(result.name, name)
     assert.ok(result.path.endsWith(`/${name}`))
+    assert.equal(typeof result.instanceId, 'number')
+    assert.notEqual(result.instanceId, 0)
   })
 })

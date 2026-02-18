@@ -5,6 +5,7 @@ import { withUnityClient } from './with-unity-client.ts'
 
 interface GameObjectCreateOptions {
   parent?: string
+  parentInstanceId?: string
   dimension?: string
   primitive?: string
   space?: string
@@ -75,15 +76,31 @@ function parseTransform(opts: GameObjectCreateOptions): CreateTransform | undefi
   return transform
 }
 
+function parseParentInstanceId(value: string | undefined): number | undefined {
+  if (value == null) {
+    return undefined
+  }
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isInteger(parsed)) {
+    throw new Error('--parent-instance-id must be an integer.')
+  }
+  return parsed
+}
+
 export async function handleGameObjectCreate(
   name: string,
   opts: GameObjectCreateOptions,
   jsonOutput: boolean,
   deps: GameObjectCreateDeps,
 ): Promise<void> {
+  if (opts.parent != null && opts.parentInstanceId != null) {
+    throw new Error('Use either --parent or --parent-instance-id, not both.')
+  }
+
   const input: GameObjectCreateInput = {
     name,
     parent: opts.parent,
+    parentInstanceId: parseParentInstanceId(opts.parentInstanceId),
     dimension: parseDimension(opts.dimension),
     primitive: parsePrimitive(opts.primitive),
     transform: parseTransform(opts),
@@ -95,6 +112,7 @@ export async function handleGameObjectCreate(
     () => deps.create(input),
     (result, output) => {
       output.log(`Created: ${result.path}`)
+      output.log(`Id:      ${result.instanceId}`)
       output.log(`Active:  ${result.isActive ? 'yes' : 'no'}`)
       output.log(`Sibling: ${result.siblingIndex}`)
     },
@@ -110,6 +128,7 @@ export function registerGameObject(program: Command): void {
     .command('create <name>')
     .description('Create a GameObject with optional parent, primitive, and transform')
     .option('--parent <path>', 'Parent GameObject path, e.g. /Environment')
+    .option('--parent-instance-id <id>', 'Parent GameObject instance ID (session-local)')
     .option('--dimension <dimension>', 'Object type (2d|3d). 2d auto-adds SpriteRenderer')
     .option('--primitive <primitive>', '3D primitive (cube|sphere|capsule|cylinder|plane|quad)')
     .option('--space <space>', 'Transform space (local|world)')

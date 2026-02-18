@@ -68,6 +68,7 @@ describe('CLI: scene', () => {
           depth: number
           parentIndex: number
           siblingIndex: number
+          instanceId: number
         }>
         total: number
         limit: number
@@ -89,6 +90,8 @@ describe('CLI: scene', () => {
       assert.equal(typeof first?.depth, 'number')
       assert.equal(typeof first?.parentIndex, 'number')
       assert.equal(typeof first?.siblingIndex, 'number')
+      assert.equal(typeof first?.instanceId, 'number')
+      assert.notEqual(first?.instanceId, 0)
     }
   })
 

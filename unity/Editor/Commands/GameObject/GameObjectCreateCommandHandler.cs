@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ namespace UniBridge.Editor.Commands.GameObject
         {
             var parameters = GameObjectCreateCommandParams.From(request);
 
-            var parent = ResolveTransformByPath(parameters.Parent);
+            var parent = ResolveTransform(parameters.Parent, parameters.ParentInstanceId);
             var go = CreateBaseObject(parameters);
             go.name = parameters.Name;
 
@@ -29,6 +30,7 @@ namespace UniBridge.Editor.Commands.GameObject
                 Path = BuildPath(go.transform),
                 IsActive = go.activeSelf,
                 SiblingIndex = go.transform.GetSiblingIndex(),
+                InstanceId = go.GetInstanceID(),
             };
         }
 
@@ -122,6 +124,22 @@ namespace UniBridge.Editor.Commands.GameObject
             }
 
             return "/" + string.Join("/", names.ToArray());
+        }
+
+        private static Transform ResolveTransform(string path, int? instanceId)
+        {
+            if (instanceId.HasValue)
+            {
+                var parentById = EditorUtility.EntityIdToObject(instanceId.Value) as UnityEngine.GameObject;
+                if (parentById == null)
+                {
+                    throw new CommandHandlingException($"Parent GameObject not found for instanceId: {instanceId.Value}");
+                }
+
+                return parentById.transform;
+            }
+
+            return ResolveTransformByPath(path);
         }
 
         private static Transform ResolveTransformByPath(string path)

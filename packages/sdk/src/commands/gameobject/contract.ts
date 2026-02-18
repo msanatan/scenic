@@ -21,6 +21,7 @@ const CreateTransformSchema = v.object({
 export const GameObjectCreateInputSchema = v.object({
   name: v.string(),
   parent: v.optional(v.string()),
+  parentInstanceId: v.optional(v.number()),
   dimension: v.optional(GameObjectDimensionSchema),
   primitive: v.optional(PrimitiveSchema),
   transform: v.optional(CreateTransformSchema),
@@ -31,6 +32,7 @@ export const GameObjectCreateResultSchema = v.object({
   path: v.string(),
   isActive: v.boolean(),
   siblingIndex: v.number(),
+  instanceId: v.number(),
 })
 
 export const gameObjectCreateCommand = defineCommand({
@@ -39,6 +41,7 @@ export const gameObjectCreateCommand = defineCommand({
   params: (input: GameObjectCreateInput) => ({
     name: input.name,
     parent: input.parent,
+    parentInstanceId: input.parentInstanceId,
     dimension: input.dimension,
     primitive: input.primitive,
     transform: input.transform,

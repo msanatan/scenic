@@ -53,6 +53,7 @@ namespace UniBridge.Editor.Commands.Scene
                 Depth = depth,
                 ParentIndex = parentIndex,
                 SiblingIndex = current.GetSiblingIndex(),
+                InstanceId = current.gameObject.GetInstanceID(),
             });
 
             for (var i = 0; i < current.childCount; i++)

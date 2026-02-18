@@ -27,6 +27,7 @@ namespace UniBridge.Editor.Tests.Commands.GameObject
             var result = response.Result as GameObjectCreateCommandResult;
             Assert.IsNotNull(result);
             Assert.AreEqual("/Player2D", result.Path);
+            Assert.AreNotEqual(0, result.InstanceId);
 
             var created = UnityEngine.GameObject.Find("Player2D");
             Assert.IsNotNull(created);
@@ -39,13 +40,14 @@ namespace UniBridge.Editor.Tests.Commands.GameObject
         {
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var parent = new UnityEngine.GameObject("World");
+            var parentInstanceId = parent.GetInstanceID();
 
             var response = CommandRouter.Route(
                 new CommandRequest
                 {
                     Id = "go-create-3d",
                     Command = "gameobject.create",
-                    ParamsJson = "{\"name\":\"Floor\",\"parent\":\"/World\",\"primitive\":\"cube\",\"transform\":{\"space\":\"local\",\"position\":{\"x\":1,\"y\":2,\"z\":3},\"rotation\":{\"x\":0,\"y\":45,\"z\":0},\"scale\":{\"x\":2,\"y\":1,\"z\":2}}}",
+                    ParamsJson = $"{{\"name\":\"Floor\",\"parentInstanceId\":{parentInstanceId},\"primitive\":\"cube\",\"transform\":{{\"space\":\"local\",\"position\":{{\"x\":1,\"y\":2,\"z\":3}},\"rotation\":{{\"x\":0,\"y\":45,\"z\":0}},\"scale\":{{\"x\":2,\"y\":1,\"z\":2}}}}}}",
                 },
                 executeEnabled: true);
 
@@ -53,6 +55,7 @@ namespace UniBridge.Editor.Tests.Commands.GameObject
             var result = response.Result as GameObjectCreateCommandResult;
             Assert.IsNotNull(result);
             Assert.AreEqual("/World/Floor", result.Path);
+            Assert.AreNotEqual(0, result.InstanceId);
 
             var created = UnityEngine.GameObject.Find("Floor");
             Assert.IsNotNull(created);

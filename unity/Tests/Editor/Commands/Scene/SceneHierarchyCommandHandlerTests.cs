@@ -42,6 +42,7 @@ namespace UniBridge.Editor.Tests.Commands.Scene
             Assert.GreaterOrEqual(rootIndex, 0);
             Assert.AreEqual(-1, result.Nodes[rootIndex].ParentIndex);
             Assert.AreEqual(0, result.Nodes[rootIndex].Depth);
+            Assert.AreNotEqual(0, result.Nodes[rootIndex].InstanceId);
 
             var childAIndex = FindIndexByPath(result.Nodes, "/Root/Child");
             Assert.GreaterOrEqual(childAIndex, 0);
@@ -49,17 +50,20 @@ namespace UniBridge.Editor.Tests.Commands.Scene
             Assert.AreEqual(1, result.Nodes[childAIndex].Depth);
             Assert.AreEqual(0, result.Nodes[childAIndex].SiblingIndex);
             Assert.IsTrue(result.Nodes[childAIndex].IsActive);
+            Assert.AreNotEqual(0, result.Nodes[childAIndex].InstanceId);
 
             var childBIndex = FindIndexByPathWithSibling(result.Nodes, "/Root/Child", 1);
             Assert.GreaterOrEqual(childBIndex, 0);
             Assert.AreEqual(rootIndex, result.Nodes[childBIndex].ParentIndex);
             Assert.AreEqual(1, result.Nodes[childBIndex].Depth);
             Assert.IsFalse(result.Nodes[childBIndex].IsActive);
+            Assert.AreNotEqual(0, result.Nodes[childBIndex].InstanceId);
 
             var leafIndex = FindIndexByPath(result.Nodes, "/Root/Child/Leaf");
             Assert.GreaterOrEqual(leafIndex, 0);
             Assert.AreEqual(childAIndex, result.Nodes[leafIndex].ParentIndex);
             Assert.AreEqual(2, result.Nodes[leafIndex].Depth);
+            Assert.AreNotEqual(0, result.Nodes[leafIndex].InstanceId);
 
             UnityEngine.Object.DestroyImmediate(root);
         }

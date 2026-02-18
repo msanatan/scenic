@@ -19,6 +19,7 @@ const SceneHierarchyNodeSchema = v.object({
   depth: v.number(),
   parentIndex: v.number(),
   siblingIndex: v.number(),
+  instanceId: v.number(),
 })
 
 export const SceneListResultSchema = v.object({

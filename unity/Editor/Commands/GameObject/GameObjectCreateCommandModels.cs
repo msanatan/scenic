@@ -23,6 +23,7 @@ namespace UniBridge.Editor.Commands.GameObject
     {
         public string Name;
         public string Parent;
+        public int? ParentInstanceId;
         public string Dimension;
         public string Primitive;
         public TransformInput Transform = new TransformInput();
@@ -53,6 +54,12 @@ namespace UniBridge.Editor.Commands.GameObject
             var dimension = NormalizeDimension(payload.Value<string>("dimension"));
             var primitive = NormalizePrimitive(payload.Value<string>("primitive"));
             var space = NormalizeSpace(payload.SelectToken("transform.space")?.Value<string>());
+            var parentPath = payload.Value<string>("parent");
+            var parentInstanceId = payload.Value<int?>("parentInstanceId");
+            if (!string.IsNullOrWhiteSpace(parentPath) && parentInstanceId.HasValue)
+            {
+                throw new CommandHandlingException("Provide either params.parent or params.parentInstanceId, not both.");
+            }
 
             var transform = new TransformInput
             {
@@ -65,7 +72,8 @@ namespace UniBridge.Editor.Commands.GameObject
             return new GameObjectCreateCommandParams
             {
                 Name = name.Trim(),
-                Parent = payload.Value<string>("parent"),
+                Parent = parentPath,
+                ParentInstanceId = parentInstanceId,
                 Dimension = dimension,
                 Primitive = primitive,
                 Transform = transform,
@@ -169,5 +177,8 @@ namespace UniBridge.Editor.Commands.GameObject
 
         [JsonProperty("siblingIndex")]
         public int SiblingIndex;
+
+        [JsonProperty("instanceId")]
+        public int InstanceId;
     }
 }

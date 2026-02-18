@@ -142,7 +142,7 @@ export async function handleSceneHierarchy(
       output.log(`Hierarchy: ${result.nodes.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const node of result.nodes) {
         const indent = '  '.repeat(node.depth)
-        output.log(`${indent}${node.path} (${node.isActive ? 'active' : 'inactive'}) [sibling=${node.siblingIndex}]`)
+        output.log(`${indent}${node.path} (${node.isActive ? 'active' : 'inactive'}) [id=${node.instanceId}, sibling=${node.siblingIndex}]`)
       }
     },
   )

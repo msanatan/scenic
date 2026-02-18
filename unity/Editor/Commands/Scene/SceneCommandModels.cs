@@ -76,6 +76,9 @@ namespace UniBridge.Editor.Commands.Scene
 
         [JsonProperty("siblingIndex")]
         public int SiblingIndex;
+
+        [JsonProperty("instanceId")]
+        public int InstanceId;
     }
 
     public sealed class SceneHierarchyCommandResult
