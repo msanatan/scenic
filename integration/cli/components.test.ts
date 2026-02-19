@@ -277,4 +277,69 @@ describe('CLI: components', () => {
     assert.equal(existsPayload.success, true)
     assert.equal(existsPayload.result, false)
   })
+
+  it('updates a component', async () => {
+    const name = `CliComponentsUpdate_${Date.now()}`
+    createdNames.push(name)
+
+    const createPayload = (await runCli('gameobject', 'create', name, '--dimension', '3d')) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+    assert.equal(createPayload.success, true)
+
+    const addPayload = (await runCli(
+      'components',
+      'add',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--type',
+      'UnityEngine.Rigidbody',
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+    assert.equal(addPayload.success, true)
+
+    const updatePayload = (await runCli(
+      'components',
+      'update',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--component-instance-id',
+      String(addPayload.result?.instanceId),
+      '--values',
+      '{"mass":12.5,"useGravity":false}',
+      '--strict',
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+        type: string
+        appliedFields: string[]
+        ignoredFields: string[]
+      }
+    }
+
+    assert.equal(updatePayload.success, true)
+    assert.equal(updatePayload.result?.instanceId, addPayload.result?.instanceId)
+    assert.ok((updatePayload.result?.type ?? '').includes('Rigidbody'))
+    assert.ok(updatePayload.result?.appliedFields.includes('mass'))
+    assert.ok(updatePayload.result?.appliedFields.includes('useGravity'))
+    assert.equal(updatePayload.result?.ignoredFields.length, 0)
+
+    const valuesPayload = (await runCli(
+      'execute',
+      `var go = UnityEngine.GameObject.Find("${name}"); var rb = go.GetComponent<UnityEngine.Rigidbody>(); rb.mass + "|" + rb.useGravity`,
+    )) as {
+      success: boolean
+      result?: unknown
+    }
+    assert.equal(valuesPayload.success, true)
+    assert.equal(valuesPayload.result, '12.5|False')
+  })
 })

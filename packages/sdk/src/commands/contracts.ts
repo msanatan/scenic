@@ -5,6 +5,8 @@ export type {
   ComponentsGetResult,
   ComponentsRemoveInput,
   ComponentsRemoveResult,
+  ComponentsUpdateInput,
+  ComponentsUpdateResult,
   ComponentListItem,
   ComponentsListQuery,
   ComponentsListResult,

@@ -33,6 +33,16 @@ export const ComponentsRemoveInputSchema = v.object({
   type: v.optional(v.string()),
 })
 
+export const ComponentsUpdateInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+  componentInstanceId: v.optional(v.number()),
+  index: v.optional(v.number()),
+  type: v.optional(v.string()),
+  values: v.record(v.string(), v.unknown()),
+  strict: v.optional(v.boolean()),
+})
+
 const ComponentListItemSchema = v.object({
   instanceId: v.number(),
   type: v.string(),
@@ -69,6 +79,14 @@ export const ComponentsRemoveResultSchema = v.object({
   instanceId: v.number(),
   type: v.string(),
   index: v.number(),
+})
+
+export const ComponentsUpdateResultSchema = v.object({
+  instanceId: v.number(),
+  type: v.string(),
+  index: v.number(),
+  appliedFields: v.array(v.string()),
+  ignoredFields: v.array(v.string()),
 })
 
 export const componentsListCommand = defineCommand({
@@ -123,12 +141,29 @@ export const componentsRemoveCommand = defineCommand({
   result: ComponentsRemoveResultSchema,
 })
 
+export const componentsUpdateCommand = defineCommand({
+  method: 'componentsUpdate',
+  wire: 'components.update',
+  params: (input: ComponentsUpdateInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+    componentInstanceId: input.componentInstanceId,
+    index: input.index,
+    type: input.type,
+    values: input.values,
+    strict: input.strict,
+  }),
+  result: ComponentsUpdateResultSchema,
+})
+
 export type ComponentsListQuery = v.InferOutput<typeof ComponentsListQuerySchema>
 export type ComponentsAddInput = v.InferOutput<typeof ComponentsAddInputSchema>
 export type ComponentsGetQuery = v.InferOutput<typeof ComponentsGetQuerySchema>
 export type ComponentsRemoveInput = v.InferOutput<typeof ComponentsRemoveInputSchema>
+export type ComponentsUpdateInput = v.InferOutput<typeof ComponentsUpdateInputSchema>
 export type ComponentListItem = v.InferOutput<typeof ComponentListItemSchema>
 export type ComponentsListResult = InferResult<typeof componentsListCommand>
 export type ComponentsAddResult = InferResult<typeof componentsAddCommand>
 export type ComponentsGetResult = InferResult<typeof componentsGetCommand>
 export type ComponentsRemoveResult = InferResult<typeof componentsRemoveCommand>
+export type ComponentsUpdateResult = InferResult<typeof componentsUpdateCommand>

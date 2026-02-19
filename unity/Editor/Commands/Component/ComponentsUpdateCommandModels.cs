@@ -1,17 +1,20 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UniBridge.Editor.Commands;
 
 namespace UniBridge.Editor.Commands.Components
 {
-    public sealed class ComponentsRemoveCommandParams
+    public sealed class ComponentsUpdateCommandParams
     {
         public string Path;
         public int? InstanceId;
         public int? ComponentInstanceId;
         public int? Index;
         public string Type;
+        public JObject Values;
+        public bool Strict;
 
-        public static ComponentsRemoveCommandParams From(CommandRequest request)
+        public static ComponentsUpdateCommandParams From(CommandRequest request)
         {
             var payload = CommandModelHelpers.ParsePayload(request);
             var selector = CommandModelHelpers.ReadPathInstanceSelector(payload);
@@ -20,24 +23,28 @@ namespace UniBridge.Editor.Commands.Components
             var componentInstanceId = payload.Value<int?>("componentInstanceId");
             var index = payload.Value<int?>("index");
             ComponentCommandParamsHelpers.ValidateSelector(componentInstanceId, index, type);
-            var hasType = !string.IsNullOrWhiteSpace(type);
 
-            return new ComponentsRemoveCommandParams
+            var valuesToken = payload["values"];
+            if (!(valuesToken is JObject values))
+            {
+                throw new CommandHandlingException("params.values must be a JSON object.");
+            }
+
+            return new ComponentsUpdateCommandParams
             {
                 Path = selector.Path,
                 InstanceId = selector.InstanceId,
                 ComponentInstanceId = componentInstanceId,
                 Index = index,
-                Type = hasType ? type.Trim() : null,
+                Type = string.IsNullOrWhiteSpace(type) ? null : type.Trim(),
+                Values = values,
+                Strict = payload.Value<bool?>("strict") ?? false,
             };
         }
     }
 
-    public sealed class ComponentsRemoveCommandResult
+    public sealed class ComponentsUpdateCommandResult
     {
-        [JsonProperty("removed")]
-        public bool Removed;
-
         [JsonProperty("instanceId")]
         public int InstanceId;
 
@@ -46,5 +53,11 @@ namespace UniBridge.Editor.Commands.Components
 
         [JsonProperty("index")]
         public int Index;
+
+        [JsonProperty("appliedFields")]
+        public string[] AppliedFields;
+
+        [JsonProperty("ignoredFields")]
+        public string[] IgnoredFields;
     }
 }

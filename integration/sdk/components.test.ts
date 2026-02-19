@@ -142,4 +142,35 @@ describe('SDK: components', () => {
     )
     assert.equal(exists, false)
   })
+
+  it('updates a component', async () => {
+    const name = `SdkComponentsUpdate_${Date.now()}`
+    createdNames.push(name)
+
+    const created = await client.gameObjectCreate({ name, dimension: '3d' })
+    const added = await client.componentsAdd({
+      instanceId: created.instanceId,
+      type: 'UnityEngine.Rigidbody',
+    })
+
+    const updated = await client.componentsUpdate({
+      instanceId: created.instanceId,
+      componentInstanceId: added.instanceId,
+      values: {
+        mass: 12.5,
+        useGravity: false,
+      },
+      strict: true,
+    })
+    assert.equal(updated.instanceId, added.instanceId)
+    assert.ok(updated.type.includes('Rigidbody'))
+    assert.ok(updated.appliedFields.includes('mass'))
+    assert.ok(updated.appliedFields.includes('useGravity'))
+    assert.equal(updated.ignoredFields.length, 0)
+
+    const values = await client.execute(
+      `var go = UnityEngine.GameObject.Find("${name}"); var rb = go.GetComponent<UnityEngine.Rigidbody>(); rb.mass + "|" + rb.useGravity`,
+    )
+    assert.equal(values, '12.5|False')
+  })
 })

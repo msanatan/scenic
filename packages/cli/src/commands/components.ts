@@ -8,6 +8,8 @@ import type {
   ComponentsGetResult,
   ComponentsRemoveInput,
   ComponentsRemoveResult,
+  ComponentsUpdateInput,
+  ComponentsUpdateResult,
   ComponentsListQuery,
   ComponentsListResult,
 } from '@unibridge/sdk'
@@ -67,6 +69,23 @@ interface ComponentsRemoveOptions {
 
 interface ComponentsRemoveDeps {
   remove: (input: ComponentsRemoveInput) => Promise<ComponentsRemoveResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface ComponentsUpdateOptions {
+  path?: string
+  instanceId?: string
+  componentInstanceId?: string
+  index?: string
+  type?: string
+  values?: string
+  valuesFile?: string
+  strict?: boolean
+}
+
+interface ComponentsUpdateDeps {
+  update: (input: ComponentsUpdateInput) => Promise<ComponentsUpdateResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -324,6 +343,64 @@ export async function handleComponentsRemove(
   )
 }
 
+export async function handleComponentsUpdate(
+  opts: ComponentsUpdateOptions,
+  jsonOutput: boolean,
+  deps: ComponentsUpdateDeps,
+): Promise<void> {
+  const instanceId = parseInstanceId(opts.instanceId)
+  const path = opts.path
+
+  if ((path == null || path.length === 0) && instanceId == null) {
+    throw new Error('Provide target via --path or --instance-id.')
+  }
+  if (path != null && instanceId != null) {
+    throw new Error('Use either --path or --instance-id, not both.')
+  }
+
+  const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
+  const index = parseOptionalInt(opts.index, '--index')
+  const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
+  const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
+  if (selectorCount !== 1) {
+    throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
+  }
+  if (index != null && index < 0) {
+    throw new Error('--index must be a non-negative integer.')
+  }
+
+  const values = parseInitialValues({
+    values: opts.values,
+    valuesFile: opts.valuesFile,
+  })
+  if (values == null) {
+    throw new Error('Provide --values or --values-file.')
+  }
+
+  const input: ComponentsUpdateInput = {
+    path,
+    instanceId,
+    componentInstanceId,
+    index,
+    type,
+    values,
+    strict: opts.strict === true,
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.update(input),
+    (result, output) => {
+      output.log(`Updated: ${result.type}`)
+      output.log(`Id:      ${result.instanceId}`)
+      output.log(`Index:   ${result.index}`)
+      output.log(`Applied fields: ${result.appliedFields.length}`)
+      output.log(`Ignored fields: ${result.ignoredFields.length}`)
+    },
+  )
+}
+
 export function registerComponents(program: Command): void {
   const components = program
     .command('components')
@@ -393,6 +470,33 @@ export function registerComponents(program: Command): void {
         async (client, ctx) => {
           await handleComponentsRemove(opts, ctx.jsonOutput, {
             remove: (input) => client.componentsRemove(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  components
+    .command('update')
+    .description('Update fields on a component')
+    .option('--path <path>', 'Target GameObject path, e.g. /Player')
+    .option('--instance-id <id>', 'Target GameObject instance ID (session-local)')
+    .option('--component-instance-id <id>', 'Component instance ID')
+    .option('--index <number>', 'Component index on the GameObject')
+    .option('--type <text>', 'Component type selector (substring, must match exactly one)')
+    .option('--values <json>', 'Inline JSON object of component values to update')
+    .option('--values-file <path>', 'Path to JSON file of component values to update')
+    .option('--strict', 'Fail if any value field is unknown')
+    .action(async (opts: ComponentsUpdateOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleComponentsUpdate(opts, ctx.jsonOutput, {
+            update: (input) => client.componentsUpdate(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode
