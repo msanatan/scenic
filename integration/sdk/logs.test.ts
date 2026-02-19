@@ -21,6 +21,7 @@ describe('SDK: logs', () => {
     assert.equal(typeof page.total, 'number')
     assert.equal(page.limit, 200)
     assert.equal(page.offset, 0)
+    assert.ok(page.total > 0)
     assert.ok(page.logs.every((entry) => entry.severity === 'warn'))
     assert.ok(page.logs.some((entry) => entry.message.includes(marker)))
   })

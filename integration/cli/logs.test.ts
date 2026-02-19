@@ -35,6 +35,7 @@ describe('CLI: logs', () => {
     assert.equal(payload.result?.limit, 200)
     assert.equal(payload.result?.offset, 0)
     assert.equal(typeof payload.result?.total, 'number')
+    assert.ok(payload.result?.total > 0)
     assert.ok(payload.result?.logs.every((entry) => entry.severity === 'warn'))
     assert.ok(payload.result?.logs.some((entry) => entry.message.includes(marker)))
   })
