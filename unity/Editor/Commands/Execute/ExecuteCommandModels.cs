@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace UniBridge.Editor.Commands.Execute
 {
     public sealed class ExecuteCommandParams
@@ -12,7 +10,7 @@ namespace UniBridge.Editor.Commands.Execute
 
             return new ExecuteCommandParams
             {
-                Code = payload.Value<string>("code"),
+                Code = CommandModelHelpers.ReadOptionalString(payload, "code"),
             };
         }
     }

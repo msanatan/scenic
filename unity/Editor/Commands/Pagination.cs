@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace UniBridge.Editor.Commands
 {
@@ -13,6 +14,23 @@ namespace UniBridge.Editor.Commands
             var limitText = request == null ? null : request.GetStringParam("limit");
             var offsetText = request == null ? null : request.GetStringParam("offset");
 
+            return FromInternal(limitText, offsetText, defaultLimit, defaultOffset);
+        }
+
+        public static PaginationParams From(JObject payload, int defaultLimit = 50, int defaultOffset = 0)
+        {
+            var limitText = CommandModelHelpers.ReadOptionalString(payload, "limit");
+            var offsetText = CommandModelHelpers.ReadOptionalString(payload, "offset");
+
+            return FromInternal(limitText, offsetText, defaultLimit, defaultOffset);
+        }
+
+        private static PaginationParams FromInternal(
+            string limitText,
+            string offsetText,
+            int defaultLimit,
+            int defaultOffset)
+        {
             var limit = ParseOrDefault(limitText, defaultLimit, "limit");
             var offset = ParseOrDefault(offsetText, defaultOffset, "offset");
 

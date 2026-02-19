@@ -57,7 +57,7 @@ namespace UniBridge.Editor.Tests.Commands.GameObject
                 executeEnabled: true);
 
             Assert.IsFalse(response.Success);
-            StringAssert.Contains("no update fields", response.Error.ToLowerInvariant());
+            StringAssert.Contains("update field", response.Error.ToLowerInvariant());
 
             UnityEngine.Object.DestroyImmediate(target);
         }

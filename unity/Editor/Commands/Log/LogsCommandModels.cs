@@ -14,9 +14,9 @@ namespace UniBridge.Editor.Commands.Logs
         public static LogsCommandParams From(CommandRequest request)
         {
             var payload = CommandModelHelpers.ParsePayload(request);
-            var severity = payload.Value<string>("severity");
+            var severity = CommandModelHelpers.ReadOptionalString(payload, "severity");
             var normalizedSeverity = NormalizeSeverity(severity);
-            var paging = PaginationParams.From(request, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset);
+            var paging = PaginationParams.From(payload, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset);
 
             return new LogsCommandParams
             {

@@ -17,14 +17,14 @@ namespace UniBridge.Editor.Commands.Components
         {
             var payload = CommandModelHelpers.ParsePayload(request);
             var selector = CommandModelHelpers.ReadPathInstanceSelector(payload);
-            var type = payload.Value<string>("type");
+            var type = CommandModelHelpers.ReadOptionalString(payload, "type");
 
             return new ComponentsListCommandParams
             {
                 Path = selector.Path,
                 InstanceId = selector.InstanceId,
                 Type = string.IsNullOrWhiteSpace(type) ? null : type,
-                Paging = PaginationParams.From(request, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset),
+                Paging = PaginationParams.From(payload, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset),
             };
         }
     }

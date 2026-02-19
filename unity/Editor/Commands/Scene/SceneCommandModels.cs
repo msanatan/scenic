@@ -20,12 +20,12 @@ namespace UniBridge.Editor.Commands.Scene
         public static SceneListCommandParams From(CommandRequest request)
         {
             var payload = CommandModelHelpers.ParsePayload(request);
-            var filter = payload.Value<string>("filter");
+            var filter = CommandModelHelpers.ReadOptionalString(payload, "filter");
 
             return new SceneListCommandParams
             {
                 Filter = string.IsNullOrWhiteSpace(filter) ? null : filter,
-                Paging = PaginationParams.From(request, defaultLimit: 50, defaultOffset: 0),
+                Paging = PaginationParams.From(payload, defaultLimit: 50, defaultOffset: 0),
             };
         }
     }
@@ -51,10 +51,10 @@ namespace UniBridge.Editor.Commands.Scene
 
         public static SceneHierarchyCommandParams From(CommandRequest request)
         {
-            CommandModelHelpers.ParsePayload(request);
+            var payload = CommandModelHelpers.ParsePayload(request);
             return new SceneHierarchyCommandParams
             {
-                Paging = PaginationParams.From(request, defaultLimit: 200, defaultOffset: 0),
+                Paging = PaginationParams.From(payload, defaultLimit: 200, defaultOffset: 0),
             };
         }
     }
@@ -125,7 +125,7 @@ namespace UniBridge.Editor.Commands.Scene
             var payload = CommandModelHelpers.ParsePayload(request);
             return new SceneOpenCommandParams
             {
-                Path = payload.Value<string>("path"),
+                Path = CommandModelHelpers.ReadOptionalString(payload, "path"),
             };
         }
     }
@@ -145,7 +145,7 @@ namespace UniBridge.Editor.Commands.Scene
             var payload = CommandModelHelpers.ParsePayload(request);
             return new SceneCreateCommandParams
             {
-                Path = payload.Value<string>("path"),
+                Path = CommandModelHelpers.ReadOptionalString(payload, "path"),
             };
         }
     }
