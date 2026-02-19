@@ -95,4 +95,53 @@ describe('CLI: components', () => {
       assert.ok(component.type.includes('Rigidbody'))
     }
   })
+
+  it('adds a component with initial values', async () => {
+    const name = `CliComponentsAdd_${Date.now()}`
+    createdNames.push(name)
+
+    const createPayload = (await runCli('gameobject', 'create', name, '--dimension', '3d')) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+    assert.equal(createPayload.success, true)
+
+    const addPayload = (await runCli(
+      'components',
+      'add',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--type',
+      'UnityEngine.Rigidbody',
+      '--values',
+      '{"mass":5.5,"useGravity":false}',
+      '--strict',
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+        type: string
+        appliedFields: string[]
+        ignoredFields: string[]
+      }
+    }
+
+    assert.equal(addPayload.success, true)
+    assert.ok((addPayload.result?.type ?? '').includes('Rigidbody'))
+    assert.ok(addPayload.result?.appliedFields.includes('mass'))
+    assert.ok(addPayload.result?.appliedFields.includes('useGravity'))
+    assert.equal(addPayload.result?.ignoredFields.length, 0)
+
+    const valuesPayload = (await runCli(
+      'execute',
+      `var go = UnityEngine.GameObject.Find("${name}"); var rb = go.GetComponent<UnityEngine.Rigidbody>(); rb.mass + "|" + rb.useGravity`,
+    )) as {
+      success: boolean
+      result?: unknown
+    }
+    assert.equal(valuesPayload.success, true)
+    assert.equal(valuesPayload.result, '5.5|False')
+  })
 })

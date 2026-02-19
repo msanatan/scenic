@@ -9,6 +9,14 @@ export const ComponentsListQuerySchema = v.object({
   offset: v.optional(v.number()),
 })
 
+export const ComponentsAddInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+  type: v.string(),
+  initialValues: v.optional(v.record(v.string(), v.unknown())),
+  strict: v.optional(v.boolean()),
+})
+
 const ComponentListItemSchema = v.object({
   instanceId: v.number(),
   type: v.string(),
@@ -21,6 +29,13 @@ export const ComponentsListResultSchema = v.object({
   total: v.number(),
   limit: v.number(),
   offset: v.number(),
+})
+
+export const ComponentsAddResultSchema = v.object({
+  instanceId: v.number(),
+  type: v.string(),
+  appliedFields: v.array(v.string()),
+  ignoredFields: v.array(v.string()),
 })
 
 export const componentsListCommand = defineCommand({
@@ -36,6 +51,21 @@ export const componentsListCommand = defineCommand({
   result: ComponentsListResultSchema,
 })
 
+export const componentsAddCommand = defineCommand({
+  method: 'componentsAdd',
+  wire: 'components.add',
+  params: (input: ComponentsAddInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+    type: input.type,
+    initialValues: input.initialValues,
+    strict: input.strict,
+  }),
+  result: ComponentsAddResultSchema,
+})
+
 export type ComponentsListQuery = v.InferOutput<typeof ComponentsListQuerySchema>
+export type ComponentsAddInput = v.InferOutput<typeof ComponentsAddInputSchema>
 export type ComponentListItem = v.InferOutput<typeof ComponentListItemSchema>
 export type ComponentsListResult = InferResult<typeof componentsListCommand>
+export type ComponentsAddResult = InferResult<typeof componentsAddCommand>

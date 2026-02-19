@@ -52,4 +52,30 @@ describe('SDK: components', () => {
       assert.ok(component.type.includes('Rigidbody'))
     }
   })
+
+  it('adds a component with initial values', async () => {
+    const name = `SdkComponentsAdd_${Date.now()}`
+    createdNames.push(name)
+
+    const created = await client.gameObjectCreate({ name, dimension: '3d' })
+    const added = await client.componentsAdd({
+      instanceId: created.instanceId,
+      type: 'UnityEngine.Rigidbody',
+      initialValues: {
+        mass: 5.5,
+        useGravity: false,
+      },
+      strict: true,
+    })
+
+    assert.ok(added.type.includes('Rigidbody'))
+    assert.ok(added.appliedFields.includes('mass'))
+    assert.ok(added.appliedFields.includes('useGravity'))
+    assert.equal(added.ignoredFields.length, 0)
+
+    const values = await client.execute(
+      `var go = UnityEngine.GameObject.Find("${name}"); var rb = go.GetComponent<UnityEngine.Rigidbody>(); rb.mass + "|" + rb.useGravity`,
+    )
+    assert.equal(values, '5.5|False')
+  })
 })

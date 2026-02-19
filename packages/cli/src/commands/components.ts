@@ -1,5 +1,6 @@
+import { readFileSync } from 'node:fs'
 import type { Command } from 'commander'
-import type { ComponentListItem, ComponentsListQuery, ComponentsListResult } from '@unibridge/sdk'
+import type { ComponentListItem, ComponentsAddInput, ComponentsAddResult, ComponentsListQuery, ComponentsListResult } from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -13,6 +14,21 @@ interface ComponentsListOptions {
 
 interface ComponentsListDeps {
   list: (query: ComponentsListQuery) => Promise<ComponentsListResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface ComponentsAddOptions {
+  path?: string
+  instanceId?: string
+  type?: string
+  values?: string
+  valuesFile?: string
+  strict?: boolean
+}
+
+interface ComponentsAddDeps {
+  add: (input: ComponentsAddInput) => Promise<ComponentsAddResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -56,6 +72,39 @@ function formatEnabled(item: ComponentListItem): string {
   return item.enabled ? 'yes' : 'no'
 }
 
+function parseInitialValues(opts: ComponentsAddOptions): Record<string, unknown> | undefined {
+  if (opts.values != null && opts.valuesFile != null) {
+    throw new Error('Use either --values or --values-file, not both.')
+  }
+
+  if (opts.values == null && opts.valuesFile == null) {
+    return undefined
+  }
+
+  let text: string
+  if (opts.valuesFile != null) {
+    text = readFileSync(opts.valuesFile, 'utf-8')
+  } else if (opts.values != null) {
+    text = opts.values
+  } else {
+    throw new Error('Provide --values or --values-file.')
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(text)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`Invalid JSON for initial values: ${message}`)
+  }
+
+  if (parsed == null || Array.isArray(parsed) || typeof parsed !== 'object') {
+    throw new Error('Initial values must be a JSON object.')
+  }
+
+  return parsed as Record<string, unknown>
+}
+
 export async function handleComponentsList(
   opts: ComponentsListOptions,
   jsonOutput: boolean,
@@ -92,10 +141,74 @@ export async function handleComponentsList(
   )
 }
 
+export async function handleComponentsAdd(
+  opts: ComponentsAddOptions,
+  jsonOutput: boolean,
+  deps: ComponentsAddDeps,
+): Promise<void> {
+  const instanceId = parseInstanceId(opts.instanceId)
+  const path = opts.path
+
+  if ((path == null || path.length === 0) && instanceId == null) {
+    throw new Error('Provide target via --path or --instance-id.')
+  }
+  if (path != null && instanceId != null) {
+    throw new Error('Use either --path or --instance-id, not both.')
+  }
+  if (opts.type == null || opts.type.trim().length === 0) {
+    throw new Error('Provide --type.')
+  }
+
+  const input: ComponentsAddInput = {
+    path,
+    instanceId,
+    type: opts.type,
+    initialValues: parseInitialValues(opts),
+    strict: opts.strict === true,
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.add(input),
+    (result, output) => {
+      output.log(`Added: ${result.type}`)
+      output.log(`Id:    ${result.instanceId}`)
+      output.log(`Applied fields: ${result.appliedFields.length}`)
+      output.log(`Ignored fields: ${result.ignoredFields.length}`)
+    },
+  )
+}
+
 export function registerComponents(program: Command): void {
   const components = program
     .command('components')
-    .description('List components on a Unity GameObject')
+    .description('Manage components on a Unity GameObject')
+
+  components
+    .command('add')
+    .description('Add a component to a target GameObject')
+    .option('--path <path>', 'Target GameObject path, e.g. /Player')
+    .option('--instance-id <id>', 'Target GameObject instance ID (session-local)')
+    .requiredOption('--type <componentType>', 'Component type, e.g. UnityEngine.Rigidbody')
+    .option('--values <json>', 'Inline JSON object for initial values')
+    .option('--values-file <path>', 'Path to JSON file containing initial values')
+    .option('--strict', 'Fail if any initial value field is unknown')
+    .action(async (opts: ComponentsAddOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleComponentsAdd(opts, ctx.jsonOutput, {
+            add: (input) => client.componentsAdd(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
 
   components
     .command('list')
