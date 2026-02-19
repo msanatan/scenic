@@ -1,6 +1,6 @@
 {
   "name": "@unibridge/cli",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "UniBridge is a CLI for interacting with the Unity Editor.",
   "main": "./dist/index.js",
   "scripts": {
@@ -42,7 +42,7 @@
     "unibridge": "./dist/index.js"
   },
   "dependencies": {
-    "@unibridge/sdk": "0.8.0",
+    "@unibridge/sdk": "0.9.0",
     "commander": "^14.0.3"
   }
 }
