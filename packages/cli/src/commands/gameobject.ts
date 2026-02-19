@@ -6,6 +6,8 @@ import type {
   GameObjectDestroyInput,
   GameObjectDestroyResult,
   GameObjectDimension,
+  GameObjectFindQuery,
+  GameObjectFindResult,
   GameObjectGetInput,
   GameObjectGetResult,
   GameObjectReparentInput,
@@ -87,6 +89,19 @@ interface GameObjectGetOptions {
 
 interface GameObjectGetDeps {
   get: (input: GameObjectGetInput) => Promise<GameObjectGetResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface GameObjectFindOptions {
+  scenePath?: string
+  includeInactive?: boolean
+  limit?: string
+  offset?: string
+}
+
+interface GameObjectFindDeps {
+  find: (query: GameObjectFindQuery) => Promise<GameObjectFindResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -180,6 +195,25 @@ function parseBoolean(value: string | undefined, label: string): boolean | undef
     return false
   }
   throw new Error(`${label} must be true or false.`)
+}
+
+function parseIntWithMinimum(
+  value: string | undefined,
+  label: string,
+  defaultValue: number,
+  minimum: number,
+): number {
+  if (value == null) {
+    return defaultValue
+  }
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isInteger(parsed) || parsed < minimum) {
+    if (minimum <= 0) {
+      throw new Error(`${label} must be a non-negative integer.`)
+    }
+    throw new Error(`${label} must be an integer >= ${minimum}.`)
+  }
+  return parsed
 }
 
 export async function handleGameObjectCreate(
@@ -369,6 +403,37 @@ export async function handleGameObjectGet(
   )
 }
 
+export async function handleGameObjectFind(
+  query: string,
+  opts: GameObjectFindOptions,
+  jsonOutput: boolean,
+  deps: GameObjectFindDeps,
+): Promise<void> {
+  if (query.trim().length === 0) {
+    throw new Error('Provide a non-empty query.')
+  }
+
+  const input: GameObjectFindQuery = {
+    query,
+    scenePath: opts.scenePath,
+    includeInactive: opts.includeInactive === true,
+    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.find(input),
+    (result, output) => {
+      output.log(`Matches: ${result.gameObjects.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
+      for (const item of result.gameObjects) {
+        output.log(`${item.path} [id=${item.instanceId}, active=${item.isActive ? 'yes' : 'no'}, sibling=${item.siblingIndex}]`)
+      }
+    },
+  )
+}
+
 export function registerGameObject(program: Command): void {
   const gameObject = program
     .command('gameobject')
@@ -488,6 +553,29 @@ export function registerGameObject(program: Command): void {
         async (client, ctx) => {
           await handleGameObjectReparent(opts, ctx.jsonOutput, {
             reparent: (input) => client.gameObjectReparent(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  gameObject
+    .command('find <query>')
+    .description('Find GameObjects in the scene hierarchy by name or path')
+    .option('--scene-path <path>', 'Restrict search to a loaded scene path')
+    .option('--include-inactive', 'Include inactive GameObjects')
+    .option('--limit <number>', 'Number of results to return (default: 50)')
+    .option('--offset <number>', 'Offset into result list (default: 0)')
+    .action(async (query: string, opts: GameObjectFindOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleGameObjectFind(query, opts, ctx.jsonOutput, {
+            find: (input) => client.gameObjectFind(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

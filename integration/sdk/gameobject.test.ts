@@ -143,4 +143,34 @@ describe('SDK: gameobject', () => {
     assert.equal(typeof info.siblingIndex, 'number')
     assert.equal(typeof info.transform.position.x, 'number')
   })
+
+  it('finds gameobjects by query with pagination', async () => {
+    const rootName = `SdkGoFindRoot_${Date.now()}`
+    const childName = `${rootName}_Child`
+    const inactiveName = `${rootName}_Inactive`
+    createdNames.push(rootName, childName, inactiveName)
+
+    const root = await client.gameObjectCreate({ name: rootName, dimension: '3d' })
+    await client.gameObjectCreate({ name: childName, parentInstanceId: root.instanceId, dimension: '3d' })
+    await client.gameObjectCreate({ name: inactiveName, dimension: '3d' })
+    await client.execute(`var go = UnityEngine.GameObject.Find("${inactiveName}"); go.SetActive(false);`)
+
+    const activeOnly = await client.gameObjectFind({
+      query: rootName,
+      limit: 10,
+      offset: 0,
+    })
+    assert.ok(activeOnly.total >= 2)
+    assert.ok(activeOnly.gameObjects.some((item) => item.name === rootName))
+    assert.ok(activeOnly.gameObjects.some((item) => item.name === childName))
+    assert.ok(!activeOnly.gameObjects.some((item) => item.name === inactiveName))
+
+    const withInactive = await client.gameObjectFind({
+      query: rootName,
+      includeInactive: true,
+      limit: 10,
+      offset: 0,
+    })
+    assert.ok(withInactive.gameObjects.some((item) => item.name === inactiveName))
+  })
 })

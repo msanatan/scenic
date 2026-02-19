@@ -282,4 +282,75 @@ describe('CLI: gameobject', () => {
     assert.equal(typeof getPayload.result?.siblingIndex, 'number')
     assert.equal(typeof getPayload.result?.transform.position.x, 'number')
   })
+
+  it('finds gameobjects by query with pagination', async () => {
+    const rootName = `CliGoFindRoot_${Date.now()}`
+    const childName = `${rootName}_Child`
+    const inactiveName = `${rootName}_Inactive`
+    createdNames.push(rootName, childName, inactiveName)
+
+    const rootPayload = (await runCli('gameobject', 'create', rootName, '--dimension', '3d')) as {
+      success: boolean
+      result?: { instanceId: number }
+    }
+    assert.equal(rootPayload.success, true)
+
+    const childPayload = (await runCli(
+      'gameobject',
+      'create',
+      childName,
+      '--dimension',
+      '3d',
+      '--parent-instance-id',
+      String(rootPayload.result?.instanceId),
+    )) as {
+      success: boolean
+    }
+    assert.equal(childPayload.success, true)
+
+    const inactivePayload = (await runCli('gameobject', 'create', inactiveName, '--dimension', '3d')) as {
+      success: boolean
+    }
+    assert.equal(inactivePayload.success, true)
+    await runCli('execute', `var go = UnityEngine.GameObject.Find("${inactiveName}"); go.SetActive(false);`)
+
+    const activeOnlyPayload = (await runCli(
+      'gameobject',
+      'find',
+      rootName,
+      '--limit',
+      '10',
+      '--offset',
+      '0',
+    )) as {
+      success: boolean
+      result?: {
+        gameObjects: Array<{ name: string }>
+        total: number
+      }
+    }
+    assert.equal(activeOnlyPayload.success, true)
+    assert.ok((activeOnlyPayload.result?.total ?? 0) >= 2)
+    assert.ok((activeOnlyPayload.result?.gameObjects ?? []).some((item) => item.name === rootName))
+    assert.ok((activeOnlyPayload.result?.gameObjects ?? []).some((item) => item.name === childName))
+    assert.ok(!(activeOnlyPayload.result?.gameObjects ?? []).some((item) => item.name === inactiveName))
+
+    const withInactivePayload = (await runCli(
+      'gameobject',
+      'find',
+      rootName,
+      '--include-inactive',
+      '--limit',
+      '10',
+      '--offset',
+      '0',
+    )) as {
+      success: boolean
+      result?: {
+        gameObjects: Array<{ name: string }>
+      }
+    }
+    assert.equal(withInactivePayload.success, true)
+    assert.ok((withInactivePayload.result?.gameObjects ?? []).some((item) => item.name === inactiveName))
+  })
 })

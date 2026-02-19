@@ -55,6 +55,7 @@ unibridge components update --instance-id 12345 --component-instance-id 67890 --
 unibridge components remove --instance-id 12345 --component-instance-id 67890
 unibridge gameobject create Player --dimension 2d --position 0,1,0
 unibridge gameobject get --instance-id 12345
+unibridge gameobject find Enemy --limit 50 --offset 0
 unibridge gameobject create Enemy --parent-instance-id 12345 --primitive cube
 unibridge gameobject reparent --instance-id 12345 --parent-instance-id 67890
 unibridge gameobject destroy --instance-id 12345

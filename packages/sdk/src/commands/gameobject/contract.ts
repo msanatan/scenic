@@ -148,6 +148,14 @@ export const GameObjectGetInputSchema = v.object({
   instanceId: v.optional(v.number()),
 })
 
+export const GameObjectFindQuerySchema = v.object({
+  query: v.string(),
+  scenePath: v.optional(v.string()),
+  includeInactive: v.optional(v.boolean()),
+  limit: v.optional(v.number()),
+  offset: v.optional(v.number()),
+})
+
 export const GameObjectGetResultSchema = v.object({
   name: v.string(),
   path: v.string(),
@@ -161,6 +169,22 @@ export const GameObjectGetResultSchema = v.object({
   transform: TransformSnapshotSchema,
 })
 
+const GameObjectFindItemSchema = v.object({
+  name: v.string(),
+  path: v.string(),
+  instanceId: v.number(),
+  isActive: v.boolean(),
+  parentPath: v.nullable(v.string()),
+  siblingIndex: v.number(),
+})
+
+export const GameObjectFindResultSchema = v.object({
+  gameObjects: v.array(GameObjectFindItemSchema),
+  total: v.number(),
+  limit: v.number(),
+  offset: v.number(),
+})
+
 export const gameObjectGetCommand = defineCommand({
   method: 'gameObjectGet',
   wire: 'gameobject.get',
@@ -169,6 +193,19 @@ export const gameObjectGetCommand = defineCommand({
     instanceId: input.instanceId,
   }),
   result: GameObjectGetResultSchema,
+})
+
+export const gameObjectFindCommand = defineCommand({
+  method: 'gameObjectFind',
+  wire: 'gameobject.find',
+  params: (query: GameObjectFindQuery) => ({
+    query: query.query,
+    scenePath: query.scenePath,
+    includeInactive: query.includeInactive,
+    limit: query.limit,
+    offset: query.offset,
+  }),
+  result: GameObjectFindResultSchema,
 })
 
 export type GameObjectDimension = v.InferOutput<typeof GameObjectDimensionSchema>
@@ -186,3 +223,6 @@ export type GameObjectReparentInput = v.InferOutput<typeof GameObjectReparentInp
 export type GameObjectReparentResult = InferResult<typeof gameObjectReparentCommand>
 export type GameObjectGetInput = v.InferOutput<typeof GameObjectGetInputSchema>
 export type GameObjectGetResult = InferResult<typeof gameObjectGetCommand>
+export type GameObjectFindQuery = v.InferOutput<typeof GameObjectFindQuerySchema>
+export type GameObjectFindItem = v.InferOutput<typeof GameObjectFindItemSchema>
+export type GameObjectFindResult = InferResult<typeof gameObjectFindCommand>
