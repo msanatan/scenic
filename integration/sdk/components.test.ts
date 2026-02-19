@@ -118,4 +118,28 @@ describe('SDK: components', () => {
     )
     assert.equal(actualMass, 8.25)
   })
+
+  it('removes a component', async () => {
+    const name = `SdkComponentsRemove_${Date.now()}`
+    createdNames.push(name)
+
+    const created = await client.gameObjectCreate({ name, dimension: '3d' })
+    const added = await client.componentsAdd({
+      instanceId: created.instanceId,
+      type: 'UnityEngine.Rigidbody',
+    })
+
+    const removed = await client.componentsRemove({
+      instanceId: created.instanceId,
+      componentInstanceId: added.instanceId,
+    })
+    assert.equal(removed.removed, true)
+    assert.equal(removed.instanceId, added.instanceId)
+    assert.ok(removed.type.includes('Rigidbody'))
+
+    const exists = await client.execute(
+      `var go = UnityEngine.GameObject.Find("${name}"); go.GetComponent<UnityEngine.Rigidbody>() != null`,
+    )
+    assert.equal(exists, false)
+  })
 })

@@ -217,4 +217,64 @@ describe('CLI: components', () => {
     assert.equal(massPayload.success, true)
     assert.equal(massPayload.result, 8.25)
   })
+
+  it('removes a component', async () => {
+    const name = `CliComponentsRemove_${Date.now()}`
+    createdNames.push(name)
+
+    const createPayload = (await runCli('gameobject', 'create', name, '--dimension', '3d')) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+    assert.equal(createPayload.success, true)
+
+    const addPayload = (await runCli(
+      'components',
+      'add',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--type',
+      'UnityEngine.Rigidbody',
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+        type: string
+      }
+    }
+    assert.equal(addPayload.success, true)
+
+    const removePayload = (await runCli(
+      'components',
+      'remove',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--component-instance-id',
+      String(addPayload.result?.instanceId),
+    )) as {
+      success: boolean
+      result?: {
+        removed: boolean
+        instanceId: number
+        type: string
+        index: number
+      }
+    }
+    assert.equal(removePayload.success, true)
+    assert.equal(removePayload.result?.removed, true)
+    assert.equal(removePayload.result?.instanceId, addPayload.result?.instanceId)
+    assert.ok((removePayload.result?.type ?? '').includes('Rigidbody'))
+
+    const existsPayload = (await runCli(
+      'execute',
+      `var go = UnityEngine.GameObject.Find("${name}"); go.GetComponent<UnityEngine.Rigidbody>() != null`,
+    )) as {
+      success: boolean
+      result?: unknown
+    }
+    assert.equal(existsPayload.success, true)
+    assert.equal(existsPayload.result, false)
+  })
 })

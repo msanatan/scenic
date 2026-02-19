@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UniBridge.Editor.Commands;
 using UniBridge.Editor.Commands.GameObject;
@@ -17,7 +15,11 @@ namespace UniBridge.Editor.Commands.Components
             var target = GameObjectLookup.ResolveRequired(parameters.Path, parameters.InstanceId, "Target");
             var all = target.GetComponents<Component>();
 
-            var index = ResolveIndex(all, parameters);
+            var index = ComponentSelection.ResolveIndex(
+                all,
+                parameters.ComponentInstanceId,
+                parameters.Index,
+                parameters.Type);
             var component = all[index];
             if (component == null)
             {
@@ -35,62 +37,6 @@ namespace UniBridge.Editor.Commands.Components
                     Serialized = ReadSerialized(component),
                 },
             };
-        }
-
-        private static int ResolveIndex(Component[] all, ComponentsGetCommandParams parameters)
-        {
-            if (parameters.ComponentInstanceId.HasValue)
-            {
-                for (var i = 0; i < all.Length; i++)
-                {
-                    var component = all[i];
-                    if (component != null && component.GetInstanceID() == parameters.ComponentInstanceId.Value)
-                    {
-                        return i;
-                    }
-                }
-
-                throw new CommandHandlingException($"Component not found by instance ID: {parameters.ComponentInstanceId.Value}");
-            }
-
-            if (parameters.Index.HasValue)
-            {
-                var index = parameters.Index.Value;
-                if (index < 0 || index >= all.Length)
-                {
-                    throw new CommandHandlingException($"Component index out of range: {index}");
-                }
-
-                return index;
-            }
-
-            var matches = new List<int>();
-            for (var i = 0; i < all.Length; i++)
-            {
-                var component = all[i];
-                if (component == null)
-                {
-                    continue;
-                }
-
-                var typeName = component.GetType().FullName ?? component.GetType().Name;
-                if (typeName.IndexOf(parameters.Type, StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    matches.Add(i);
-                }
-            }
-
-            if (matches.Count == 0)
-            {
-                throw new CommandHandlingException($"Component not found by type: {parameters.Type}");
-            }
-
-            if (matches.Count > 1)
-            {
-                throw new CommandHandlingException($"Multiple components matched type '{parameters.Type}'. Use index or componentInstanceId.");
-            }
-
-            return matches[0];
         }
 
         private static bool? ReadEnabled(Component component)

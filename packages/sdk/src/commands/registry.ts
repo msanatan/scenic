@@ -1,4 +1,4 @@
-import { componentsAddCommand, componentsGetCommand, componentsListCommand } from './component/contract.ts'
+import { componentsAddCommand, componentsGetCommand, componentsListCommand, componentsRemoveCommand } from './component/contract.ts'
 import { domainReloadCommand } from './domain/contract.ts'
 import { executeCommand } from './execute/contract.ts'
 import { gameObjectCreateCommand, gameObjectDestroyCommand, gameObjectGetCommand, gameObjectReparentCommand, gameObjectUpdateCommand } from './gameobject/contract.ts'
@@ -7,4 +7,4 @@ import { sceneActiveCommand, sceneCreateCommand, sceneHierarchyCommand, sceneLis
 import { statusCommand } from './status/contract.ts'
 import { testListCommand, testRunCommand } from './test/contract.ts'
 
-export const allCommands = [componentsListCommand, componentsAddCommand, componentsGetCommand, domainReloadCommand, executeCommand, gameObjectCreateCommand, gameObjectDestroyCommand, gameObjectUpdateCommand, gameObjectReparentCommand, gameObjectGetCommand, logsCommand, statusCommand, sceneListCommand, sceneHierarchyCommand, sceneActiveCommand, sceneCreateCommand, sceneOpenCommand, testListCommand, testRunCommand] as const
+export const allCommands = [componentsListCommand, componentsAddCommand, componentsGetCommand, componentsRemoveCommand, domainReloadCommand, executeCommand, gameObjectCreateCommand, gameObjectDestroyCommand, gameObjectUpdateCommand, gameObjectReparentCommand, gameObjectGetCommand, logsCommand, statusCommand, sceneListCommand, sceneHierarchyCommand, sceneActiveCommand, sceneCreateCommand, sceneOpenCommand, testListCommand, testRunCommand] as const

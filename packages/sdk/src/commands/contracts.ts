@@ -3,6 +3,8 @@ export type {
   ComponentsAddResult,
   ComponentsGetQuery,
   ComponentsGetResult,
+  ComponentsRemoveInput,
+  ComponentsRemoveResult,
   ComponentListItem,
   ComponentsListQuery,
   ComponentsListResult,

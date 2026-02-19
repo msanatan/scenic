@@ -25,6 +25,14 @@ export const ComponentsGetQuerySchema = v.object({
   type: v.optional(v.string()),
 })
 
+export const ComponentsRemoveInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+  componentInstanceId: v.optional(v.number()),
+  index: v.optional(v.number()),
+  type: v.optional(v.string()),
+})
+
 const ComponentListItemSchema = v.object({
   instanceId: v.number(),
   type: v.string(),
@@ -54,6 +62,13 @@ export const ComponentsGetResultSchema = v.object({
     enabled: v.optional(v.nullable(v.boolean())),
     serialized: v.record(v.string(), v.unknown()),
   }),
+})
+
+export const ComponentsRemoveResultSchema = v.object({
+  removed: v.boolean(),
+  instanceId: v.number(),
+  type: v.string(),
+  index: v.number(),
 })
 
 export const componentsListCommand = defineCommand({
@@ -95,10 +110,25 @@ export const componentsGetCommand = defineCommand({
   result: ComponentsGetResultSchema,
 })
 
+export const componentsRemoveCommand = defineCommand({
+  method: 'componentsRemove',
+  wire: 'components.remove',
+  params: (input: ComponentsRemoveInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+    componentInstanceId: input.componentInstanceId,
+    index: input.index,
+    type: input.type,
+  }),
+  result: ComponentsRemoveResultSchema,
+})
+
 export type ComponentsListQuery = v.InferOutput<typeof ComponentsListQuerySchema>
 export type ComponentsAddInput = v.InferOutput<typeof ComponentsAddInputSchema>
 export type ComponentsGetQuery = v.InferOutput<typeof ComponentsGetQuerySchema>
+export type ComponentsRemoveInput = v.InferOutput<typeof ComponentsRemoveInputSchema>
 export type ComponentListItem = v.InferOutput<typeof ComponentListItemSchema>
 export type ComponentsListResult = InferResult<typeof componentsListCommand>
 export type ComponentsAddResult = InferResult<typeof componentsAddCommand>
 export type ComponentsGetResult = InferResult<typeof componentsGetCommand>
+export type ComponentsRemoveResult = InferResult<typeof componentsRemoveCommand>
