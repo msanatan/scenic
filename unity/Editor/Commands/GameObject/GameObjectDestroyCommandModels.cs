@@ -15,27 +15,15 @@ namespace UniBridge.Editor.Commands.GameObject
 
         public static GameObjectDestroyCommandParams From(CommandRequest request)
         {
-            if (request == null)
-            {
-                throw new CommandHandlingException("Request is required.");
-            }
-
-            JObject payload;
-            try
-            {
-                payload = JObject.Parse(string.IsNullOrWhiteSpace(request.ParamsJson) ? "{}" : request.ParamsJson);
-            }
-            catch
-            {
-                throw new CommandHandlingException("Invalid params payload.");
-            }
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var selector = CommandModelHelpers.ReadPathInstanceSelector(payload);
 
             return new GameObjectDestroyCommandParams
             {
                 Target = new GameObjectDestroySelector
                 {
-                    Path = payload.Value<string>("path"),
-                    InstanceId = payload.Value<int?>("instanceId"),
+                    Path = selector.Path,
+                    InstanceId = selector.InstanceId,
                 },
             };
         }

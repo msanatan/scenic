@@ -30,20 +30,7 @@ namespace UniBridge.Editor.Commands.GameObject
 
         public static GameObjectCreateCommandParams From(CommandRequest request)
         {
-            if (request == null)
-            {
-                throw new CommandHandlingException("Request is required.");
-            }
-
-            JObject payload;
-            try
-            {
-                payload = JObject.Parse(string.IsNullOrWhiteSpace(request.ParamsJson) ? "{}" : request.ParamsJson);
-            }
-            catch
-            {
-                throw new CommandHandlingException("Invalid params payload.");
-            }
+            var payload = CommandModelHelpers.ParsePayload(request);
 
             var name = payload.Value<string>("name");
             if (string.IsNullOrWhiteSpace(name))
@@ -54,12 +41,10 @@ namespace UniBridge.Editor.Commands.GameObject
             var dimension = NormalizeDimension(payload.Value<string>("dimension"));
             var primitive = NormalizePrimitive(payload.Value<string>("primitive"));
             var space = NormalizeSpace(payload.SelectToken("transform.space")?.Value<string>());
-            var parentPath = payload.Value<string>("parent");
-            var parentInstanceId = payload.Value<int?>("parentInstanceId");
-            if (!string.IsNullOrWhiteSpace(parentPath) && parentInstanceId.HasValue)
-            {
-                throw new CommandHandlingException("Provide either params.parent or params.parentInstanceId, not both.");
-            }
+            var parentSelector = CommandModelHelpers.ReadPathInstanceSelector(
+                payload,
+                pathParam: "parent",
+                instanceIdParam: "parentInstanceId");
 
             var transform = new TransformInput
             {
@@ -72,8 +57,8 @@ namespace UniBridge.Editor.Commands.GameObject
             return new GameObjectCreateCommandParams
             {
                 Name = name.Trim(),
-                Parent = parentPath,
-                ParentInstanceId = parentInstanceId,
+                Parent = parentSelector.Path,
+                ParentInstanceId = parentSelector.InstanceId,
                 Dimension = dimension,
                 Primitive = primitive,
                 Transform = transform,

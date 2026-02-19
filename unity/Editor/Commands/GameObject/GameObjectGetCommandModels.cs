@@ -10,32 +10,13 @@ namespace UniBridge.Editor.Commands.GameObject
 
         public static GameObjectGetCommandParams From(CommandRequest request)
         {
-            if (request == null)
-            {
-                throw new CommandHandlingException("Request is required.");
-            }
-
-            JObject payload;
-            try
-            {
-                payload = JObject.Parse(string.IsNullOrWhiteSpace(request.ParamsJson) ? "{}" : request.ParamsJson);
-            }
-            catch
-            {
-                throw new CommandHandlingException("Invalid params payload.");
-            }
-
-            var path = payload.Value<string>("path");
-            var instanceId = payload.Value<int?>("instanceId");
-            if (!string.IsNullOrWhiteSpace(path) && instanceId.HasValue)
-            {
-                throw new CommandHandlingException("Provide either params.path or params.instanceId, not both.");
-            }
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var selector = CommandModelHelpers.ReadPathInstanceSelector(payload);
 
             return new GameObjectGetCommandParams
             {
-                Path = path,
-                InstanceId = instanceId,
+                Path = selector.Path,
+                InstanceId = selector.InstanceId,
             };
         }
     }

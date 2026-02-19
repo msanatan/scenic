@@ -15,39 +15,17 @@ namespace UniBridge.Editor.Commands.Components
 
         public static ComponentsListCommandParams From(CommandRequest request)
         {
-            var path = request == null ? null : request.GetStringParam("path");
-            var instanceIdText = request == null ? null : request.GetStringParam("instanceId");
-            var instanceId = ParseOptionalInstanceId(instanceIdText);
-            if (!string.IsNullOrWhiteSpace(path) && instanceId.HasValue)
-            {
-                throw new CommandHandlingException("Provide either params.path or params.instanceId, not both.");
-            }
-
-            var type = request == null ? null : request.GetStringParam("type");
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var selector = CommandModelHelpers.ReadPathInstanceSelector(payload);
+            var type = payload.Value<string>("type");
 
             return new ComponentsListCommandParams
             {
-                Path = path,
-                InstanceId = instanceId,
+                Path = selector.Path,
+                InstanceId = selector.InstanceId,
                 Type = string.IsNullOrWhiteSpace(type) ? null : type,
                 Paging = PaginationParams.From(request, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset),
             };
-        }
-
-        private static int? ParseOptionalInstanceId(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return null;
-            }
-
-            int parsed;
-            if (!int.TryParse(value, out parsed))
-            {
-                throw new CommandHandlingException("params.instanceId must be an integer.");
-            }
-
-            return parsed;
         }
     }
 

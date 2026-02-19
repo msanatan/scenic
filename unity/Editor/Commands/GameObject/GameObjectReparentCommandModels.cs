@@ -14,52 +14,30 @@ namespace UniBridge.Editor.Commands.GameObject
 
         public static GameObjectReparentCommandParams From(CommandRequest request)
         {
-            if (request == null)
-            {
-                throw new CommandHandlingException("Request is required.");
-            }
-
-            JObject payload;
-            try
-            {
-                payload = JObject.Parse(string.IsNullOrWhiteSpace(request.ParamsJson) ? "{}" : request.ParamsJson);
-            }
-            catch
-            {
-                throw new CommandHandlingException("Invalid params payload.");
-            }
-
-            var path = payload.Value<string>("path");
-            var instanceId = payload.Value<int?>("instanceId");
-            if (!string.IsNullOrWhiteSpace(path) && instanceId.HasValue)
-            {
-                throw new CommandHandlingException("Provide either params.path or params.instanceId, not both.");
-            }
-
-            var parentPath = payload.Value<string>("parentPath");
-            var parentInstanceId = payload.Value<int?>("parentInstanceId");
-            if (!string.IsNullOrWhiteSpace(parentPath) && parentInstanceId.HasValue)
-            {
-                throw new CommandHandlingException("Provide either params.parentPath or params.parentInstanceId, not both.");
-            }
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var targetSelector = CommandModelHelpers.ReadPathInstanceSelector(payload);
+            var parentSelector = CommandModelHelpers.ReadPathInstanceSelector(
+                payload,
+                pathParam: "parentPath",
+                instanceIdParam: "parentInstanceId");
 
             var toRoot = payload.Value<bool?>("toRoot") ?? false;
-            if (toRoot && (!string.IsNullOrWhiteSpace(parentPath) || parentInstanceId.HasValue))
+            if (toRoot && (!string.IsNullOrWhiteSpace(parentSelector.Path) || parentSelector.InstanceId.HasValue))
             {
                 throw new CommandHandlingException("params.toRoot cannot be combined with parentPath or parentInstanceId.");
             }
 
-            if (!toRoot && string.IsNullOrWhiteSpace(parentPath) && !parentInstanceId.HasValue)
+            if (!toRoot && string.IsNullOrWhiteSpace(parentSelector.Path) && !parentSelector.InstanceId.HasValue)
             {
                 throw new CommandHandlingException("Provide destination parent via parentPath/parentInstanceId, or set toRoot=true.");
             }
 
             return new GameObjectReparentCommandParams
             {
-                Path = path,
-                InstanceId = instanceId,
-                ParentPath = parentPath,
-                ParentInstanceId = parentInstanceId,
+                Path = targetSelector.Path,
+                InstanceId = targetSelector.InstanceId,
+                ParentPath = parentSelector.Path,
+                ParentInstanceId = parentSelector.InstanceId,
                 ToRoot = toRoot,
                 WorldPositionStays = payload.Value<bool?>("worldPositionStays") ?? false,
             };

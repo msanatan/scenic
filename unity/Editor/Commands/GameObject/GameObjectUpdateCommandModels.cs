@@ -16,27 +16,8 @@ namespace UniBridge.Editor.Commands.GameObject
 
         public static GameObjectUpdateCommandParams From(CommandRequest request)
         {
-            if (request == null)
-            {
-                throw new CommandHandlingException("Request is required.");
-            }
-
-            JObject payload;
-            try
-            {
-                payload = JObject.Parse(string.IsNullOrWhiteSpace(request.ParamsJson) ? "{}" : request.ParamsJson);
-            }
-            catch
-            {
-                throw new CommandHandlingException("Invalid params payload.");
-            }
-
-            var path = payload.Value<string>("path");
-            var instanceId = payload.Value<int?>("instanceId");
-            if (!string.IsNullOrWhiteSpace(path) && instanceId.HasValue)
-            {
-                throw new CommandHandlingException("Provide either params.path or params.instanceId, not both.");
-            }
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var selector = CommandModelHelpers.ReadPathInstanceSelector(payload);
 
             var name = payload.Value<string>("name");
             if (name != null && string.IsNullOrWhiteSpace(name))
@@ -65,8 +46,8 @@ namespace UniBridge.Editor.Commands.GameObject
 
             return new GameObjectUpdateCommandParams
             {
-                Path = path,
-                InstanceId = instanceId,
+                Path = selector.Path,
+                InstanceId = selector.InstanceId,
                 Name = name == null ? null : name.Trim(),
                 Tag = payload.Value<string>("tag"),
                 Layer = payload.Value<string>("layer"),
