@@ -41,7 +41,7 @@ namespace UniBridge.Editor.Commands.GameObject
 
             if (!hasAnyUpdate)
             {
-                throw new CommandHandlingException("No update fields provided.");
+                throw new CommandHandlingException("At least one update field must be provided.");
             }
 
             return new GameObjectUpdateCommandParams
@@ -69,7 +69,7 @@ namespace UniBridge.Editor.Commands.GameObject
                 return token.Value<bool>();
             }
 
-            throw new CommandHandlingException(label + " must be a boolean.");
+            throw new CommandHandlingException($"{label} must be a boolean.");
         }
 
         private static TransformInput ReadTransform(JToken token)
@@ -81,10 +81,10 @@ namespace UniBridge.Editor.Commands.GameObject
 
             var transform = new TransformInput
             {
-                Space = NormalizeSpace(obj.Value<string>("space")),
-                Position = ReadVector3(obj["position"]),
-                Rotation = ReadVector3(obj["rotation"]),
-                Scale = ReadVector3(obj["scale"]),
+                Space = GameObjectCommandModelHelpers.NormalizeTransformSpace(obj.Value<string>("space")),
+                Position = GameObjectCommandModelHelpers.ReadVector3(obj["position"], "params.transform.position"),
+                Rotation = GameObjectCommandModelHelpers.ReadVector3(obj["rotation"], "params.transform.rotation"),
+                Scale = GameObjectCommandModelHelpers.ReadVector3(obj["scale"], "params.transform.scale"),
             };
 
             if (!transform.Position.HasValue && !transform.Rotation.HasValue && !transform.Scale.HasValue)
@@ -95,50 +95,6 @@ namespace UniBridge.Editor.Commands.GameObject
             return transform;
         }
 
-        private static string NormalizeSpace(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return "local";
-            }
-
-            var normalized = value.Trim().ToLowerInvariant();
-            if (normalized == "local" || normalized == "world")
-            {
-                return normalized;
-            }
-
-            throw new CommandHandlingException("params.transform.space must be one of: local, world.");
-        }
-
-        private static Vector3Input ReadVector3(JToken token)
-        {
-            if (token == null || token.Type == JTokenType.Null)
-            {
-                return new Vector3Input { HasValue = false };
-            }
-
-            if (!(token is JObject obj))
-            {
-                throw new CommandHandlingException("Vector3 values must be objects with x,y,z.");
-            }
-
-            var x = obj.Value<float?>("x");
-            var y = obj.Value<float?>("y");
-            var z = obj.Value<float?>("z");
-            if (!x.HasValue || !y.HasValue || !z.HasValue)
-            {
-                throw new CommandHandlingException("Vector3 values must include numeric x,y,z.");
-            }
-
-            return new Vector3Input
-            {
-                HasValue = true,
-                X = x.Value,
-                Y = y.Value,
-                Z = z.Value,
-            };
-        }
     }
 
     public sealed class Vector3Value

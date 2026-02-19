@@ -35,12 +35,12 @@ namespace UniBridge.Editor.Commands.GameObject
             var name = payload.Value<string>("name");
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new CommandHandlingException("Missing required parameter: name");
+                throw new CommandHandlingException("params.name is required.");
             }
 
             var dimension = NormalizeDimension(payload.Value<string>("dimension"));
             var primitive = NormalizePrimitive(payload.Value<string>("primitive"));
-            var space = NormalizeSpace(payload.SelectToken("transform.space")?.Value<string>());
+            var space = GameObjectCommandModelHelpers.NormalizeTransformSpace(payload.SelectToken("transform.space")?.Value<string>());
             var parentSelector = CommandModelHelpers.ReadPathInstanceSelector(
                 payload,
                 pathParam: "parent",
@@ -49,9 +49,9 @@ namespace UniBridge.Editor.Commands.GameObject
             var transform = new TransformInput
             {
                 Space = space,
-                Position = ReadVector3(payload.SelectToken("transform.position")),
-                Rotation = ReadVector3(payload.SelectToken("transform.rotation")),
-                Scale = ReadVector3(payload.SelectToken("transform.scale")),
+                Position = GameObjectCommandModelHelpers.ReadVector3(payload.SelectToken("transform.position"), "params.transform.position"),
+                Rotation = GameObjectCommandModelHelpers.ReadVector3(payload.SelectToken("transform.rotation"), "params.transform.rotation"),
+                Scale = GameObjectCommandModelHelpers.ReadVector3(payload.SelectToken("transform.scale"), "params.transform.scale"),
             };
 
             return new GameObjectCreateCommandParams
@@ -103,50 +103,6 @@ namespace UniBridge.Editor.Commands.GameObject
             }
         }
 
-        private static string NormalizeSpace(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return "local";
-            }
-
-            var normalized = value.Trim().ToLowerInvariant();
-            if (normalized == "local" || normalized == "world")
-            {
-                return normalized;
-            }
-
-            throw new CommandHandlingException("params.transform.space must be one of: local, world.");
-        }
-
-        private static Vector3Input ReadVector3(JToken token)
-        {
-            if (token == null || token.Type == JTokenType.Null)
-            {
-                return new Vector3Input { HasValue = false };
-            }
-
-            if (!(token is JObject obj))
-            {
-                throw new CommandHandlingException("Vector3 values must be objects with x,y,z.");
-            }
-
-            var x = obj.Value<float?>("x");
-            var y = obj.Value<float?>("y");
-            var z = obj.Value<float?>("z");
-            if (!x.HasValue || !y.HasValue || !z.HasValue)
-            {
-                throw new CommandHandlingException("Vector3 values must include numeric x,y,z.");
-            }
-
-            return new Vector3Input
-            {
-                HasValue = true,
-                X = x.Value,
-                Y = y.Value,
-                Z = z.Value,
-            };
-        }
     }
 
     public sealed class GameObjectCreateCommandResult

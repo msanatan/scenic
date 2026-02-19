@@ -221,7 +221,7 @@ namespace UniBridge.Editor.Commands.Test
 
             return new[]
             {
-                ".*" + Regex.Escape(filter) + ".*",
+                $".*{Regex.Escape(filter)}.*",
             };
         }
 

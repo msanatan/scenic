@@ -13,8 +13,9 @@ namespace UniBridge.Editor.Commands.Test
 
         public static TestQueryParams From(CommandRequest request)
         {
-            var mode = NormalizeMode(request == null ? null : request.GetStringParam("mode"));
-            var filter = request == null ? null : request.GetStringParam("filter");
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var mode = NormalizeMode(payload.Value<string>("mode"));
+            var filter = payload.Value<string>("filter");
             var paging = PaginationParams.From(request, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset);
 
             return new TestQueryParams

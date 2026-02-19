@@ -32,7 +32,7 @@ public class ReadmeEditor : Editor
             if (Directory.Exists(s_ReadmeSourceDirectory))
             {
                 FileUtil.DeleteFileOrDirectory(s_ReadmeSourceDirectory);
-                FileUtil.DeleteFileOrDirectory(s_ReadmeSourceDirectory + ".meta");
+                FileUtil.DeleteFileOrDirectory($"{s_ReadmeSourceDirectory}.meta");
             }
             else
             {
@@ -43,7 +43,7 @@ public class ReadmeEditor : Editor
             if (readmeAsset != null)
             {
                 var path = AssetDatabase.GetAssetPath(readmeAsset);
-                FileUtil.DeleteFileOrDirectory(path + ".meta");
+                FileUtil.DeleteFileOrDirectory($"{path}.meta");
                 FileUtil.DeleteFileOrDirectory(path);
             }
 

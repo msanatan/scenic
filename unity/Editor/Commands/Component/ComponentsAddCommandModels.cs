@@ -20,7 +20,7 @@ namespace UniBridge.Editor.Commands.Components
             var type = payload.Value<string>("type");
             if (string.IsNullOrWhiteSpace(type))
             {
-                throw new CommandHandlingException("Missing required parameter: type");
+                throw new CommandHandlingException("params.type is required.");
             }
 
             var initialValuesToken = payload["initialValues"];

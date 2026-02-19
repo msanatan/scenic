@@ -204,7 +204,7 @@ namespace UniBridge.Editor
             foreach (var requestPath in requestPaths)
             {
                 var requestId = Path.GetFileNameWithoutExtension(requestPath);
-                var resultPath = Path.Combine(resultsDir, requestId + ".json");
+                var resultPath = Path.Combine(resultsDir, $"{requestId}.json");
                 if (File.Exists(resultPath))
                 {
                     continue;
@@ -276,7 +276,7 @@ namespace UniBridge.Editor
 
         private static void WriteAtomic(string destinationPath, string content)
         {
-            var tempPath = destinationPath + ".tmp";
+            var tempPath = $"{destinationPath}.tmp";
             File.WriteAllText(tempPath, content);
 
             if (File.Exists(destinationPath))

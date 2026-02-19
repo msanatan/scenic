@@ -13,7 +13,8 @@ namespace UniBridge.Editor.Commands.Logs
 
         public static LogsCommandParams From(CommandRequest request)
         {
-            var severity = request == null ? null : request.GetStringParam("severity");
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var severity = payload.Value<string>("severity");
             var normalizedSeverity = NormalizeSeverity(severity);
             var paging = PaginationParams.From(request, defaultLimit: DefaultLimit, defaultOffset: DefaultOffset);
 
