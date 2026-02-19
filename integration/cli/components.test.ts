@@ -144,4 +144,77 @@ describe('CLI: components', () => {
     assert.equal(valuesPayload.success, true)
     assert.equal(valuesPayload.result, '5.5|False')
   })
+
+  it('gets and serializes a component', async () => {
+    const name = `CliComponentsGet_${Date.now()}`
+    createdNames.push(name)
+
+    const createPayload = (await runCli('gameobject', 'create', name, '--dimension', '3d')) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+    assert.equal(createPayload.success, true)
+
+    const addPayload = (await runCli(
+      'components',
+      'add',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--type',
+      'UnityEngine.Rigidbody',
+      '--values',
+      '{"mass":8.25}',
+    )) as {
+      success: boolean
+      result?: {
+        instanceId: number
+      }
+    }
+    assert.equal(addPayload.success, true)
+
+    const getPayload = (await runCli(
+      'components',
+      'get',
+      '--instance-id',
+      String(createPayload.result?.instanceId),
+      '--component-instance-id',
+      String(addPayload.result?.instanceId),
+    )) as {
+      success: boolean
+      result?: {
+        component: {
+          instanceId: number
+          type: string
+          index: number
+          serialized: Record<string, unknown>
+        }
+      }
+    }
+    assert.equal(getPayload.success, true)
+    assert.equal(getPayload.result?.component.instanceId, addPayload.result?.instanceId)
+    assert.ok((getPayload.result?.component.type ?? '').includes('Rigidbody'))
+    assert.equal(typeof getPayload.result?.component.index, 'number')
+
+    const serialized = getPayload.result?.component.serialized ?? {}
+    const serializedMass = typeof serialized['m_Mass'] === 'number'
+      ? serialized['m_Mass']
+      : typeof serialized.mass === 'number'
+        ? serialized.mass
+        : undefined
+    if (serializedMass != null) {
+      assert.equal(serializedMass, 8.25)
+    }
+
+    const massPayload = (await runCli(
+      'execute',
+      `var go = UnityEngine.GameObject.Find("${name}"); var rb = go.GetComponent<UnityEngine.Rigidbody>(); rb.mass`,
+    )) as {
+      success: boolean
+      result?: unknown
+    }
+    assert.equal(massPayload.success, true)
+    assert.equal(massPayload.result, 8.25)
+  })
 })

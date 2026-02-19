@@ -49,6 +49,7 @@ unibridge --project /path/to/UnityProject init
 unibridge status
 unibridge logs --severity warn --limit 100 --offset 0
 unibridge components list --path /Player --limit 20 --offset 0
+unibridge components get --instance-id 12345 --component-instance-id 67890
 unibridge components add --instance-id 12345 --type UnityEngine.Rigidbody --values '{"mass":5.5,"useGravity":false}'
 unibridge gameobject create Player --dimension 2d --position 0,1,0
 unibridge gameobject get --instance-id 12345

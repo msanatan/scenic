@@ -1,6 +1,14 @@
 import { readFileSync } from 'node:fs'
 import type { Command } from 'commander'
-import type { ComponentListItem, ComponentsAddInput, ComponentsAddResult, ComponentsListQuery, ComponentsListResult } from '@unibridge/sdk'
+import type {
+  ComponentListItem,
+  ComponentsAddInput,
+  ComponentsAddResult,
+  ComponentsGetQuery,
+  ComponentsGetResult,
+  ComponentsListQuery,
+  ComponentsListResult,
+} from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -33,6 +41,20 @@ interface ComponentsAddDeps {
   exit?: (code: number) => void
 }
 
+interface ComponentsGetOptions {
+  path?: string
+  instanceId?: string
+  componentInstanceId?: string
+  index?: string
+  type?: string
+}
+
+interface ComponentsGetDeps {
+  get: (query: ComponentsGetQuery) => Promise<ComponentsGetResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
 function parseIntWithMinimum(
   value: string | undefined,
   label: string,
@@ -61,6 +83,17 @@ function parseInstanceId(value: string | undefined): number | undefined {
   const parsed = Number.parseInt(value, 10)
   if (!Number.isInteger(parsed)) {
     throw new Error('--instance-id must be an integer.')
+  }
+  return parsed
+}
+
+function parseOptionalInt(value: string | undefined, label: string): number | undefined {
+  if (value == null) {
+    return undefined
+  }
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isInteger(parsed)) {
+    throw new Error(`${label} must be an integer.`)
   }
   return parsed
 }
@@ -180,6 +213,55 @@ export async function handleComponentsAdd(
   )
 }
 
+export async function handleComponentsGet(
+  opts: ComponentsGetOptions,
+  jsonOutput: boolean,
+  deps: ComponentsGetDeps,
+): Promise<void> {
+  const instanceId = parseInstanceId(opts.instanceId)
+  const path = opts.path
+
+  if ((path == null || path.length === 0) && instanceId == null) {
+    throw new Error('Provide target via --path or --instance-id.')
+  }
+  if (path != null && instanceId != null) {
+    throw new Error('Use either --path or --instance-id, not both.')
+  }
+
+  const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
+  const index = parseOptionalInt(opts.index, '--index')
+  const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
+  const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
+  if (selectorCount !== 1) {
+    throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
+  }
+  if (index != null && index < 0) {
+    throw new Error('--index must be a non-negative integer.')
+  }
+
+  const query: ComponentsGetQuery = {
+    path,
+    instanceId,
+    componentInstanceId,
+    index,
+    type,
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.get(query),
+    (result, output) => {
+      output.log(`Component: ${result.component.type}`)
+      output.log(`Id:        ${result.component.instanceId}`)
+      output.log(`Index:     ${result.component.index}`)
+      output.log(`Enabled:   ${result.component.enabled == null ? 'n/a' : result.component.enabled ? 'yes' : 'no'}`)
+      output.log('Serialized:')
+      output.log(JSON.stringify(result.component.serialized, null, 2))
+    },
+  )
+}
+
 export function registerComponents(program: Command): void {
   const components = program
     .command('components')
@@ -201,6 +283,30 @@ export function registerComponents(program: Command): void {
         async (client, ctx) => {
           await handleComponentsAdd(opts, ctx.jsonOutput, {
             add: (input) => client.componentsAdd(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  components
+    .command('get')
+    .description('Get and serialize a component on a target GameObject')
+    .option('--path <path>', 'Target GameObject path, e.g. /Player')
+    .option('--instance-id <id>', 'Target GameObject instance ID (session-local)')
+    .option('--component-instance-id <id>', 'Component instance ID')
+    .option('--index <number>', 'Component index on the GameObject')
+    .option('--type <text>', 'Component type selector (substring, must match exactly one)')
+    .action(async (opts: ComponentsGetOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleComponentsGet(opts, ctx.jsonOutput, {
+            get: (query) => client.componentsGet(query),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

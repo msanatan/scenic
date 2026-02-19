@@ -17,6 +17,14 @@ export const ComponentsAddInputSchema = v.object({
   strict: v.optional(v.boolean()),
 })
 
+export const ComponentsGetQuerySchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+  componentInstanceId: v.optional(v.number()),
+  index: v.optional(v.number()),
+  type: v.optional(v.string()),
+})
+
 const ComponentListItemSchema = v.object({
   instanceId: v.number(),
   type: v.string(),
@@ -36,6 +44,16 @@ export const ComponentsAddResultSchema = v.object({
   type: v.string(),
   appliedFields: v.array(v.string()),
   ignoredFields: v.array(v.string()),
+})
+
+export const ComponentsGetResultSchema = v.object({
+  component: v.object({
+    instanceId: v.number(),
+    type: v.string(),
+    index: v.number(),
+    enabled: v.optional(v.nullable(v.boolean())),
+    serialized: v.record(v.string(), v.unknown()),
+  }),
 })
 
 export const componentsListCommand = defineCommand({
@@ -64,8 +82,23 @@ export const componentsAddCommand = defineCommand({
   result: ComponentsAddResultSchema,
 })
 
+export const componentsGetCommand = defineCommand({
+  method: 'componentsGet',
+  wire: 'components.get',
+  params: (query: ComponentsGetQuery) => ({
+    path: query.path,
+    instanceId: query.instanceId,
+    componentInstanceId: query.componentInstanceId,
+    index: query.index,
+    type: query.type,
+  }),
+  result: ComponentsGetResultSchema,
+})
+
 export type ComponentsListQuery = v.InferOutput<typeof ComponentsListQuerySchema>
 export type ComponentsAddInput = v.InferOutput<typeof ComponentsAddInputSchema>
+export type ComponentsGetQuery = v.InferOutput<typeof ComponentsGetQuerySchema>
 export type ComponentListItem = v.InferOutput<typeof ComponentListItemSchema>
 export type ComponentsListResult = InferResult<typeof componentsListCommand>
 export type ComponentsAddResult = InferResult<typeof componentsAddCommand>
+export type ComponentsGetResult = InferResult<typeof componentsGetCommand>

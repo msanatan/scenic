@@ -78,4 +78,44 @@ describe('SDK: components', () => {
     )
     assert.equal(values, '5.5|False')
   })
+
+  it('gets and serializes a component', async () => {
+    const name = `SdkComponentsGet_${Date.now()}`
+    createdNames.push(name)
+
+    const created = await client.gameObjectCreate({ name, dimension: '3d' })
+    const added = await client.componentsAdd({
+      instanceId: created.instanceId,
+      type: 'UnityEngine.Rigidbody',
+      initialValues: {
+        mass: 8.25,
+      },
+    })
+
+    const result = await client.componentsGet({
+      instanceId: created.instanceId,
+      componentInstanceId: added.instanceId,
+    })
+
+    assert.equal(result.component.instanceId, added.instanceId)
+    assert.ok(result.component.type.includes('Rigidbody'))
+    assert.equal(typeof result.component.index, 'number')
+    assert.equal(typeof result.component.serialized, 'object')
+    assert.notEqual(result.component.serialized, null)
+
+    const serialized = result.component.serialized as Record<string, unknown>
+    const serializedMass = typeof serialized['m_Mass'] === 'number'
+      ? serialized['m_Mass']
+      : typeof serialized.mass === 'number'
+        ? serialized.mass
+        : undefined
+    if (serializedMass != null) {
+      assert.equal(serializedMass, 8.25)
+    }
+
+    const actualMass = await client.execute(
+      `var go = UnityEngine.GameObject.Find("${name}"); var rb = go.GetComponent<UnityEngine.Rigidbody>(); rb.mass`,
+    )
+    assert.equal(actualMass, 8.25)
+  })
 })
