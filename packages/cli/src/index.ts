@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { program } from 'commander'
 import { registerDomain } from './commands/domain.ts'
+import { registerComponents } from './commands/components.ts'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
 import { registerGameObject } from './commands/gameobject.ts'
@@ -24,6 +25,7 @@ program
   .option('--no-execute', 'Disable execute tool for this invocation')
 
 registerDomain(program)
+registerComponents(program)
 registerInit(program)
 registerExecute(program)
 registerGameObject(program)

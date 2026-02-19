@@ -1,3 +1,4 @@
+export type { ComponentListItem, ComponentsListQuery, ComponentsListResult } from './component/contract.ts'
 export type { DomainReloadResult } from './domain/contract.ts'
 export type { ExecuteResult } from './execute/contract.ts'
 export type {
