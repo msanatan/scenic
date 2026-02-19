@@ -4,6 +4,7 @@ import path from 'node:path'
 import { program } from 'commander'
 import { registerDomain } from './commands/domain.ts'
 import { registerComponents } from './commands/components.ts'
+import { registerEditor } from './commands/editor.ts'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
 import { registerGameObject } from './commands/gameobject.ts'
@@ -26,6 +27,7 @@ program
 
 registerDomain(program)
 registerComponents(program)
+registerEditor(program)
 registerInit(program)
 registerExecute(program)
 registerGameObject(program)

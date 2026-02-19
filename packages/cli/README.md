@@ -61,6 +61,9 @@ unibridge gameobject reparent --instance-id 12345 --parent-instance-id 67890
 unibridge gameobject destroy --instance-id 12345
 unibridge test list --mode edit --limit 50 --offset 0
 unibridge test run --mode edit --filter DomainReloadCommandHandlerTests
+unibridge editor play
+unibridge editor pause
+unibridge editor stop
 unibridge domain reload
 unibridge scene active
 unibridge scene list --limit 50 --offset 0
