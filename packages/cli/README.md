@@ -61,6 +61,7 @@ unibridge gameobject reparent --instance-id 12345 --parent-instance-id 67890
 unibridge gameobject destroy --instance-id 12345
 unibridge prefab instantiate Assets/Prefabs/Enemy.prefab --position 0,1,0
 unibridge prefab save Assets/Prefabs/EnemyVariant.prefab --instance-id 12345
+unibridge layers get --limit 32 --offset 0
 unibridge tags get
 unibridge tags add Enemy
 unibridge tags remove Enemy

@@ -8,6 +8,7 @@ import { registerEditor } from './commands/editor.ts'
 import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
 import { registerGameObject } from './commands/gameobject.ts'
+import { registerLayers } from './commands/layers.ts'
 import { registerLogs } from './commands/logs.ts'
 import { registerPrefab } from './commands/prefab.ts'
 import { registerStatus } from './commands/status.ts'
@@ -33,6 +34,7 @@ registerEditor(program)
 registerInit(program)
 registerExecute(program)
 registerGameObject(program)
+registerLayers(program)
 registerLogs(program)
 registerPrefab(program)
 registerStatus(program)

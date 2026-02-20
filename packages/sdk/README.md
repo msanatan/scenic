@@ -56,6 +56,9 @@ const prefabInstance = await client.prefabInstantiate({
 })
 console.log(prefabInstance)
 
+const layers = await client.layersGet({ limit: 32, offset: 0 })
+console.log(layers)
+
 const tags = await client.tagsGet()
 console.log(tags)
 
