@@ -29,10 +29,10 @@ namespace UniBridge.Editor
         {
             var projectPath = Path.GetDirectoryName(Application.dataPath);
             _projectHash = StateManager.ProjectHash(projectPath);
-            _settings = UniBridgeSettings.LoadOrDefault();
 
             StateManager.SetCurrentProjectHash(_projectHash);
             StateManager.EnsureStateDirectory(_projectHash);
+            _settings = UniBridgeSettings.LoadOrDefault(_projectHash);
             var pluginVersion = PMPackageInfo.FindForAssembly(typeof(UniBridgeServer).Assembly)?.version ?? "0.0.0";
             StateManager.WriteServerJson(
                 _projectHash,
@@ -125,11 +125,14 @@ namespace UniBridge.Editor
 
     public sealed class UniBridgeSettings
     {
-        public bool ExecuteEnabled = true;
+        public bool ExecuteEnabled = false;
 
-        public static UniBridgeSettings LoadOrDefault()
+        public static UniBridgeSettings LoadOrDefault(string projectHash)
         {
-            return new UniBridgeSettings();
+            return new UniBridgeSettings
+            {
+                ExecuteEnabled = StateManager.ReadExecuteEnabled(projectHash),
+            };
         }
     }
 }

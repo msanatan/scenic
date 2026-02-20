@@ -31,6 +31,12 @@ Install the Unity plugin in the current Unity project:
 unibridge init
 ```
 
+The `execute` function allows you to execute C# code directly in Unity. It's disabled by default. You can enable it explicitly per project:
+
+```bash
+unibridge init --enable-execute
+```
+
 `update` is an alias for `init` and can be used to re-run this idempotently after SDK/CLI upgrades:
 
 ```bash

@@ -91,3 +91,12 @@ await init({
   projectPath: '/path/to/UnityProject',
 })
 ```
+
+The `execute` function allows you to execute C# code directly in Unity. It's disabled by default. You can enable it by setting this flag when calling `init()`:
+
+```ts
+await init({
+  projectPath: '/path/to/UnityProject',
+  enableExecute: true,
+})
+```

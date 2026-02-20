@@ -4,6 +4,7 @@ import type { allCommands } from './commands/registry.ts'
 export interface InitOptions {
   projectPath?: string
   source?: GitSource | LocalSource
+  enableExecute?: boolean
 }
 
 export interface GitSource {
@@ -21,6 +22,7 @@ export interface InitResult {
   unityVersion: string
   pluginVersion: string
   pluginSource: 'git' | 'local'
+  executeEnabled: boolean
 }
 
 export interface CommandRequest {

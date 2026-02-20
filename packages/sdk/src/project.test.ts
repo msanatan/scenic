@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import path from 'node:path'
+import { stateDir } from './hash.ts'
 import { findUnityProject, init, isPluginInstalled, parseUnityVersion } from './project.ts'
 
 const baseDir = '/tmp/unibridge-sdk-project-tests'
@@ -13,6 +15,12 @@ function createFakeProject(path: string, version = '2022.3.10f1') {
   mkdirSync(`${path}/Packages`, { recursive: true })
   writeFileSync(`${path}/ProjectSettings/ProjectVersion.txt`, `m_EditorVersion: ${version}\n`)
   writeFileSync(`${path}/Packages/manifest.json`, JSON.stringify({ dependencies: {} }, null, 2))
+}
+
+function readServerJson(projectPath: string): { capabilities?: { executeEnabled?: boolean } } {
+  return JSON.parse(readFileSync(path.join(stateDir(projectPath), 'server.json'), 'utf-8')) as {
+    capabilities?: { executeEnabled?: boolean }
+  }
 }
 
 describe('findUnityProject', () => {
@@ -48,13 +56,20 @@ describe('parseUnityVersion', () => {
 })
 
 describe('init', () => {
-  beforeEach(() => createFakeProject(testDir))
-  afterEach(() => rmSync(baseDir, { recursive: true, force: true }))
+  beforeEach(() => {
+    createFakeProject(testDir)
+    rmSync(stateDir(testDir), { recursive: true, force: true })
+  })
+  afterEach(() => {
+    rmSync(stateDir(testDir), { recursive: true, force: true })
+    rmSync(baseDir, { recursive: true, force: true })
+  })
 
   it('adds plugin to manifest.json with git source', async () => {
     const result = await init({ projectPath: testDir })
     assert.equal(result.unityVersion, '2022.3.10f1')
     assert.equal(result.pluginSource, 'git')
+    assert.equal(result.executeEnabled, false)
 
     const manifest = JSON.parse(readFileSync(`${testDir}/Packages/manifest.json`, 'utf-8'))
     assert.ok(manifest.dependencies['com.msanatan.unibridge'])
@@ -66,6 +81,7 @@ describe('init', () => {
       source: { type: 'local', path: '../unibridge/unity' },
     })
     assert.equal(result.pluginSource, 'local')
+    assert.equal(result.executeEnabled, false)
 
     const manifest = JSON.parse(readFileSync(`${testDir}/Packages/manifest.json`, 'utf-8'))
     assert.equal(manifest.dependencies['com.msanatan.unibridge'], 'file:../unibridge/unity')
@@ -75,6 +91,30 @@ describe('init', () => {
     await init({ projectPath: testDir })
     const result = await init({ projectPath: testDir })
     assert.equal(result.pluginSource, 'git')
+    assert.equal(result.executeEnabled, false)
+  })
+
+  it('writes executeEnabled false by default', async () => {
+    await init({ projectPath: testDir })
+    const serverJson = readServerJson(testDir)
+    assert.equal(serverJson.capabilities?.executeEnabled, false)
+  })
+
+  it('writes executeEnabled true when enabled explicitly', async () => {
+    const result = await init({ projectPath: testDir, enableExecute: true })
+    assert.equal(result.executeEnabled, true)
+
+    const serverJson = readServerJson(testDir)
+    assert.equal(serverJson.capabilities?.executeEnabled, true)
+  })
+
+  it('preserves executeEnabled when re-running init without explicit option', async () => {
+    await init({ projectPath: testDir, enableExecute: true })
+    const second = await init({ projectPath: testDir })
+    assert.equal(second.executeEnabled, true)
+
+    const serverJson = readServerJson(testDir)
+    assert.equal(serverJson.capabilities?.executeEnabled, true)
   })
 })
 

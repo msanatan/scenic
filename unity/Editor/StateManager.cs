@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace UniBridge.Editor
 {
@@ -71,7 +72,7 @@ namespace UniBridge.Editor
             string projectPath,
             string pluginVersion = "0.0.0",
             int protocolVersion = 1,
-            bool executeEnabled = true)
+            bool executeEnabled = false)
         {
             var directory = ResolveStateDirectory(hashOrDirectory);
             EnsureStateDirectory(directory);
@@ -88,6 +89,26 @@ namespace UniBridge.Editor
             });
 
             File.WriteAllText(Path.Combine(directory, "server.json"), payload);
+        }
+
+        public static bool ReadExecuteEnabled(string hashOrDirectory)
+        {
+            var directory = ResolveStateDirectory(hashOrDirectory);
+            var path = Path.Combine(directory, "server.json");
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+
+            try
+            {
+                var json = JObject.Parse(File.ReadAllText(path));
+                return json["capabilities"]?["executeEnabled"]?.Value<bool>() == true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static string CurrentStateDirectory()

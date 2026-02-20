@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { cwd } from 'node:process'
+import { readExecuteEnabled, writeExecuteEnabled } from './config.ts'
 import type { InitOptions, InitResult } from './types.ts'
 
 const PLUGIN_NAME = 'com.msanatan.unibridge'
@@ -90,10 +91,14 @@ export async function init(options: InitOptions = {}): Promise<InitResult> {
     })
   }
 
+  const executeEnabled = options.enableExecute ?? readExecuteEnabled(projectPath)
+  writeExecuteEnabled(projectPath, executeEnabled)
+
   return {
     projectPath,
     unityVersion,
     pluginVersion: SDK_VERSION,
     pluginSource,
+    executeEnabled,
   }
 }

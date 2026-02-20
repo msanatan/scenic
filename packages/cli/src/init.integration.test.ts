@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { afterEach, beforeEach, describe, it } from 'node:test'
+import { readExecuteEnabled } from './execute-config.ts'
 
 const fixtureRoot = '/tmp/unibridge-cli-init-integration'
 const projectPath = join(fixtureRoot, 'My Game')
@@ -31,6 +32,7 @@ beforeEach(() => {
 
 afterEach(() => {
   rmSync(fixtureRoot, { recursive: true, force: true })
+  rmSync('/tmp/unibridge', { recursive: true, force: true })
 })
 
 describe('cli init/update integration', () => {
@@ -52,5 +54,27 @@ describe('cli init/update integration', () => {
       dependencies?: Record<string, string>
     }
     assert.equal(manifestAfterSecond.dependencies?.[pluginName], pluginUrl)
+  })
+
+  it('disables execute by default on init', () => {
+    const result = runCli(['init'])
+    assert.equal(result.status, 0, `stderr: ${result.stderr}`)
+    assert.equal(readExecuteEnabled(projectPath), false)
+  })
+
+  it('enables execute with --enable-execute', () => {
+    const result = runCli(['init', '--enable-execute'])
+    assert.equal(result.status, 0, `stderr: ${result.stderr}`)
+    assert.equal(readExecuteEnabled(projectPath), true)
+  })
+
+  it('disables execute with --disable-execute', () => {
+    const first = runCli(['init', '--enable-execute'])
+    assert.equal(first.status, 0, `stderr: ${first.stderr}`)
+    assert.equal(readExecuteEnabled(projectPath), true)
+
+    const second = runCli(['init', '--disable-execute'])
+    assert.equal(second.status, 0, `stderr: ${second.stderr}`)
+    assert.equal(readExecuteEnabled(projectPath), false)
   })
 })

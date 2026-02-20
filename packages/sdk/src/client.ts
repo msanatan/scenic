@@ -40,7 +40,7 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
     connectTimeout: options.connectTimeout,
     commandTimeout: options.commandTimeout,
   })
-  const callerExecuteEnabled = options.enableExecute ?? true
+  const callerExecuteEnabled = options.enableExecute ?? false
 
   async function sendCommand(
     command: string,
@@ -56,7 +56,7 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
     }
 
     const metadata = connection.serverMetadata()
-    const serverExecuteEnabled = metadata?.capabilities?.executeEnabled ?? true
+    const serverExecuteEnabled = metadata?.capabilities?.executeEnabled ?? false
     if (!serverExecuteEnabled) {
       throw new UniBridgeError('Execute is disabled by client or plugin configuration.')
     }

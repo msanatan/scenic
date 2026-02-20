@@ -1,5 +1,6 @@
 import type { Command } from 'commander'
 import { createClient } from '@unibridge/sdk'
+import { readExecuteEnabled } from '../execute-config.ts'
 import { getGlobalOptions } from '../options.ts'
 import { resolveCommandProject } from '../preflight.ts'
 
@@ -21,16 +22,19 @@ export async function withUnityClient(
 
   try {
     const globalOpts = getGlobalOptions(command)
-    const envExecute = process.env.UNIBRIDGE_ENABLE_EXECUTE !== '0'
-    const executeEnabled = globalOpts.execute !== false && envExecute
 
     const projectPath = resolveCommandProject(
       {
         project: globalOpts.project,
-        execute: executeEnabled,
+        execute: globalOpts.execute,
       },
       requirements,
     )
+    const projectExecuteEnabled = readExecuteEnabled(projectPath)
+    const executeEnabled = globalOpts.execute !== false && projectExecuteEnabled
+    if (requirements.requiresExecute && !executeEnabled) {
+      throw new Error('Execute is disabled for this project. Run `unibridge init --enable-execute` to enable it.')
+    }
 
     client = createClient({
       projectPath,

@@ -6,6 +6,7 @@ export const projectPath = path.resolve(import.meta.dirname, '../../TestProjects
 export function createTestClient() {
   return createClient({
     projectPath,
+    enableExecute: true,
     connectTimeout: 10_000,
     commandTimeout: 20_000,
   })

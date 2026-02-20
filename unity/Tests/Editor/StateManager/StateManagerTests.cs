@@ -59,5 +59,27 @@ namespace UniBridge.Editor.Tests
             var content = File.ReadAllText(path);
             Assert.IsTrue(content.Contains("MyGame"));
         }
+
+        [Test]
+        public void ReadExecuteEnabled_ReturnsFalse_WhenServerJsonMissing()
+        {
+            Assert.IsFalse(StateManager.ReadExecuteEnabled(_testDir));
+        }
+
+        [Test]
+        public void ReadExecuteEnabled_ReturnsTrue_WhenEnabled()
+        {
+            StateManager.WriteServerJson(_testDir, "/Users/me/MyGame", executeEnabled: true);
+            Assert.IsTrue(StateManager.ReadExecuteEnabled(_testDir));
+        }
+
+        [Test]
+        public void ReadExecuteEnabled_ReturnsFalse_WhenCapabilitiesMissing()
+        {
+            var path = Path.Combine(_testDir, "server.json");
+            File.WriteAllText(path, "{\"pid\":12345,\"projectPath\":\"/Users/me/MyGame\"}");
+
+            Assert.IsFalse(StateManager.ReadExecuteEnabled(_testDir));
+        }
     }
 }
