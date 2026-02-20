@@ -48,4 +48,18 @@ describe('SDK: tags', () => {
     const tags = await client.tagsGet()
     assert.ok(tags.tags.some((tag) => tag.name === name))
   })
+
+  it('removes a tag idempotently', async () => {
+    const name = `UniBridgeTag_${Date.now()}`
+
+    await client.tagsAdd({ name })
+    const removed = await client.tagsRemove({ name })
+    assert.equal(removed.tag.name, name)
+    assert.equal(removed.tag.isBuiltIn, false)
+    assert.equal(removed.removed, true)
+
+    const removedAgain = await client.tagsRemove({ name })
+    assert.equal(removedAgain.tag.name, name)
+    assert.equal(removedAgain.removed, false)
+  })
 })

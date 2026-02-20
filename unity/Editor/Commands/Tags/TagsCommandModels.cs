@@ -23,6 +23,26 @@ namespace UniBridge.Editor.Commands.Tags
         }
     }
 
+    public sealed class TagsRemoveCommandParams
+    {
+        public string Name;
+
+        public static TagsRemoveCommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var name = CommandModelHelpers.ReadOptionalString(payload, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new CommandHandlingException("params.name is required.");
+            }
+
+            return new TagsRemoveCommandParams
+            {
+                Name = name.Trim(),
+            };
+        }
+    }
+
     public sealed class TagsGetCommandResult
     {
         [JsonProperty("tags")]
@@ -48,6 +68,18 @@ namespace UniBridge.Editor.Commands.Tags
 
         [JsonProperty("added")]
         public bool Added;
+
+        [JsonProperty("total")]
+        public int Total;
+    }
+
+    public sealed class TagsRemoveCommandResult
+    {
+        [JsonProperty("tag")]
+        public TagItem Tag;
+
+        [JsonProperty("removed")]
+        public bool Removed;
 
         [JsonProperty("total")]
         public int Total;

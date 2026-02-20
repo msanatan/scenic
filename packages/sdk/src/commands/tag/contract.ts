@@ -37,7 +37,28 @@ export const tagsAddCommand = defineCommand({
   result: TagsAddResultSchema,
 })
 
+export const TagsRemoveInputSchema = v.object({
+  name: v.string(),
+})
+
+export const TagsRemoveResultSchema = v.object({
+  tag: TagItemSchema,
+  removed: v.boolean(),
+  total: v.number(),
+})
+
+export const tagsRemoveCommand = defineCommand({
+  method: 'tagsRemove',
+  wire: 'tags.remove',
+  params: (input: TagsRemoveInput) => ({
+    name: input.name,
+  }),
+  result: TagsRemoveResultSchema,
+})
+
 export type TagItem = v.InferOutput<typeof TagItemSchema>
 export type TagsGetResult = InferResult<typeof tagsGetCommand>
 export type TagsAddInput = v.InferOutput<typeof TagsAddInputSchema>
 export type TagsAddResult = InferResult<typeof tagsAddCommand>
+export type TagsRemoveInput = v.InferOutput<typeof TagsRemoveInputSchema>
+export type TagsRemoveResult = InferResult<typeof tagsRemoveCommand>

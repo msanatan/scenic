@@ -86,4 +86,39 @@ describe('CLI: tags', () => {
     assert.ok(getPayload.result?.tags.some((tag) => tag.name === name))
   })
 
+  it('removes a tag idempotently', async () => {
+    const name = `UniBridgeTag_${Date.now()}`
+    createdTags.push(name)
+
+    const addPayload = (await runCli('tags', 'add', name)) as {
+      success: boolean
+      result?: { added: boolean }
+    }
+    assert.equal(addPayload.success, true)
+    assert.equal(addPayload.result?.added, true)
+
+    const removePayload = (await runCli('tags', 'remove', name)) as {
+      success: boolean
+      result?: {
+        tag: {
+          name: string
+          isBuiltIn: boolean
+        }
+        removed: boolean
+      }
+      error?: string
+    }
+    assert.equal(removePayload.success, true)
+    assert.equal(removePayload.result?.tag.name, name)
+    assert.equal(removePayload.result?.tag.isBuiltIn, false)
+    assert.equal(removePayload.result?.removed, true)
+
+    const removeAgainPayload = (await runCli('tags', 'remove', name)) as {
+      success: boolean
+      result?: { removed: boolean }
+    }
+    assert.equal(removeAgainPayload.success, true)
+    assert.equal(removeAgainPayload.result?.removed, false)
+  })
+
 })

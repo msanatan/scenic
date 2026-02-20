@@ -62,6 +62,9 @@ console.log(tags)
 const addedTag = await client.tagsAdd({ name: 'Enemy' })
 console.log(addedTag)
 
+const removedTag = await client.tagsRemove({ name: 'Enemy' })
+console.log(removedTag)
+
 const run = await client.testRun({ mode: 'edit', filter: 'DomainReloadCommandHandlerTests' })
 console.log(run)
 

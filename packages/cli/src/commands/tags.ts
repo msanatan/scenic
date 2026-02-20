@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { TagItem, TagsAddInput, TagsAddResult, TagsGetResult } from '@unibridge/sdk'
+import type { TagItem, TagsAddInput, TagsAddResult, TagsGetResult, TagsRemoveInput, TagsRemoveResult } from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -11,6 +11,12 @@ interface TagsGetDeps {
 
 interface TagsAddDeps {
   add: (input: TagsAddInput) => Promise<TagsAddResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface TagsRemoveDeps {
+  remove: (input: TagsRemoveInput) => Promise<TagsRemoveResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -57,10 +63,31 @@ export async function handleTagsAdd(
   )
 }
 
+export async function handleTagsRemove(
+  name: string,
+  jsonOutput: boolean,
+  deps: TagsRemoveDeps,
+): Promise<void> {
+  if (name.trim().length === 0) {
+    throw new Error('Tag name is required.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.remove({ name: name.trim() }),
+    (result, output) => {
+      output.log(`Tag:     ${formatTag(result.tag)}`)
+      output.log(`Removed: ${result.removed ? 'yes' : 'no'}`)
+      output.log(`Total:   ${result.total}`)
+    },
+  )
+}
+
 export function registerTags(program: Command): void {
   const tags = program
     .command('tags')
-    .description('Inspect Unity project tags')
+    .description('Inspect and mutate Unity project tags')
 
   tags
     .command('get')
@@ -91,6 +118,25 @@ export function registerTags(program: Command): void {
         async (client, ctx) => {
           await handleTagsAdd(name, ctx.jsonOutput, {
             add: (input) => client.tagsAdd(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  tags
+    .command('remove <name>')
+    .description('Remove a project tag (idempotent; built-in tags are protected)')
+    .action(async (name: string, _opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleTagsRemove(name, ctx.jsonOutput, {
+            remove: (input) => client.tagsRemove(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

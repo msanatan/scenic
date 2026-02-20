@@ -57,7 +57,14 @@ export type {
   SceneOpenResult,
 } from './scene/contract.ts'
 export type { StatusResult } from './status/contract.ts'
-export type { TagItem, TagsAddInput, TagsAddResult, TagsGetResult } from './tag/contract.ts'
+export type {
+  TagItem,
+  TagsAddInput,
+  TagsAddResult,
+  TagsGetResult,
+  TagsRemoveInput,
+  TagsRemoveResult,
+} from './tag/contract.ts'
 export type {
   TestListItem,
   TestListQuery,

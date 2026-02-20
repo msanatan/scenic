@@ -97,6 +97,68 @@ namespace UniBridge.Editor.Tests.Commands.Tags
             Assert.AreEqual(tagName, result.Tag.Name);
         }
 
+        [Test]
+        public void Route_TagsRemove_RemovesTagAndReturnsRemovedTrue()
+        {
+            var tagName = $"UnibridgeTag_{System.Guid.NewGuid():N}";
+            AddTag(tagName);
+
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "tags-remove",
+                    Command = "tags.remove",
+                    ParamsJson = $"{{\"name\":\"{tagName}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            var result = response.Result as TagsRemoveCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Removed);
+            Assert.AreEqual(tagName, result.Tag.Name);
+            Assert.IsFalse(InternalEditorUtility.tags.Contains(tagName));
+        }
+
+        [Test]
+        public void Route_TagsRemove_WhenMissing_ReturnsRemovedFalse()
+        {
+            var tagName = $"UnibridgeTag_{System.Guid.NewGuid():N}";
+            RemoveTag(tagName);
+
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "tags-remove-missing",
+                    Command = "tags.remove",
+                    ParamsJson = $"{{\"name\":\"{tagName}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            var result = response.Result as TagsRemoveCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Removed);
+            Assert.AreEqual(tagName, result.Tag.Name);
+        }
+
+        [Test]
+        public void Route_TagsRemove_BuiltInTag_ReturnsError()
+        {
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "tags-remove-built-in",
+                    Command = "tags.remove",
+                    ParamsJson = "{\"name\":\"Untagged\"}",
+                },
+                executeEnabled: true);
+
+            Assert.IsFalse(response.Success);
+            Assert.IsNotNull(response.Error);
+            StringAssert.Contains("built-in", response.Error.ToLowerInvariant());
+        }
+
         private static void AddTag(string name)
         {
             if (InternalEditorUtility.tags.Contains(name))
