@@ -56,6 +56,9 @@ const prefabInstance = await client.prefabInstantiate({
 })
 console.log(prefabInstance)
 
+const tags = await client.tagsGet()
+console.log(tags)
+
 const run = await client.testRun({ mode: 'edit', filter: 'DomainReloadCommandHandlerTests' })
 console.log(run)
 

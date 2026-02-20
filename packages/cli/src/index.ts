@@ -12,6 +12,7 @@ import { registerLogs } from './commands/logs.ts'
 import { registerPrefab } from './commands/prefab.ts'
 import { registerStatus } from './commands/status.ts'
 import { registerScene } from './commands/scene.ts'
+import { registerTags } from './commands/tags.ts'
 import { registerTest } from './commands/test.ts'
 
 const { version } = JSON.parse(
@@ -36,6 +37,7 @@ registerLogs(program)
 registerPrefab(program)
 registerStatus(program)
 registerScene(program)
+registerTags(program)
 registerTest(program)
 
 program.parse()
