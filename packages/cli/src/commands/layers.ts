@@ -1,5 +1,12 @@
 import type { Command } from 'commander'
-import type { LayersAddInput, LayersAddResult, LayersGetQuery, LayersGetResult } from '@unibridge/sdk'
+import type {
+  LayersAddInput,
+  LayersAddResult,
+  LayersGetQuery,
+  LayersGetResult,
+  LayersRemoveInput,
+  LayersRemoveResult,
+} from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -16,6 +23,12 @@ interface LayersGetDeps {
 
 interface LayersAddDeps {
   add: (input: LayersAddInput) => Promise<LayersAddResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface LayersRemoveDeps {
+  remove: (input: LayersRemoveInput) => Promise<LayersRemoveResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -88,6 +101,29 @@ export async function handleLayersAdd(
   )
 }
 
+export async function handleLayersRemove(
+  name: string,
+  jsonOutput: boolean,
+  deps: LayersRemoveDeps,
+): Promise<void> {
+  const trimmed = name.trim()
+  if (trimmed.length === 0) {
+    throw new Error('Layer name is required.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.remove({ name: trimmed }),
+    (result, output) => {
+      const nameValue = result.layer.name.length > 0 ? result.layer.name : '<empty>'
+      output.log(`Layer:   #${result.layer.index} ${nameValue}`)
+      output.log(`Removed: ${result.removed ? 'yes' : 'no'}`)
+      output.log(`Total:   ${result.total}`)
+    },
+  )
+}
+
 export function registerLayers(program: Command): void {
   const layers = program
     .command('layers')
@@ -124,6 +160,25 @@ export function registerLayers(program: Command): void {
         async (client, ctx) => {
           await handleLayersAdd(name, ctx.jsonOutput, {
             add: (input) => client.layersAdd(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  layers
+    .command('remove <name>')
+    .description('Remove a user layer by name (idempotent; built-in layers are protected)')
+    .action(async (name: string, _opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleLayersRemove(name, ctx.jsonOutput, {
+            remove: (input) => client.layersRemove(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

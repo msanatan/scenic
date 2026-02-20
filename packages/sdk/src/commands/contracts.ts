@@ -40,6 +40,8 @@ export type {
   LayersAddResult,
   LayersGetQuery,
   LayersGetResult,
+  LayersRemoveInput,
+  LayersRemoveResult,
 } from './layer/contract.ts'
 export type { LogEntry, LogsQuery, LogsResult, LogsSeverity } from './log/contract.ts'
 export type {

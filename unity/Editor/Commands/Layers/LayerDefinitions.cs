@@ -15,18 +15,23 @@ namespace UniBridge.Editor.Commands.Layers
             var items = new List<LayerItem>(LayerSlotCount);
             for (var i = 0; i < LayerSlotCount; i++)
             {
-                var name = LayerMask.LayerToName(i) ?? string.Empty;
-                items.Add(new LayerItem
-                {
-                    Index = i,
-                    Name = name,
-                    IsBuiltIn = IsBuiltIn(i),
-                    IsUserEditable = IsUserEditable(i),
-                    IsOccupied = !string.IsNullOrWhiteSpace(name),
-                });
+                items.Add(ToLayerItem(i));
             }
 
             return items;
+        }
+
+        public static LayerItem ToLayerItem(int index)
+        {
+            var name = LayerMask.LayerToName(index) ?? string.Empty;
+            return new LayerItem
+            {
+                Index = index,
+                Name = name,
+                IsBuiltIn = IsBuiltIn(index),
+                IsUserEditable = IsUserEditable(index),
+                IsOccupied = !string.IsNullOrWhiteSpace(name),
+            };
         }
 
         public static bool IsBuiltIn(int index)

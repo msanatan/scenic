@@ -51,4 +51,19 @@ describe('SDK: layers', () => {
     assert.equal(addedAgain.layer.name, name)
     assert.equal(addedAgain.added, false)
   })
+
+  it('removes a layer idempotently', async () => {
+    const name = `UniBridgeLayer_${Date.now()}`
+    createdLayers.push(name)
+
+    await client.layersAdd({ name })
+    const removed = await client.layersRemove({ name })
+    assert.equal(removed.layer.name, name)
+    assert.equal(removed.layer.isUserEditable, true)
+    assert.equal(removed.removed, true)
+
+    const removedAgain = await client.layersRemove({ name })
+    assert.equal(removedAgain.layer.name, name)
+    assert.equal(removedAgain.removed, false)
+  })
 })

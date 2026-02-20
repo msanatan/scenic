@@ -50,7 +50,28 @@ export const layersAddCommand = defineCommand({
   result: LayersAddResultSchema,
 })
 
+export const LayersRemoveInputSchema = v.object({
+  name: v.string(),
+})
+
+export const LayersRemoveResultSchema = v.object({
+  layer: LayerItemSchema,
+  removed: v.boolean(),
+  total: v.number(),
+})
+
+export const layersRemoveCommand = defineCommand({
+  method: 'layersRemove',
+  wire: 'layers.remove',
+  params: (input: LayersRemoveInput) => ({
+    name: input.name,
+  }),
+  result: LayersRemoveResultSchema,
+})
+
 export type LayerItem = v.InferOutput<typeof LayerItemSchema>
 export type LayersGetResult = InferResult<typeof layersGetCommand>
 export type LayersAddInput = v.InferOutput<typeof LayersAddInputSchema>
 export type LayersAddResult = InferResult<typeof layersAddCommand>
+export type LayersRemoveInput = v.InferOutput<typeof LayersRemoveInputSchema>
+export type LayersRemoveResult = InferResult<typeof layersRemoveCommand>

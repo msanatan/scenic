@@ -1,6 +1,5 @@
 using System;
 using UnityEditor;
-using UnityEngine;
 
 namespace UniBridge.Editor.Commands.Layers
 {
@@ -17,7 +16,7 @@ namespace UniBridge.Editor.Commands.Layers
             {
                 return new LayersAddCommandResult
                 {
-                    Layer = BuildLayerItem(existingIndex),
+                    Layer = LayerDefinitions.ToLayerItem(existingIndex),
                     Added = false,
                     Total = LayerDefinitions.LayerSlotCount,
                 };
@@ -49,22 +48,9 @@ namespace UniBridge.Editor.Commands.Layers
 
             return new LayersAddCommandResult
             {
-                Layer = BuildLayerItem(targetIndex),
+                Layer = LayerDefinitions.ToLayerItem(targetIndex),
                 Added = true,
                 Total = LayerDefinitions.LayerSlotCount,
-            };
-        }
-
-        private static LayerItem BuildLayerItem(int index)
-        {
-            var name = LayerMask.LayerToName(index) ?? string.Empty;
-            return new LayerItem
-            {
-                Index = index,
-                Name = name,
-                IsBuiltIn = LayerDefinitions.IsBuiltIn(index),
-                IsUserEditable = LayerDefinitions.IsUserEditable(index),
-                IsOccupied = !string.IsNullOrWhiteSpace(name),
             };
         }
 

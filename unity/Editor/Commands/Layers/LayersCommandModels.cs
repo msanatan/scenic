@@ -3,6 +3,26 @@ using UniBridge.Editor.Commands;
 
 namespace UniBridge.Editor.Commands.Layers
 {
+    public sealed class LayersRemoveCommandParams
+    {
+        public string Name;
+
+        public static LayersRemoveCommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var name = CommandModelHelpers.ReadOptionalString(payload, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new CommandHandlingException("params.name is required.");
+            }
+
+            return new LayersRemoveCommandParams
+            {
+                Name = name.Trim(),
+            };
+        }
+    }
+
     public sealed class LayersAddCommandParams
     {
         public string Name;
@@ -77,6 +97,18 @@ namespace UniBridge.Editor.Commands.Layers
 
         [JsonProperty("added")]
         public bool Added;
+
+        [JsonProperty("total")]
+        public int Total;
+    }
+
+    public sealed class LayersRemoveCommandResult
+    {
+        [JsonProperty("layer")]
+        public LayerItem Layer;
+
+        [JsonProperty("removed")]
+        public bool Removed;
 
         [JsonProperty("total")]
         public int Total;

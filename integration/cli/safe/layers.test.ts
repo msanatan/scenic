@@ -93,4 +93,43 @@ describe('CLI: layers', () => {
     assert.equal(addAgainPayload.result?.layer.name, name)
     assert.equal(addAgainPayload.result?.added, false)
   })
+
+  it('removes a layer idempotently', async () => {
+    const name = `UniBridgeLayer_${Date.now()}`
+    createdLayers.push(name)
+
+    const addPayload = (await runCli('layers', 'add', name)) as {
+      success: boolean
+      result?: { added: boolean }
+    }
+    assert.equal(addPayload.success, true)
+    assert.equal(addPayload.result?.added, true)
+
+    const removePayload = (await runCli('layers', 'remove', name)) as {
+      success: boolean
+      result?: {
+        layer: {
+          name: string
+          isUserEditable: boolean
+        }
+        removed: boolean
+      }
+      error?: string
+    }
+    assert.equal(removePayload.success, true)
+    assert.equal(removePayload.result?.layer.name, name)
+    assert.equal(removePayload.result?.layer.isUserEditable, true)
+    assert.equal(removePayload.result?.removed, true)
+
+    const removeAgainPayload = (await runCli('layers', 'remove', name)) as {
+      success: boolean
+      result?: {
+        layer: { name: string }
+        removed: boolean
+      }
+    }
+    assert.equal(removeAgainPayload.success, true)
+    assert.equal(removeAgainPayload.result?.layer.name, name)
+    assert.equal(removeAgainPayload.result?.removed, false)
+  })
 })

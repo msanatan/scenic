@@ -95,6 +95,68 @@ namespace UniBridge.Editor.Tests.Commands.Layers
             Assert.AreEqual(name, result.Layer.Name);
         }
 
+        [Test]
+        public void Route_LayersRemove_RemovesLayerAndReturnsRemovedTrue()
+        {
+            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            AddLayer(name);
+
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "layers-remove",
+                    Command = "layers.remove",
+                    ParamsJson = $"{{\"name\":\"{name}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            var result = response.Result as LayersRemoveCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Removed);
+            Assert.AreEqual(name, result.Layer.Name);
+            Assert.IsFalse(HasLayer(name));
+        }
+
+        [Test]
+        public void Route_LayersRemove_WhenMissing_ReturnsRemovedFalse()
+        {
+            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            RemoveLayerByName(name);
+
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "layers-remove-missing",
+                    Command = "layers.remove",
+                    ParamsJson = $"{{\"name\":\"{name}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            var result = response.Result as LayersRemoveCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Removed);
+            Assert.AreEqual(name, result.Layer.Name);
+        }
+
+        [Test]
+        public void Route_LayersRemove_BuiltInLayer_ReturnsError()
+        {
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "layers-remove-built-in",
+                    Command = "layers.remove",
+                    ParamsJson = "{\"name\":\"Default\"}",
+                },
+                executeEnabled: true);
+
+            Assert.IsFalse(response.Success);
+            Assert.IsNotNull(response.Error);
+            StringAssert.Contains("built-in", response.Error.ToLowerInvariant());
+        }
+
         private static void AddLayer(string name)
         {
             var assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
@@ -144,6 +206,33 @@ namespace UniBridge.Editor.Tests.Commands.Layers
 
             serialized.ApplyModifiedPropertiesWithoutUndo();
             AssetDatabase.SaveAssets();
+        }
+
+        private static bool HasLayer(string name)
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
+            if (assets == null || assets.Length == 0 || assets[0] == null)
+            {
+                return false;
+            }
+
+            var serialized = new SerializedObject(assets[0]);
+            var layers = serialized.FindProperty("layers");
+            if (layers == null || !layers.isArray)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < layers.arraySize; i++)
+            {
+                var item = layers.GetArrayElementAtIndex(i);
+                if (item.stringValue == name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

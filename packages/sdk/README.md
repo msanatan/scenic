@@ -62,6 +62,9 @@ console.log(layers)
 const addedLayer = await client.layersAdd({ name: 'EnemyLayer' })
 console.log(addedLayer)
 
+const removedLayer = await client.layersRemove({ name: 'EnemyLayer' })
+console.log(removedLayer)
+
 const tags = await client.tagsGet()
 console.log(tags)
 
