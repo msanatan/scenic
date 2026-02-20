@@ -1,7 +1,7 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import type { UniBridgeClient } from '../../packages/sdk/src/index.ts'
-import { createTestClient } from '../helpers/sdk-client.ts'
+import type { UniBridgeClient } from '../../../packages/sdk/src/index.ts'
+import { createTestClient } from '../../helpers/sdk-client.ts'
 
 describe('SDK: logs', () => {
   let client: UniBridgeClient
