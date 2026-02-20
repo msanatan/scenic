@@ -1,7 +1,7 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
-import { runCli, getCliEntrypoint } from '../helpers/cli-runner.ts'
+import { runCli, getCliEntrypoint } from '../../helpers/cli-runner.ts'
 
 describe('CLI: scene', () => {
   before(() => {

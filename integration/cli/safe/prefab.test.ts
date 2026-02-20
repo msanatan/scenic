@@ -1,7 +1,7 @@
 import { after, before, describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
-import { getCliEntrypoint, runCli } from '../helpers/cli-runner.ts'
+import { getCliEntrypoint, runCli } from '../../helpers/cli-runner.ts'
 
 describe('CLI: prefab', () => {
   const createdNames: string[] = []
