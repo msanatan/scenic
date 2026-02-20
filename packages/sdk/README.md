@@ -50,6 +50,12 @@ console.log(tests)
 const hierarchy = await client.sceneHierarchy({ limit: 200, offset: 0 })
 console.log(hierarchy)
 
+const prefabInstance = await client.prefabInstantiate({
+  prefabPath: 'Assets/Prefabs/Enemy.prefab',
+  transform: { space: 'local', position: { x: 2, y: 0, z: -1 } },
+})
+console.log(prefabInstance)
+
 const run = await client.testRun({ mode: 'edit', filter: 'DomainReloadCommandHandlerTests' })
 console.log(run)
 

@@ -36,6 +36,15 @@ export type {
 } from './gameobject/contract.ts'
 export type { LogEntry, LogsQuery, LogsResult, LogsSeverity } from './log/contract.ts'
 export type {
+  CreateTransform as PrefabCreateTransform,
+  PrefabInstantiateInput,
+  PrefabInstantiateResult,
+  PrefabSaveInput,
+  PrefabSaveResult,
+  TransformSpace as PrefabTransformSpace,
+  Vector3Value as PrefabVector3Value,
+} from './prefab/contract.ts'
+export type {
   SceneActiveResult,
   SceneCreateResult,
   SceneHierarchyNode,

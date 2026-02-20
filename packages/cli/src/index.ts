@@ -9,6 +9,7 @@ import { registerInit } from './commands/init.ts'
 import { registerExecute } from './commands/execute.ts'
 import { registerGameObject } from './commands/gameobject.ts'
 import { registerLogs } from './commands/logs.ts'
+import { registerPrefab } from './commands/prefab.ts'
 import { registerStatus } from './commands/status.ts'
 import { registerScene } from './commands/scene.ts'
 import { registerTest } from './commands/test.ts'
@@ -32,6 +33,7 @@ registerInit(program)
 registerExecute(program)
 registerGameObject(program)
 registerLogs(program)
+registerPrefab(program)
 registerStatus(program)
 registerScene(program)
 registerTest(program)

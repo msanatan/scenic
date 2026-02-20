@@ -59,6 +59,8 @@ unibridge gameobject find Enemy --limit 50 --offset 0
 unibridge gameobject create Enemy --parent-instance-id 12345 --primitive cube
 unibridge gameobject reparent --instance-id 12345 --parent-instance-id 67890
 unibridge gameobject destroy --instance-id 12345
+unibridge prefab instantiate Assets/Prefabs/Enemy.prefab --position 0,1,0
+unibridge prefab save Assets/Prefabs/EnemyVariant.prefab --instance-id 12345
 unibridge test list --mode edit --limit 50 --offset 0
 unibridge test run --mode edit --filter DomainReloadCommandHandlerTests
 unibridge editor play
