@@ -1,14 +1,22 @@
-import { describe, it, before } from 'node:test'
+import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { runCli, getCliEntrypoint } from '../../helpers/cli-runner.ts'
 
 describe('CLI: tags', () => {
+  const createdTags: string[] = []
+
   before(() => {
     assert.ok(
       existsSync(getCliEntrypoint()),
       'CLI dist entrypoint not found. Run "npm run build:cli" before integration tests.',
     )
+  })
+
+  after(async () => {
+    for (const tag of createdTags) {
+      await runCli('execute', `var assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset"); if (assets != null && assets.Length > 0 && assets[0] != null) { var so = new UnityEditor.SerializedObject(assets[0]); var tags = so.FindProperty("tags"); if (tags != null && tags.isArray) { for (var i = tags.arraySize - 1; i >= 0; i--) { if (tags.GetArrayElementAtIndex(i).stringValue == "${tag}") { tags.DeleteArrayElementAtIndex(i); } } so.ApplyModifiedPropertiesWithoutUndo(); UnityEditor.AssetDatabase.SaveAssets(); } }`)
+    }
   })
 
   it('returns tags including built-in markers', async () => {
@@ -34,4 +42,48 @@ describe('CLI: tags', () => {
     assert.ok(untagged != null)
     assert.equal(untagged?.isBuiltIn, true)
   })
+
+  it('adds a tag idempotently', async () => {
+    const name = `UniBridgeTag_${Date.now()}`
+    createdTags.push(name)
+
+    const addPayload = (await runCli('tags', 'add', name)) as {
+      success: boolean
+      result?: {
+        tag: {
+          name: string
+          isBuiltIn: boolean
+        }
+        added: boolean
+        total: number
+      }
+      error?: string
+    }
+
+    assert.equal(addPayload.success, true)
+    assert.equal(addPayload.result?.tag.name, name)
+    assert.equal(addPayload.result?.tag.isBuiltIn, false)
+    assert.equal(addPayload.result?.added, true)
+
+    const addAgainPayload = (await runCli('tags', 'add', name)) as {
+      success: boolean
+      result?: {
+        added: boolean
+      }
+      error?: string
+    }
+
+    assert.equal(addAgainPayload.success, true)
+    assert.equal(addAgainPayload.result?.added, false)
+
+    const getPayload = (await runCli('tags', 'get')) as {
+      success: boolean
+      result?: {
+        tags: Array<{ name: string }>
+      }
+    }
+    assert.equal(getPayload.success, true)
+    assert.ok(getPayload.result?.tags.some((tag) => tag.name === name))
+  })
+
 })

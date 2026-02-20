@@ -59,6 +59,9 @@ console.log(prefabInstance)
 const tags = await client.tagsGet()
 console.log(tags)
 
+const addedTag = await client.tagsAdd({ name: 'Enemy' })
+console.log(addedTag)
+
 const run = await client.testRun({ mode: 'edit', filter: 'DomainReloadCommandHandlerTests' })
 console.log(run)
 

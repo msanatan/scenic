@@ -1,7 +1,28 @@
+using System;
 using Newtonsoft.Json;
 
 namespace UniBridge.Editor.Commands.Tags
 {
+    public sealed class TagsAddCommandParams
+    {
+        public string Name;
+
+        public static TagsAddCommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var name = CommandModelHelpers.ReadOptionalString(payload, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new CommandHandlingException("params.name is required.");
+            }
+
+            return new TagsAddCommandParams
+            {
+                Name = name.Trim(),
+            };
+        }
+    }
+
     public sealed class TagsGetCommandResult
     {
         [JsonProperty("tags")]
@@ -18,5 +39,17 @@ namespace UniBridge.Editor.Commands.Tags
 
         [JsonProperty("isBuiltIn")]
         public bool IsBuiltIn;
+    }
+
+    public sealed class TagsAddCommandResult
+    {
+        [JsonProperty("tag")]
+        public TagItem Tag;
+
+        [JsonProperty("added")]
+        public bool Added;
+
+        [JsonProperty("total")]
+        public int Total;
     }
 }

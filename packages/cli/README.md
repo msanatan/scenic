@@ -62,6 +62,7 @@ unibridge gameobject destroy --instance-id 12345
 unibridge prefab instantiate Assets/Prefabs/Enemy.prefab --position 0,1,0
 unibridge prefab save Assets/Prefabs/EnemyVariant.prefab --instance-id 12345
 unibridge tags get
+unibridge tags add Enemy
 unibridge test list --mode edit --limit 50 --offset 0
 unibridge test run --mode edit --filter DomainReloadCommandHandlerTests
 unibridge editor play

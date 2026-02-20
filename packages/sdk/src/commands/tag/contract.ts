@@ -18,5 +18,26 @@ export const tagsGetCommand = defineCommand({
   result: TagsGetResultSchema,
 })
 
+export const TagsAddInputSchema = v.object({
+  name: v.string(),
+})
+
+export const TagsAddResultSchema = v.object({
+  tag: TagItemSchema,
+  added: v.boolean(),
+  total: v.number(),
+})
+
+export const tagsAddCommand = defineCommand({
+  method: 'tagsAdd',
+  wire: 'tags.add',
+  params: (input: TagsAddInput) => ({
+    name: input.name,
+  }),
+  result: TagsAddResultSchema,
+})
+
 export type TagItem = v.InferOutput<typeof TagItemSchema>
 export type TagsGetResult = InferResult<typeof tagsGetCommand>
+export type TagsAddInput = v.InferOutput<typeof TagsAddInputSchema>
+export type TagsAddResult = InferResult<typeof tagsAddCommand>
