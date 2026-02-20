@@ -19,7 +19,6 @@ namespace UniBridge.Editor
         static UniBridgeServer()
         {
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeReload;
-            AssemblyReloadEvents.afterAssemblyReload += OnAfterReload;
             EditorApplication.quitting += OnQuit;
             EditorApplication.update += ProcessCommandQueue;
 
@@ -106,11 +105,6 @@ namespace UniBridge.Editor
         private static void OnBeforeReload()
         {
             _server?.Stop();
-        }
-
-        private static void OnAfterReload()
-        {
-            Start();
         }
 
         private static void OnQuit()
