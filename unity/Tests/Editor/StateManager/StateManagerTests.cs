@@ -42,91 +42,11 @@ namespace UniBridge.Editor.Tests
         }
 
         [Test]
-        public void WriteResult_CreatesJsonFile()
+        public void EnsureStateDirectory_CreatesDirectory()
         {
-            StateManager.EnsureStateDirectory(_testDir);
-            var response = new CommandResponse { Id = "cmd-1", Success = true, Result = "hello" };
-            StateManager.WriteResult(_testDir, response);
-
-            var path = Path.Combine(_testDir, "results", "cmd-1.json");
-            Assert.IsTrue(File.Exists(path));
-        }
-
-        [Test]
-        public void EnsureStateDirectory_CreatesRequestsDirectory()
-        {
-            StateManager.EnsureStateDirectory(_testDir);
-
-            var requestsPath = Path.Combine(_testDir, "requests");
-            Assert.IsTrue(Directory.Exists(requestsPath));
-        }
-
-        [Test]
-        public void WriteRequest_ReadRequest_RoundTrips()
-        {
-            StateManager.EnsureStateDirectory(_testDir);
-            var request = new CommandRequest
-            {
-                Id = "cmd-req-1",
-                Command = "execute",
-                ParamsJson = "{\"code\":\"UnityEngine.Debug.Log(\\\"hi\\\")\",\"ids\":[\"a\",\"b\"]}",
-            };
-
-            StateManager.WriteRequest(_testDir, request);
-
-            var loaded = StateManager.ReadRequest(_testDir, "cmd-req-1");
-            Assert.IsNotNull(loaded);
-            Assert.AreEqual("cmd-req-1", loaded.Id);
-            Assert.AreEqual("execute", loaded.Command);
-            Assert.AreEqual("UnityEngine.Debug.Log(\"hi\")", loaded.GetStringParam("code"));
-            Assert.AreEqual(2, loaded.GetStringArrayParam("ids").Length);
-        }
-
-        [Test]
-        public void ListPendingRequests_ExcludesRequestsWithExistingResults()
-        {
-            StateManager.EnsureStateDirectory(_testDir);
-
-            StateManager.WriteRequest(_testDir, new CommandRequest
-            {
-                Id = "cmd-pending",
-                Command = "execute",
-                ParamsJson = "{\"code\":\"1+1\"}",
-            });
-
-            StateManager.WriteRequest(_testDir, new CommandRequest
-            {
-                Id = "cmd-complete",
-                Command = "execute",
-                ParamsJson = "{\"code\":\"2+2\"}",
-            });
-            StateManager.WriteResult(_testDir, new CommandResponse
-            {
-                Id = "cmd-complete",
-                Success = true,
-                Result = "4",
-            });
-
-            var pending = StateManager.ListPendingRequests(_testDir);
-            Assert.AreEqual(1, pending.Length);
-            Assert.AreEqual("cmd-pending", pending[0].Id);
-        }
-
-        [Test]
-        public void DeleteRequest_RemovesRequestFile()
-        {
-            StateManager.EnsureStateDirectory(_testDir);
-            StateManager.WriteRequest(_testDir, new CommandRequest
-            {
-                Id = "cmd-delete",
-                Command = "execute",
-                ParamsJson = "{\"code\":\"3+3\"}",
-            });
-
-            StateManager.DeleteRequest(_testDir, "cmd-delete");
-
-            var requestPath = Path.Combine(_testDir, "requests", "cmd-delete.json");
-            Assert.IsFalse(File.Exists(requestPath));
+            var stateDir = Path.Combine(_testDir, "state");
+            StateManager.EnsureStateDirectory(stateDir);
+            Assert.IsTrue(Directory.Exists(stateDir));
         }
 
         [Test]

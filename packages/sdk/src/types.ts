@@ -50,7 +50,6 @@ export interface ServerMetadata {
 export interface TimeoutOptions {
   connectTimeout?: number
   commandTimeout?: number
-  reconnectTimeout?: number
 }
 
 export interface ClientOptions extends TimeoutOptions {

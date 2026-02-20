@@ -39,7 +39,6 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
     projectPath,
     connectTimeout: options.connectTimeout,
     commandTimeout: options.commandTimeout,
-    reconnectTimeout: options.reconnectTimeout,
   })
   const callerExecuteEnabled = options.enableExecute ?? true
 
@@ -73,4 +72,3 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
     },
   }
 }
-

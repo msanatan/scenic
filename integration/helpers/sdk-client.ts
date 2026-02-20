@@ -8,6 +8,5 @@ export function createTestClient() {
     projectPath,
     connectTimeout: 10_000,
     commandTimeout: 20_000,
-    reconnectTimeout: 20_000,
   })
 }

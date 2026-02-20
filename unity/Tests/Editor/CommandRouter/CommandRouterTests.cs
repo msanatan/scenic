@@ -1,7 +1,5 @@
 using NUnit.Framework;
-using System.IO;
 using UniBridge.Editor;
-using UniBridge.Editor.Commands.Recovery;
 
 namespace UniBridge.Editor.Tests
 {
@@ -38,41 +36,5 @@ namespace UniBridge.Editor.Tests
             Assert.IsNotNull(response.Error);
         }
 
-        [Test]
-        public void Route_RecoverResults_ReturnsRequestedResultPayload()
-        {
-            var stateDir = Path.Combine(Path.GetTempPath(), "unibridge-router-test-" + Path.GetRandomFileName());
-            Directory.CreateDirectory(stateDir);
-            try
-            {
-                StateManager.WriteResult(stateDir, new CommandResponse
-                {
-                    Id = "cmd-recover",
-                    Success = true,
-                    Result = "ok",
-                });
-
-                StateManager.SetCurrentProjectHash(stateDir);
-
-                var request = new CommandRequest
-                {
-                    Id = "recover-1",
-                    Command = "recoverResults",
-                    ParamsJson = "{\"ids\":[\"cmd-recover\"]}",
-                };
-
-                var response = CommandRouter.Route(request, executeEnabled: true);
-                Assert.IsTrue(response.Success);
-                var result = response.Result as RecoverResultsCommandResult;
-                Assert.IsNotNull(result);
-                Assert.IsNotNull(result.Results);
-                Assert.AreEqual(1, result.Results.Length);
-                Assert.AreEqual("cmd-recover", result.Results[0].Id);
-            }
-            finally
-            {
-                Directory.Delete(stateDir, true);
-            }
-        }
     }
 }

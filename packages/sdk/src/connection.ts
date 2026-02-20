@@ -1,6 +1,5 @@
 import net from 'node:net'
-import { randomUUID } from 'node:crypto'
-import { existsSync, readFileSync, unlinkSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { stateDir } from './hash.ts'
 import type {
@@ -12,7 +11,6 @@ import type {
 
 const DEFAULT_CONNECT_TIMEOUT = 5_000
 const DEFAULT_COMMAND_TIMEOUT = 30_000
-const DEFAULT_RECONNECT_TIMEOUT = 30_000
 const EXPECTED_PROTOCOL_VERSION = 1
 
 interface PendingRequest {
@@ -35,14 +33,11 @@ export class PipeConnection {
   private connectInFlight: Promise<void> | undefined
   private readonly connectTimeout: number
   private readonly commandTimeout: number
-  private readonly reconnectTimeout: number
   private readonly projectPath: string | undefined
-  private recoveryInFlight: Promise<void> | undefined
 
   constructor(options: PipeConnectionOptions = {}) {
     this.connectTimeout = options.connectTimeout ?? DEFAULT_CONNECT_TIMEOUT
     this.commandTimeout = options.commandTimeout ?? DEFAULT_COMMAND_TIMEOUT
-    this.reconnectTimeout = options.reconnectTimeout ?? DEFAULT_RECONNECT_TIMEOUT
     this.projectPath = options.projectPath
   }
 
@@ -56,18 +51,12 @@ export class PipeConnection {
       throw new Error('Pipe path is not set. Call connect() before send().')
     }
 
-    await this.ensureConnected(this.reconnectTimeout)
+    await this.ensureConnected(this.connectTimeout)
 
     const timeout = this.commandTimeout
     return new Promise<CommandResponse>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(request.id)
-        const fileResult = this.readResultFromDisk(request.id)
-        if (fileResult) {
-          resolve(fileResult)
-          return
-        }
-
         reject(new Error(`Command timeout (${Math.round(timeout / 1000)}s) — the command may have hung Unity's main thread`))
       }, timeout)
 
@@ -144,7 +133,6 @@ export class PipeConnection {
       try {
         await this.connectOnce(pipePath)
         this.validateProtocolVersion()
-        this.requestPendingResults()
         return
       } catch {
         await sleep(delay)
@@ -187,15 +175,11 @@ export class PipeConnection {
     })
 
     socket.on('close', () => {
-      if (!this.intentionalDisconnect) {
-        this.connected = false
-        this.tryRecoverPending()
-      }
+      this.connected = false
     })
 
     socket.on('error', () => {
       this.connected = false
-      this.tryRecoverPending()
     })
   }
 
@@ -224,12 +208,8 @@ export class PipeConnection {
       if (pending) {
         clearTimeout(pending.timer)
         this.pending.delete(parsed.id)
-        this.deleteResultFile(parsed.id)
         pending.resolve(parsed)
-        continue
       }
-
-      this.tryResolveRecoveredPayload(parsed)
     }
   }
 
@@ -258,123 +238,6 @@ export class PipeConnection {
     }
   }
 
-  private requestPendingResults(): void {
-    if (!this.socket || this.socket.destroyed || this.pending.size === 0) {
-      return
-    }
-
-    this.writeFrame({
-      id: `recover-${randomUUID()}`,
-      command: 'recoverResults',
-      params: { ids: [...this.pending.keys()] },
-    })
-  }
-
-  private tryRecoverPending(): void {
-    if (this.pending.size === 0 || this.recoveryInFlight) {
-      return
-    }
-
-    this.recoveryInFlight = this.ensureConnected(this.reconnectTimeout)
-      .catch(() => {
-        // Per-request timeouts and file fallback will handle failure.
-      })
-      .finally(() => {
-        this.recoveryInFlight = undefined
-      })
-  }
-
-  private tryResolveRecoveredPayload(response: CommandResponse): void {
-    let payload: unknown = response.result
-    if (typeof payload === 'string') {
-      try {
-        payload = JSON.parse(payload)
-      } catch {
-        return
-      }
-    }
-
-    if (!payload || typeof payload !== 'object' || !('results' in payload)) {
-      return
-    }
-
-    const maybeResults = (payload as { results?: unknown }).results
-    if (!Array.isArray(maybeResults)) {
-      return
-    }
-
-    for (const item of maybeResults) {
-      if (!item || typeof item !== 'object' || !('id' in item) || typeof item.id !== 'string') {
-        continue
-      }
-      const recoveredItem = item as Partial<CommandResponse> & { id: string }
-
-      const pending = this.pending.get(recoveredItem.id)
-      if (!pending) {
-        continue
-      }
-
-      const recovered: CommandResponse = {
-        id: recoveredItem.id,
-        success: typeof recoveredItem.success === 'boolean' ? recoveredItem.success : false,
-        result: recoveredItem.result,
-        error: typeof recoveredItem.error === 'string' ? recoveredItem.error : undefined,
-      }
-
-      clearTimeout(pending.timer)
-      this.pending.delete(recoveredItem.id)
-      this.deleteResultFile(recoveredItem.id)
-      pending.resolve(recovered)
-    }
-  }
-
-  private readResultFromDisk(requestId: string): CommandResponse | null {
-    if (!this.projectPath) {
-      return null
-    }
-
-    const resultPath = path.join(stateDir(this.projectPath), 'results', `${requestId}.json`)
-    if (!existsSync(resultPath)) {
-      return null
-    }
-
-    try {
-      const parsed = JSON.parse(readFileSync(resultPath, 'utf-8')) as Partial<CommandResponse>
-      if (typeof parsed.id !== 'string' || parsed.id !== requestId) {
-        return null
-      }
-
-      const response: CommandResponse = {
-        id: parsed.id,
-        success: Boolean(parsed.success),
-        result: parsed.result,
-        error: typeof parsed.error === 'string' ? parsed.error : undefined,
-      }
-
-      this.deleteResultFile(requestId)
-
-      return response
-    } catch {
-      return null
-    }
-  }
-
-  private deleteResultFile(requestId: string): void {
-    if (!this.projectPath) {
-      return
-    }
-
-    const resultPath = path.join(stateDir(this.projectPath), 'results', `${requestId}.json`)
-    if (!existsSync(resultPath)) {
-      return
-    }
-
-    try {
-      unlinkSync(resultPath)
-    } catch {
-      // Best-effort cleanup.
-    }
-  }
 }
 
 function sleep(ms: number): Promise<void> {

@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -44,37 +43,17 @@ namespace UniBridge.Editor
             _server = new PipeServer(_projectHash);
             _server.OnCommandReceived += OnCommand;
             _server.Start();
-            RequeuePendingRequests();
             UnityEngine.Debug.Log($"UniBridgeServer started for project '{projectPath}' with hash '{_projectHash}'.");
         }
 
         private static void OnCommand(CommandRequest request)
-        {
-            UnityEngine.Debug.Log($"Received command: {request.Command} with id: {request.Id}");
-            EnqueueCommand(request, persistRequest: true);
-        }
-
-        private static void RequeuePendingRequests()
-        {
-            var pending = StateManager.ListPendingRequestsForCurrentProject();
-            for (var i = 0; i < pending.Length; i++)
-            {
-                EnqueueCommand(pending[i], persistRequest: false);
-            }
-        }
-
-        private static void EnqueueCommand(CommandRequest request, bool persistRequest)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Id))
             {
                 return;
             }
 
-            if (persistRequest)
-            {
-                StateManager.WriteRequestForCurrentProject(request);
-            }
-
+            UnityEngine.Debug.Log($"Received command: {request.Command} with id: {request.Id}");
             _commandQueue.Enqueue(request);
         }
 
@@ -87,18 +66,8 @@ namespace UniBridge.Editor
                     continue;
                 }
 
-                var existing = StateManager.ReadResultForCurrentProject(request.Id);
-                if (existing != null)
-                {
-                    _server.Send(existing);
-                    StateManager.DeleteRequestForCurrentProject(request.Id);
-                    continue;
-                }
-
                 var response = CommandRouter.Route(request, _settings.ExecuteEnabled);
-                StateManager.WriteResultForCurrentProject(request.Id, response);
                 _server.Send(response);
-                StateManager.DeleteRequestForCurrentProject(request.Id);
             }
         }
 
@@ -110,7 +79,6 @@ namespace UniBridge.Editor
         private static void OnQuit()
         {
             _server?.Stop();
-            StateManager.Cleanup();
         }
     }
 
