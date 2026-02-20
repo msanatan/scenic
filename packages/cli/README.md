@@ -43,6 +43,32 @@ Or provide a specific project path:
 unibridge --project /path/to/UnityProject init
 ```
 
+## Quick Start (3D Vertical Slice)
+
+This creates a tiny playable setup: a tagged cylinder player with physics, a floor, and two enemy cubes.
+The example uses `jq` to capture IDs from `--json` output.
+
+```bash
+# 1) Ensure the Player tag exists (idempotent).
+unibridge tags add Player
+
+# 2) Create Player (cylinder), then tag it as Player.
+PLAYER_ID=$(unibridge --json gameobject create Player --dimension 3d --primitive cylinder --position 0,1,0 | jq -r '.result.instanceId')
+unibridge gameobject update --instance-id "$PLAYER_ID" --tag Player
+
+# 3) Add Rigidbody so the player can interact with physics.
+unibridge components add --instance-id "$PLAYER_ID" --type UnityEngine.Rigidbody --values '{"mass":70,"useGravity":true}'
+
+# 4) Create a floor and two enemies.
+unibridge gameobject create ArenaFloor --dimension 3d --primitive plane --position 0,0,0 --scale 3,1,3
+unibridge gameobject create Enemy_A --dimension 3d --primitive cube --position 3,0.5,2
+unibridge gameobject create Enemy_B --dimension 3d --primitive cube --position -3,0.5,2
+
+# 5) Inspect the scene and enter Play Mode.
+unibridge scene hierarchy --limit 200 --offset 0
+unibridge editor play
+```
+
 ## Common Commands
 
 ```bash

@@ -31,53 +31,55 @@ import { createClient } from '@unibridge/sdk'
 
 const client = createClient({ projectPath: '/path/to/UnityProject' })
 
-const status = await client.status()
-console.log(status)
+try {
+  const status = await client.status()
+  console.log('Unity status:', status)
 
-const logs = await client.logs({ severity: 'warn', limit: 50, offset: 0 })
-console.log(logs)
+  // Ensure Player tag exists, then create a simple tagged player body.
+  await client.tagsAdd({ name: 'Player' })
+  const player = await client.gameObjectCreate({
+    name: 'Player',
+    dimension: '3d',
+    primitive: 'cylinder',
+    transform: { space: 'world', position: { x: 0, y: 1, z: 0 } },
+  })
+  await client.gameObjectUpdate({ instanceId: player.instanceId, tag: 'Player' })
 
-const created = await client.gameObjectCreate({
-  name: 'Player',
-  dimension: '2d',
-  transform: { space: 'local', position: { x: 0, y: 1, z: 0 } },
-})
-console.log(created)
+  await client.componentsAdd({
+    instanceId: player.instanceId,
+    type: 'UnityEngine.Rigidbody',
+    initialValues: { mass: 70, useGravity: true },
+  })
 
-const tests = await client.testList({ mode: 'edit', limit: 50, offset: 0 })
-console.log(tests)
+  // Add a floor and two enemies for a tiny 3D gameplay slice.
+  await client.gameObjectCreate({
+    name: 'ArenaFloor',
+    dimension: '3d',
+    primitive: 'plane',
+    transform: { space: 'world', position: { x: 0, y: 0, z: 0 }, scale: { x: 3, y: 1, z: 3 } },
+  })
 
-const hierarchy = await client.sceneHierarchy({ limit: 200, offset: 0 })
-console.log(hierarchy)
+  await client.gameObjectCreate({
+    name: 'Enemy_A',
+    dimension: '3d',
+    primitive: 'cube',
+    transform: { space: 'world', position: { x: 3, y: 0.5, z: 2 } },
+  })
+  await client.gameObjectCreate({
+    name: 'Enemy_B',
+    dimension: '3d',
+    primitive: 'cube',
+    transform: { space: 'world', position: { x: -3, y: 0.5, z: 2 } },
+  })
 
-const prefabInstance = await client.prefabInstantiate({
-  prefabPath: 'Assets/Prefabs/Enemy.prefab',
-  transform: { space: 'local', position: { x: 2, y: 0, z: -1 } },
-})
-console.log(prefabInstance)
+  const hierarchy = await client.sceneHierarchy({ limit: 200, offset: 0 })
+  console.log('Scene objects:', hierarchy.total)
 
-const layers = await client.layersGet({ limit: 32, offset: 0 })
-console.log(layers)
-
-const addedLayer = await client.layersAdd({ name: 'EnemyLayer' })
-console.log(addedLayer)
-
-const removedLayer = await client.layersRemove({ name: 'EnemyLayer' })
-console.log(removedLayer)
-
-const tags = await client.tagsGet()
-console.log(tags)
-
-const addedTag = await client.tagsAdd({ name: 'Enemy' })
-console.log(addedTag)
-
-const removedTag = await client.tagsRemove({ name: 'Enemy' })
-console.log(removedTag)
-
-const run = await client.testRun({ mode: 'edit', filter: 'DomainReloadCommandHandlerTests' })
-console.log(run)
-
-client.close()
+  await client.editorPlay()
+  console.log('Entered Play Mode')
+} finally {
+  client.close()
+}
 ```
 
 ## Install Plugin Programmatically
