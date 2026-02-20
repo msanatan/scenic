@@ -22,6 +22,8 @@ describe('SDK: prefab', () => {
       await client.execute(`UnityEditor.AssetDatabase.DeleteAsset("${prefabPath}");`)
     }
 
+    await client.execute('if (UnityEditor.AssetDatabase.IsValidFolder("Assets/__TempTests__")) { UnityEditor.AssetDatabase.DeleteAsset("Assets/__TempTests__"); }')
+
     client.close()
   })
 

@@ -24,6 +24,8 @@ describe('CLI: prefab', () => {
     for (const prefabPath of prefabPaths) {
       await runCli('execute', `UnityEditor.AssetDatabase.DeleteAsset("${prefabPath}");`)
     }
+
+    await runCli('execute', 'if (UnityEditor.AssetDatabase.IsValidFolder("Assets/__TempTests__")) { UnityEditor.AssetDatabase.DeleteAsset("Assets/__TempTests__"); }')
   })
 
   it('instantiates a prefab into the active scene', async () => {
