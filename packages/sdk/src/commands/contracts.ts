@@ -62,6 +62,7 @@ export type {
   TagItem,
   TagsAddInput,
   TagsAddResult,
+  TagsGetQuery,
   TagsGetResult,
   TagsRemoveInput,
   TagsRemoveResult,

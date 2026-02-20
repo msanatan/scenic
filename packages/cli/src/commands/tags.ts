@@ -1,10 +1,23 @@
 import type { Command } from 'commander'
-import type { TagItem, TagsAddInput, TagsAddResult, TagsGetResult, TagsRemoveInput, TagsRemoveResult } from '@unibridge/sdk'
+import type {
+  TagItem,
+  TagsAddInput,
+  TagsAddResult,
+  TagsGetQuery,
+  TagsGetResult,
+  TagsRemoveInput,
+  TagsRemoveResult,
+} from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
+interface TagsGetOptions {
+  limit?: string
+  offset?: string
+}
+
 interface TagsGetDeps {
-  get: () => Promise<TagsGetResult>
+  get: (query?: TagsGetQuery) => Promise<TagsGetResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -25,16 +38,43 @@ function formatTag(tag: TagItem): string {
   return `${tag.name}${tag.isBuiltIn ? ' (built-in)' : ''}`
 }
 
+function parseIntWithMinimum(
+  value: string | undefined,
+  label: string,
+  defaultValue: number,
+  minimum: number,
+): number {
+  if (value == null) {
+    return defaultValue
+  }
+
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isFinite(parsed) || parsed < minimum) {
+    if (minimum <= 0) {
+      throw new Error(`${label} must be a non-negative integer.`)
+    }
+    throw new Error(`${label} must be an integer >= ${minimum}.`)
+  }
+
+  return parsed
+}
+
 export async function handleTagsGet(
+  opts: TagsGetOptions,
   jsonOutput: boolean,
   deps: TagsGetDeps,
 ): Promise<void> {
+  const query: TagsGetQuery = {
+    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+  }
+
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get(),
+    () => deps.get(query),
     (result, output) => {
-      output.log(`Tags: ${result.total}`)
+      output.log(`Tags: ${result.tags.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const tag of result.tags) {
         output.log(formatTag(tag))
       }
@@ -91,14 +131,16 @@ export function registerTags(program: Command): void {
 
   tags
     .command('get')
-    .description('List all tags, including built-in tags')
-    .action(async (_opts: Record<string, never>, command: Command) => {
+    .description('List tags with pagination, including built-in tags')
+    .option('--limit <number>', 'Number of tags to return (default: 50)')
+    .option('--offset <number>', 'Offset into tags (default: 0)')
+    .action(async (opts: TagsGetOptions, command: Command) => {
       await withUnityClient(
         command,
         { requirePlugin: true },
         async (client, ctx) => {
-          await handleTagsGet(ctx.jsonOutput, {
-            get: () => client.tagsGet(),
+          await handleTagsGet(opts, ctx.jsonOutput, {
+            get: (query) => client.tagsGet(query),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

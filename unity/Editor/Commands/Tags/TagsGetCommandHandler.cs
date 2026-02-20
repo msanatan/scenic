@@ -1,4 +1,5 @@
 using UnityEditorInternal;
+using UniBridge.Editor.Commands;
 
 namespace UniBridge.Editor.Commands.Tags
 {
@@ -7,6 +8,7 @@ namespace UniBridge.Editor.Commands.Tags
     {
         public object Handle(CommandRequest request)
         {
+            var parameters = TagsGetCommandParams.From(request);
             var names = InternalEditorUtility.tags;
             var tags = new TagItem[names.Length];
 
@@ -15,10 +17,14 @@ namespace UniBridge.Editor.Commands.Tags
                 tags[i] = TagDefinitions.ToTagItem(names[i]);
             }
 
+            var page = Pagination.Slice(tags, parameters.Paging, out var total);
+
             return new TagsGetCommandResult
             {
-                Tags = tags,
-                Total = tags.Length,
+                Tags = page,
+                Total = total,
+                Limit = parameters.Paging.Limit,
+                Offset = parameters.Paging.Offset,
             };
         }
     }

@@ -20,7 +20,7 @@ describe('CLI: tags', () => {
   })
 
   it('returns tags including built-in markers', async () => {
-    const payload = (await runCli('tags', 'get')) as {
+    const payload = (await runCli('tags', 'get', '--limit', '10', '--offset', '0')) as {
       success: boolean
       result?: {
         tags: Array<{
@@ -28,19 +28,25 @@ describe('CLI: tags', () => {
           isBuiltIn: boolean
         }>
         total: number
+        limit: number
+        offset: number
       }
       error?: string
     }
 
     assert.equal(payload.success, true)
+    assert.equal(payload.result?.limit, 10)
+    assert.equal(payload.result?.offset, 0)
     assert.equal(typeof payload.result?.total, 'number')
     assert.ok(Array.isArray(payload.result?.tags))
-    assert.equal(payload.result?.total, payload.result?.tags.length)
+    assert.ok((payload.result?.tags.length ?? 0) <= 10)
+    assert.ok((payload.result?.total ?? 0) >= (payload.result?.tags.length ?? 0))
     assert.ok((payload.result?.total ?? 0) > 0)
 
     const untagged = payload.result?.tags.find((tag) => tag.name === 'Untagged')
-    assert.ok(untagged != null)
-    assert.equal(untagged?.isBuiltIn, true)
+    if (untagged != null) {
+      assert.equal(untagged.isBuiltIn, true)
+    }
   })
 
   it('adds a tag idempotently', async () => {

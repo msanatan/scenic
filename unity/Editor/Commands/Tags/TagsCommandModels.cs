@@ -3,6 +3,20 @@ using Newtonsoft.Json;
 
 namespace UniBridge.Editor.Commands.Tags
 {
+    public sealed class TagsGetCommandParams
+    {
+        public PaginationParams Paging;
+
+        public static TagsGetCommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+            return new TagsGetCommandParams
+            {
+                Paging = PaginationParams.From(payload, defaultLimit: 50, defaultOffset: 0),
+            };
+        }
+    }
+
     public sealed class TagsAddCommandParams
     {
         public string Name;
@@ -50,6 +64,12 @@ namespace UniBridge.Editor.Commands.Tags
 
         [JsonProperty("total")]
         public int Total;
+
+        [JsonProperty("limit")]
+        public int Limit;
+
+        [JsonProperty("offset")]
+        public int Offset;
     }
 
     public sealed class TagItem

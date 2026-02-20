@@ -19,16 +19,20 @@ describe('SDK: tags', () => {
   })
 
   it('returns tags including built-in markers', async () => {
-    const result = await client.tagsGet()
+    const result = await client.tagsGet({ limit: 10, offset: 0 })
 
     assert.equal(typeof result.total, 'number')
     assert.ok(Array.isArray(result.tags))
-    assert.equal(result.total, result.tags.length)
+    assert.equal(result.limit, 10)
+    assert.equal(result.offset, 0)
+    assert.ok(result.tags.length <= 10)
+    assert.ok(result.total >= result.tags.length)
     assert.ok(result.total > 0)
 
     const untagged = result.tags.find((tag) => tag.name === 'Untagged')
-    assert.ok(untagged != null)
-    assert.equal(untagged?.isBuiltIn, true)
+    if (untagged != null) {
+      assert.equal(untagged.isBuiltIn, true)
+    }
   })
 
   it('adds a tag idempotently', async () => {

@@ -31,7 +31,7 @@ namespace UniBridge.Editor.Tests.Commands.Tags
                 {
                     Id = "tags-get",
                     Command = "tags.get",
-                    ParamsJson = "{}",
+                    ParamsJson = "{\"limit\":10,\"offset\":0}",
                 },
                 executeEnabled: true);
 
@@ -41,7 +41,10 @@ namespace UniBridge.Editor.Tests.Commands.Tags
             var result = response.Result as TagsGetCommandResult;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Tags);
-            Assert.AreEqual(result.Total, result.Tags.Length);
+            Assert.AreEqual(10, result.Limit);
+            Assert.AreEqual(0, result.Offset);
+            Assert.LessOrEqual(result.Tags.Length, 10);
+            Assert.GreaterOrEqual(result.Total, result.Tags.Length);
             Assert.Greater(result.Total, 0);
 
             var untagged = result.Tags.FirstOrDefault(tag => tag.Name == "Untagged");

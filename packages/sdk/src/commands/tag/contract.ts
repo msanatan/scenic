@@ -9,12 +9,22 @@ const TagItemSchema = v.object({
 export const TagsGetResultSchema = v.object({
   tags: v.array(TagItemSchema),
   total: v.number(),
+  limit: v.number(),
+  offset: v.number(),
 })
+
+export interface TagsGetQuery {
+  limit?: number
+  offset?: number
+}
 
 export const tagsGetCommand = defineCommand({
   method: 'tagsGet',
   wire: 'tags.get',
-  params: () => ({}),
+  params: (query?: TagsGetQuery) => ({
+    limit: query?.limit,
+    offset: query?.offset,
+  }),
   result: TagsGetResultSchema,
 })
 
