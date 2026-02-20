@@ -143,24 +143,51 @@ describe('PipeConnection', () => {
     assert.equal(res.result, 'reconnected')
   })
 
-  it('does NOT re-send pending commands after disconnection', async () => {
+  it('re-sends pending commands after reconnect', async () => {
     let commandCount = 0
-    server = createMockServer(() => {
+    server = createMockServer((msg) => {
       commandCount++
-      return Buffer.alloc(0)
+      const req = JSON.parse(msg.toString())
+      if (commandCount === 1) {
+        setTimeout(() => {
+          server?.close()
+          try {
+            fs.unlinkSync(SOCK_PATH)
+          } catch {
+            // ignore missing socket
+          }
+          server = createMockServer((nextMsg) => {
+            commandCount++
+            const nextReq = JSON.parse(nextMsg.toString())
+            return Buffer.from(JSON.stringify({
+              id: nextReq.id,
+              success: true,
+              result: 'recovered',
+            }))
+          })
+        }, 50)
+        return Buffer.alloc(0)
+      }
+
+      return Buffer.from(JSON.stringify({
+        id: req.id,
+        success: true,
+        result: 'unexpected',
+      }))
     })
 
-    conn = new PipeConnection({ commandTimeout: 500 })
+    conn = new PipeConnection({ commandTimeout: 2000, connectTimeout: 2000 })
     await conn.connect(SOCK_PATH)
 
-    const promise = conn.send({
+    const response = await conn.send({
       id: 'cmd-reload',
       command: 'execute',
       params: {},
     })
 
-    await assert.rejects(promise, /timeout/i)
-    assert.equal(commandCount, 1)
+    assert.equal(response.success, true)
+    assert.equal(response.result, 'recovered')
+    assert.equal(commandCount, 2)
   })
 
   it('fires connect timeout when no server', async () => {

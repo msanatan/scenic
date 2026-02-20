@@ -14,6 +14,7 @@ const DEFAULT_COMMAND_TIMEOUT = 30_000
 const EXPECTED_PROTOCOL_VERSION = 1
 
 interface PendingRequest {
+  request: CommandRequest
   resolve: (value: CommandResponse) => void
   reject: (reason?: unknown) => void
   timer: NodeJS.Timeout
@@ -34,6 +35,7 @@ export class PipeConnection {
   private readonly connectTimeout: number
   private readonly commandTimeout: number
   private readonly projectPath: string | undefined
+  private recoveryInFlight: Promise<void> | undefined
 
   constructor(options: PipeConnectionOptions = {}) {
     this.connectTimeout = options.connectTimeout ?? DEFAULT_CONNECT_TIMEOUT
@@ -60,7 +62,7 @@ export class PipeConnection {
         reject(new Error(`Command timeout (${Math.round(timeout / 1000)}s) — the command may have hung Unity's main thread`))
       }, timeout)
 
-      this.pending.set(request.id, { resolve, reject, timer })
+      this.pending.set(request.id, { request, resolve, reject, timer })
 
       try {
         this.writeFrame(request)
@@ -176,10 +178,16 @@ export class PipeConnection {
 
     socket.on('close', () => {
       this.connected = false
+      if (!this.intentionalDisconnect) {
+        this.tryRecoverPending()
+      }
     })
 
     socket.on('error', () => {
       this.connected = false
+      if (!this.intentionalDisconnect) {
+        this.tryRecoverPending()
+      }
     })
   }
 
@@ -225,6 +233,16 @@ export class PipeConnection {
     this.socket.write(frame)
   }
 
+  private resendPendingRequests(): void {
+    if (this.pending.size === 0) {
+      return
+    }
+
+    for (const pending of this.pending.values()) {
+      this.writeFrame(pending.request)
+    }
+  }
+
   private validateProtocolVersion(): void {
     const metadata = this.serverMetadata()
     if (!metadata) {
@@ -238,6 +256,25 @@ export class PipeConnection {
     }
   }
 
+  private tryRecoverPending(): void {
+    if (this.pending.size === 0 || this.recoveryInFlight) {
+      return
+    }
+
+    this.recoveryInFlight = this.ensureConnected(this.connectTimeout)
+      .then(() => {
+        this.resendPendingRequests()
+      })
+      .catch(() => {
+        // Pending request timers are authoritative for failure.
+      })
+      .finally(() => {
+        this.recoveryInFlight = undefined
+        if (this.pending.size > 0 && !this.connected && !this.intentionalDisconnect) {
+          setTimeout(() => this.tryRecoverPending(), 200)
+        }
+      })
+  }
 }
 
 function sleep(ms: number): Promise<void> {

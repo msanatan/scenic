@@ -14,6 +14,7 @@ namespace UniBridge.Editor
         private static UniBridgeSettings _settings;
         private static string _projectHash;
         private static readonly ConcurrentQueue<CommandRequest> _commandQueue = new ConcurrentQueue<CommandRequest>();
+        private const string SessionResultPrefix = "unibridge_result_";
 
         static UniBridgeServer()
         {
@@ -66,9 +67,49 @@ namespace UniBridge.Editor
                     continue;
                 }
 
+                if (TryGetCachedResponse(request.Id, out var cachedResponse))
+                {
+                    _server.Send(cachedResponse);
+                    continue;
+                }
+
                 var response = CommandRouter.Route(request, _settings.ExecuteEnabled);
+                CacheResponse(response);
                 _server.Send(response);
             }
+        }
+
+        private static void CacheResponse(CommandResponse response)
+        {
+            if (response == null || string.IsNullOrWhiteSpace(response.Id))
+            {
+                return;
+            }
+
+            SessionState.SetString(SessionResultPrefix + response.Id, response.ToJson());
+        }
+
+        private static bool TryGetCachedResponse(string requestId, out CommandResponse response)
+        {
+            response = null;
+            if (string.IsNullOrWhiteSpace(requestId))
+            {
+                return false;
+            }
+
+            var cached = SessionState.GetString(SessionResultPrefix + requestId, null);
+            if (string.IsNullOrWhiteSpace(cached))
+            {
+                return false;
+            }
+
+            if (!CommandResponse.TryParse(cached, out var parsed))
+            {
+                return false;
+            }
+
+            response = parsed;
+            return true;
         }
 
         private static void OnBeforeReload()
