@@ -1,6 +1,6 @@
 # UniBridge
 
-Interact with Unity Editor projects using TypeScript and the command line.
+Interact with Unity Editor projects using the command line and TypeScript.
 
 ## Packages
 
@@ -10,19 +10,27 @@ Interact with Unity Editor projects using TypeScript and the command line.
 
 ## Install
 
-SDK:
-
-```bash
-npm install @unibridge/sdk
-```
-
 CLI:
 
 ```bash
 npm install -g @unibridge/cli
 ```
 
-Unity plugin (Unity Package Manager, git URL):
+SDK:
+
+```bash
+npm install @unibridge/sdk
+```
+
+Unity plugin:
+
+Use the CLI in the folder of the Unity project and run:
+
+```bash
+unibridge init
+```
+
+You can also install the plugin using Unity Package Manager (git URL):
 
 ```text
 https://github.com/msanatan/unibridge.git?path=unity
@@ -42,10 +50,15 @@ https://github.com/msanatan/unibridge.git?path=unity
    - SDK usage and examples: [`packages/sdk/README.md`](./packages/sdk/README.md)
    - CLI usage and examples: [`packages/cli/README.md`](./packages/cli/README.md)
 
-## Future Work
+## Contributing
 
-Planned improvements include command-level batch mutations for GameObjects.
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening issues or pull requests. The short version: **open an issue first and wait for approval BEFORE submitting a PR.**
 
-- Add `gameobject.createMany` / `unibridge gameobject create-many` for creating multiple GameObjects in one request.
-- Add `gameobject.destroyMany` / `unibridge gameobject destroy-many` for deleting multiple GameObjects in one request.
-- Batch support is planned per command (not a mixed-command batch endpoint), with per-item success/error reporting.
+## Why?
+
+Unity is a beast of a system, there's a lot to learn but it can do a lot. AI tools have been helpful for many learning the ropes and for professionals looking for quicker iterations. Your general purpose software development AI tool can probably get you through 80% of a project. Add an MCP, you'll get through about 90% of your project. A bespoke tool like [Coplay](https://coplay.dev/) can get you 95% there. So why this CLI?
+
+- It's fast. We use Unix domain sockets for Mac/Linux and Named Pipes on Windows (Node.js abstracts this for us), if you're coming from MCP you'll feel the speed difference.
+- CLI/SDK do not bloat context with all the capabilities from the get go, agents can easily read what they need to learn how to use it
+- Chaining commands in Unity via Editor scripts forces domain reloads, which slows you do. With the CLI or SDK, you can orchestrate multiple tasks in Unity and skip many domain reloads \- saving you a lot of time
+- LLMs are really good at using CLIs in bash and PowerShell, and they're really good at generating Java/TypeScript. Whether you're doing one off tasks or orchestrating many tasks, this tool will get the most out of your model.

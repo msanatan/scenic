@@ -1,0 +1,33 @@
+name: Question
+description: Ask a question about UniBridge
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about how UniBridge works or how to use it? Ask away.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What would you like to know?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Any additional context that might help us answer — what you're trying to do, what you've tried, relevant versions, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: component
+    attributes:
+      label: Related component
+      options:
+        - label: SDK (@unibridge/sdk)
+        - label: CLI (@unibridge/cli)
+        - label: Unity Plugin
