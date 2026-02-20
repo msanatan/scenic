@@ -1,14 +1,22 @@
-import { describe, it, before } from 'node:test'
+import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { runCli, getCliEntrypoint } from '../../helpers/cli-runner.ts'
 
 describe('CLI: layers', () => {
+  const createdLayers: string[] = []
+
   before(() => {
     assert.ok(
       existsSync(getCliEntrypoint()),
       'CLI dist entrypoint not found. Run "npm run build:cli" before integration tests.',
     )
+  })
+
+  after(async () => {
+    for (const layer of createdLayers) {
+      await runCli('execute', `var assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset"); if (assets != null && assets.Length > 0 && assets[0] != null) { var so = new UnityEditor.SerializedObject(assets[0]); var layers = so.FindProperty("layers"); if (layers != null && layers.isArray) { for (var i = 31; i >= 8; i--) { var p = layers.GetArrayElementAtIndex(i); if (p.stringValue == "${layer}") { p.stringValue = string.Empty; } } so.ApplyModifiedPropertiesWithoutUndo(); UnityEditor.AssetDatabase.SaveAssets(); } }`)
+    }
   })
 
   it('returns paginated layer slots', async () => {
@@ -43,5 +51,46 @@ describe('CLI: layers', () => {
     assert.equal(typeof first?.isOccupied, 'boolean')
     assert.equal(first?.isBuiltIn, true)
     assert.equal(first?.isUserEditable, false)
+  })
+
+  it('adds a layer idempotently', async () => {
+    const name = `UniBridgeLayer_${Date.now()}`
+    createdLayers.push(name)
+
+    const addPayload = (await runCli('layers', 'add', name)) as {
+      success: boolean
+      result?: {
+        layer: {
+          index: number
+          name: string
+          isBuiltIn: boolean
+          isUserEditable: boolean
+          isOccupied: boolean
+        }
+        added: boolean
+        total: number
+      }
+      error?: string
+    }
+
+    assert.equal(addPayload.success, true)
+    assert.equal(addPayload.result?.layer.name, name)
+    assert.equal(addPayload.result?.layer.isUserEditable, true)
+    assert.equal(addPayload.result?.layer.isOccupied, true)
+    assert.equal(addPayload.result?.added, true)
+    assert.equal(addPayload.result?.total, 32)
+
+    const addAgainPayload = (await runCli('layers', 'add', name)) as {
+      success: boolean
+      result?: {
+        added: boolean
+        layer: { name: string }
+      }
+      error?: string
+    }
+
+    assert.equal(addAgainPayload.success, true)
+    assert.equal(addAgainPayload.result?.layer.name, name)
+    assert.equal(addAgainPayload.result?.added, false)
   })
 })

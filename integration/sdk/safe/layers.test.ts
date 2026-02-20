@@ -5,12 +5,16 @@ import { createTestClient } from '../../helpers/sdk-client.ts'
 
 describe('SDK: layers', () => {
   let client: UniBridgeClient
+  const createdLayers: string[] = []
 
   before(() => {
     client = createTestClient()
   })
 
-  after(() => {
+  after(async () => {
+    for (const layer of createdLayers) {
+      await client.execute(`var assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset"); if (assets != null && assets.Length > 0 && assets[0] != null) { var so = new UnityEditor.SerializedObject(assets[0]); var layers = so.FindProperty("layers"); if (layers != null && layers.isArray) { for (var i = 31; i >= 8; i--) { var p = layers.GetArrayElementAtIndex(i); if (p.stringValue == "${layer}") { p.stringValue = string.Empty; } } so.ApplyModifiedPropertiesWithoutUndo(); UnityEditor.AssetDatabase.SaveAssets(); } }`)
+    }
     client.close()
   })
 
@@ -30,5 +34,21 @@ describe('SDK: layers', () => {
     assert.equal(typeof first.isOccupied, 'boolean')
     assert.equal(first.isBuiltIn, true)
     assert.equal(first.isUserEditable, false)
+  })
+
+  it('adds a layer idempotently', async () => {
+    const name = `UniBridgeLayer_${Date.now()}`
+    createdLayers.push(name)
+
+    const added = await client.layersAdd({ name })
+    assert.equal(added.layer.name, name)
+    assert.equal(added.layer.isUserEditable, true)
+    assert.equal(added.layer.isOccupied, true)
+    assert.equal(added.added, true)
+    assert.equal(added.total, 32)
+
+    const addedAgain = await client.layersAdd({ name })
+    assert.equal(addedAgain.layer.name, name)
+    assert.equal(addedAgain.added, false)
   })
 })

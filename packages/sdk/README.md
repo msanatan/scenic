@@ -59,6 +59,9 @@ console.log(prefabInstance)
 const layers = await client.layersGet({ limit: 32, offset: 0 })
 console.log(layers)
 
+const addedLayer = await client.layersAdd({ name: 'EnemyLayer' })
+console.log(addedLayer)
+
 const tags = await client.tagsGet()
 console.log(tags)
 

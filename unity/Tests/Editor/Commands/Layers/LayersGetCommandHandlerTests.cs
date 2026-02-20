@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEditor;
 using UniBridge.Editor;
 using UniBridge.Editor.Commands.Layers;
 
@@ -7,6 +8,18 @@ namespace UniBridge.Editor.Tests.Commands.Layers
     [TestFixture]
     public class LayersGetCommandHandlerTests
     {
+        private string _createdLayerName;
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (!string.IsNullOrWhiteSpace(_createdLayerName))
+            {
+                RemoveLayerByName(_createdLayerName);
+                _createdLayerName = null;
+            }
+        }
+
         [Test]
         public void Route_LayersGet_ReturnsPaginatedLayerSlots()
         {
@@ -32,6 +45,105 @@ namespace UniBridge.Editor.Tests.Commands.Layers
             Assert.IsTrue(first.IsBuiltIn);
             Assert.IsFalse(first.IsUserEditable);
             Assert.IsTrue(first.IsOccupied);
+        }
+
+        [Test]
+        public void Route_LayersAdd_AddsLayerAndReturnsAddedTrue()
+        {
+            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            _createdLayerName = name;
+
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "layers-add",
+                    Command = "layers.add",
+                    ParamsJson = $"{{\"name\":\"{name}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            var result = response.Result as LayersAddCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Added);
+            Assert.AreEqual(name, result.Layer.Name);
+            Assert.IsTrue(result.Layer.IsUserEditable);
+            Assert.IsTrue(result.Layer.IsOccupied);
+            Assert.AreEqual(32, result.Total);
+        }
+
+        [Test]
+        public void Route_LayersAdd_WhenLayerExists_ReturnsAddedFalse()
+        {
+            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            AddLayer(name);
+            _createdLayerName = name;
+
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "layers-add-existing",
+                    Command = "layers.add",
+                    ParamsJson = $"{{\"name\":\"{name}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            var result = response.Result as LayersAddCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Added);
+            Assert.AreEqual(name, result.Layer.Name);
+        }
+
+        private static void AddLayer(string name)
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
+            var serialized = new SerializedObject(assets[0]);
+            var layers = serialized.FindProperty("layers");
+            for (var i = 8; i <= 31; i++)
+            {
+                var item = layers.GetArrayElementAtIndex(i);
+                if (item.stringValue == name)
+                {
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(item.stringValue))
+                {
+                    item.stringValue = name;
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                    AssetDatabase.SaveAssets();
+                    return;
+                }
+            }
+        }
+
+        private static void RemoveLayerByName(string name)
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
+            if (assets == null || assets.Length == 0 || assets[0] == null)
+            {
+                return;
+            }
+
+            var serialized = new SerializedObject(assets[0]);
+            var layers = serialized.FindProperty("layers");
+            if (layers == null || !layers.isArray)
+            {
+                return;
+            }
+
+            for (var i = 31; i >= 8; i--)
+            {
+                var item = layers.GetArrayElementAtIndex(i);
+                if (item.stringValue == name)
+                {
+                    item.stringValue = string.Empty;
+                }
+            }
+
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.SaveAssets();
         }
     }
 }

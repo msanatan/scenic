@@ -3,6 +3,26 @@ using UniBridge.Editor.Commands;
 
 namespace UniBridge.Editor.Commands.Layers
 {
+    public sealed class LayersAddCommandParams
+    {
+        public string Name;
+
+        public static LayersAddCommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var name = CommandModelHelpers.ReadOptionalString(payload, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new CommandHandlingException("params.name is required.");
+            }
+
+            return new LayersAddCommandParams
+            {
+                Name = name.Trim(),
+            };
+        }
+    }
+
     public sealed class LayersGetCommandParams
     {
         public PaginationParams Paging;
@@ -48,5 +68,17 @@ namespace UniBridge.Editor.Commands.Layers
 
         [JsonProperty("offset")]
         public int Offset;
+    }
+
+    public sealed class LayersAddCommandResult
+    {
+        [JsonProperty("layer")]
+        public LayerItem Layer;
+
+        [JsonProperty("added")]
+        public bool Added;
+
+        [JsonProperty("total")]
+        public int Total;
     }
 }

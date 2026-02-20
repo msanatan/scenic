@@ -34,7 +34,13 @@ export type {
   TransformSpace,
   Vector3Value,
 } from './gameobject/contract.ts'
-export type { LayerItem, LayersGetQuery, LayersGetResult } from './layer/contract.ts'
+export type {
+  LayerItem,
+  LayersAddInput,
+  LayersAddResult,
+  LayersGetQuery,
+  LayersGetResult,
+} from './layer/contract.ts'
 export type { LogEntry, LogsQuery, LogsResult, LogsSeverity } from './log/contract.ts'
 export type {
   CreateTransform as PrefabCreateTransform,

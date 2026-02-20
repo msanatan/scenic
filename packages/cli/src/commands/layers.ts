@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { LayersGetQuery, LayersGetResult } from '@unibridge/sdk'
+import type { LayersAddInput, LayersAddResult, LayersGetQuery, LayersGetResult } from '@unibridge/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -10,6 +10,12 @@ interface LayersGetOptions {
 
 interface LayersGetDeps {
   get: (query?: LayersGetQuery) => Promise<LayersGetResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface LayersAddDeps {
+  add: (input: LayersAddInput) => Promise<LayersAddResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -59,10 +65,33 @@ export async function handleLayersGet(
   )
 }
 
+export async function handleLayersAdd(
+  name: string,
+  jsonOutput: boolean,
+  deps: LayersAddDeps,
+): Promise<void> {
+  const trimmed = name.trim()
+  if (trimmed.length === 0) {
+    throw new Error('Layer name is required.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.add({ name: trimmed }),
+    (result, output) => {
+      const nameValue = result.layer.name.length > 0 ? result.layer.name : '<empty>'
+      output.log(`Layer: #${result.layer.index} ${nameValue}`)
+      output.log(`Added: ${result.added ? 'yes' : 'no'}`)
+      output.log(`Total: ${result.total}`)
+    },
+  )
+}
+
 export function registerLayers(program: Command): void {
   const layers = program
     .command('layers')
-    .description('Inspect Unity project layers')
+    .description('Inspect and mutate Unity project layers')
 
   layers
     .command('get')
@@ -76,6 +105,25 @@ export function registerLayers(program: Command): void {
         async (client, ctx) => {
           await handleLayersGet(opts, ctx.jsonOutput, {
             get: (query) => client.layersGet(query),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  layers
+    .command('add <name>')
+    .description('Add a layer in the first available user slot (8-31), idempotent by name')
+    .action(async (name: string, _opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleLayersAdd(name, ctx.jsonOutput, {
+            add: (input) => client.layersAdd(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode
