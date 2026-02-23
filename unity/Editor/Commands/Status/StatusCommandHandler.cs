@@ -1,9 +1,7 @@
 using System.IO;
 using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using PMPackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace Scenic.Editor.Commands.Status
 {
@@ -13,7 +11,7 @@ namespace Scenic.Editor.Commands.Status
         public object Handle(CommandRequest request)
         {
             var projectPath = Path.GetDirectoryName(Application.dataPath) ?? string.Empty;
-            var pluginVersion = PMPackageInfo.FindForAssembly(typeof(ScenicServer).Assembly)?.version ?? "0.0.0";
+            var pluginVersion = PluginVersion.Get();
             var activeScene = EditorSceneManager.GetActiveScene();
             var activeSceneValue = string.IsNullOrWhiteSpace(activeScene.path) ? activeScene.name : activeScene.path;
 

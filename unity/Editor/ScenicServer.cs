@@ -1,9 +1,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using PMPackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace Scenic.Editor
 {
@@ -33,7 +31,7 @@ namespace Scenic.Editor
             StateManager.SetCurrentProjectHash(_projectHash);
             StateManager.EnsureStateDirectory(_projectHash);
             _settings = ScenicSettings.LoadOrDefault(_projectHash);
-            var pluginVersion = PMPackageInfo.FindForAssembly(typeof(ScenicServer).Assembly)?.version ?? "0.0.0";
+            var pluginVersion = PluginVersion.Get();
             StateManager.WriteServerJson(
                 _projectHash,
                 projectPath,
