@@ -56,6 +56,25 @@ https://github.com/msanatan/scenic.git?path=unity
    - SDK usage and examples: [`packages/sdk/README.md`](./packages/sdk/README.md)
    - CLI usage and examples: [`packages/cli/README.md`](./packages/cli/README.md)
 
+## Capabilities
+
+Scenic gives you programmatic control over the Unity Editor from the command line or TypeScript. Below is a summary of what you can do today.
+
+| Area | What you can do |
+|---|---|
+| **GameObjects** | Create, inspect, update, destroy, reparent, and find GameObjects. Supports 2D/3D primitives (cube, sphere, capsule, cylinder, plane, quad), transforms (position, rotation, scale in world or local space), and parent-child relationships. |
+| **Components** | List, add, get, update, and remove components on any GameObject. Pass field values as JSON inline or from a file. |
+| **Scenes** | Get the active scene, list all project scenes, inspect the hierarchy as a flat tree, create new scenes, and open existing ones. |
+| **Prefabs** | Instantiate a prefab into the active scene with optional transform and parent. Save a GameObject hierarchy back to a prefab asset. |
+| **Editor Control** | Start, pause, and stop Unity play mode. |
+| **Domain Reload** | Trigger an asset refresh and domain reload on demand. |
+| **Logs** | Read Unity Editor console logs, filtered by severity (info, warn, error). |
+| **Tests** | List and run Unity Test Framework tests in edit or play mode, with name filtering. |
+| **Layers & Tags** | Inspect, add, and remove project layers and tags. Built-in layers and tags are protected. |
+| **Execute** | Run arbitrary C# code in the Unity Editor. Disabled by default; opt in with `scenic init --enable-execute`. |
+
+All listing operations support **pagination** (`--limit` / `--offset`). Pass `--json` to any CLI command for machine-readable output.
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening issues or pull requests. The short version: **open an issue first and wait for approval BEFORE submitting a PR.**
