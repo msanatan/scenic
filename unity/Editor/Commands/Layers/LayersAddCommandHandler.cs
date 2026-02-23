@@ -1,9 +1,9 @@
 using System;
 using UnityEditor;
 
-namespace UniBridge.Editor.Commands.Layers
+namespace Scenic.Editor.Commands.Layers
 {
-    [UniBridgeCommand("layers.add")]
+    [ScenicCommand("layers.add")]
     public sealed class LayersAddCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

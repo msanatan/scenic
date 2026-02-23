@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Scene
+namespace Scenic.Editor.Commands.Scene
 {
-    [UniBridgeCommand("scene.hierarchy")]
+    [ScenicCommand("scene.hierarchy")]
     public sealed class SceneHierarchyCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

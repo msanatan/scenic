@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Have an idea for UniBridge? Describe it below. Please note that opening an issue does not guarantee it will be accepted — we'll discuss it first.
+        Have an idea for Scenic? Describe it below. Please note that opening an issue does not guarantee it will be accepted — we'll discuss it first.
 
   - type: textarea
     id: problem
@@ -36,8 +36,8 @@ body:
     attributes:
       label: Which component would this affect?
       options:
-        - label: SDK (@unibridge/sdk)
-        - label: CLI (@unibridge/cli)
+        - label: SDK (@scenicai/sdk)
+        - label: CLI (@scenicai/cli)
         - label: Unity Plugin
 
   - type: dropdown

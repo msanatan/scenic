@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import { createClient } from '@unibridge/sdk'
+import { createClient } from '@scenicai/sdk'
 import { readExecuteEnabled } from '../execute-config.ts'
 import { getGlobalOptions } from '../options.ts'
 import { resolveCommandProject } from '../preflight.ts'
@@ -33,7 +33,7 @@ export async function withUnityClient(
     const projectExecuteEnabled = readExecuteEnabled(projectPath)
     const executeEnabled = globalOpts.execute !== false && projectExecuteEnabled
     if (requirements.requiresExecute && !executeEnabled) {
-      throw new Error('Execute is disabled for this project. Run `unibridge init --enable-execute` to enable it.')
+      throw new Error('Execute is disabled for this project. Run `scenic init --enable-execute` to enable it.')
     }
 
     client = createClient({

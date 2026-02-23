@@ -1,12 +1,12 @@
 using System;
 using System.IO;
 using UnityEditor;
-using UniBridge.Editor.Commands.GameObject;
+using Scenic.Editor.Commands.GameObject;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.Prefab
+namespace Scenic.Editor.Commands.Prefab
 {
-    [UniBridgeCommand("prefab.instantiate")]
+    [ScenicCommand("prefab.instantiate")]
     public sealed class PrefabInstantiateCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

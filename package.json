@@ -1,16 +1,16 @@
 {
-  "name": "@unibridge/monorepo",
+  "name": "@scenicai/monorepo",
   "version": "1.0.0",
   "description": "Interact with Unity via TypeScript and the command line!",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "build": "npm run build:sdk && npm run build:cli",
-    "build:sdk": "npm run build --workspace=@unibridge/sdk",
-    "build:cli": "npm run build --workspace=@unibridge/cli",
+    "build:sdk": "npm run build --workspace=@scenicai/sdk",
+    "build:cli": "npm run build --workspace=@scenicai/cli",
     "test": "npm run test:sdk && npm run test:cli",
-    "test:sdk": "npm run test --workspace=@unibridge/sdk",
-    "test:cli": "npm run test --workspace=@unibridge/cli",
+    "test:sdk": "npm run test --workspace=@scenicai/sdk",
+    "test:cli": "npm run test --workspace=@scenicai/cli",
     "test:integration": "npm run build && npm run test:integration:safe && npm run test:integration:reload",
     "test:integration:safe": "npm run test:integration:sdk:safe && npm run test:integration:cli:safe",
     "test:integration:reload": "npm run test:integration:sdk:reload && npm run test:integration:cli:reload",
@@ -21,20 +21,20 @@
     "test:integration:cli:safe": "node --test --test-concurrency=1 'integration/cli/safe/*.test.ts'",
     "test:integration:cli:reload": "node --test --test-concurrency=1 'integration/cli/reload/*.test.ts'",
     "test:local": "npm run build && npm run test",
-    "smoke:execute": "node packages/cli/dist/index.js execute -p \"TestProjects/UniBridge3Dv6.3\" \"UnityEngine.Debug.Log(\\\"unibridge smoke test\\\");\"",
+    "smoke:execute": "node packages/cli/dist/index.js execute -p \"TestProjects/Scenic3Dv6.3\" \"UnityEngine.Debug.Log(\\\"scenic smoke test\\\");\"",
     "bump": "node scripts/bump-version.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/msanatan/unibridge.git"
+    "url": "git+https://github.com/msanatan/scenic.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/msanatan/unibridge/issues"
+    "url": "https://github.com/msanatan/scenic/issues"
   },
-  "homepage": "https://github.com/msanatan/unibridge#readme",
+  "homepage": "https://github.com/msanatan/scenic#readme",
   "private": true,
   "engines": {
     "node": ">=22.18.0"

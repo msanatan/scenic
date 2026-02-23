@@ -1,6 +1,6 @@
-namespace UniBridge.Editor.Commands.Layers
+namespace Scenic.Editor.Commands.Layers
 {
-    [UniBridgeCommand("layers.get")]
+    [ScenicCommand("layers.get")]
     public sealed class LayersGetCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

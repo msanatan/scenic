@@ -76,17 +76,17 @@ jobs:
 
       - name: Validate npm publish artifacts
         run: |
-          SDK_PACK_JSON=$(npm pack --dry-run --json --workspace=@unibridge/sdk)
-          CLI_PACK_JSON=$(npm pack --dry-run --json --workspace=@unibridge/cli)
+          SDK_PACK_JSON=$(npm pack --dry-run --json --workspace=@scenicai/sdk)
+          CLI_PACK_JSON=$(npm pack --dry-run --json --workspace=@scenicai/cli)
 
-          SDK_PACK_JSON="$SDK_PACK_JSON" node -e "const pack = JSON.parse(process.env.SDK_PACK_JSON)[0]; if (!pack.files.some((file) => file.path === 'dist/index.js')) { throw new Error('@unibridge/sdk tarball missing dist/index.js'); }"
-          CLI_PACK_JSON="$CLI_PACK_JSON" node -e "const pack = JSON.parse(process.env.CLI_PACK_JSON)[0]; if (!pack.files.some((file) => file.path === 'dist/index.js')) { throw new Error('@unibridge/cli tarball missing dist/index.js'); }"
+          SDK_PACK_JSON="$SDK_PACK_JSON" node -e "const pack = JSON.parse(process.env.SDK_PACK_JSON)[0]; if (!pack.files.some((file) => file.path === 'dist/index.js')) { throw new Error('@scenicai/sdk tarball missing dist/index.js'); }"
+          CLI_PACK_JSON="$CLI_PACK_JSON" node -e "const pack = JSON.parse(process.env.CLI_PACK_JSON)[0]; if (!pack.files.some((file) => file.path === 'dist/index.js')) { throw new Error('@scenicai/cli tarball missing dist/index.js'); }"
 
       - name: Publish SDK to npm
-        run: npm publish --workspace=@unibridge/sdk --access public
+        run: npm publish --workspace=@scenicai/sdk --access public
 
       - name: Publish CLI to npm
-        run: npm publish --workspace=@unibridge/cli --access public
+        run: npm publish --workspace=@scenicai/cli --access public
 
       - name: Create GitHub release notes
         env:

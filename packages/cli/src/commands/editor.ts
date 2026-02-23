@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { EditorStateResult } from '@unibridge/sdk'
+import type { EditorStateResult } from '@scenicai/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

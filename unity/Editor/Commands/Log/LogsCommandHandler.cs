@@ -1,6 +1,6 @@
-namespace UniBridge.Editor.Commands.Logs
+namespace Scenic.Editor.Commands.Logs
 {
-    [UniBridgeCommand("logs")]
+    [ScenicCommand("logs")]
     public sealed class LogsCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

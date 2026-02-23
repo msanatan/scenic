@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace UniBridge.Editor.Commands.Domain
+namespace Scenic.Editor.Commands.Domain
 {
     public sealed class DomainReloadCommandResult
     {

@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in UniBridge
+description: Report a bug in Scenic
 labels: ["bug"]
 body:
   - type: markdown
@@ -39,8 +39,8 @@ body:
     attributes:
       label: Which component is affected?
       options:
-        - label: SDK (@unibridge/sdk)
-        - label: CLI (@unibridge/cli)
+        - label: SDK (@scenicai/sdk)
+        - label: CLI (@scenicai/cli)
         - label: Unity Plugin
 
   - type: textarea

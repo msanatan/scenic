@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
-    [UniBridgeCommand("gameobject.reparent")]
+    [ScenicCommand("gameobject.reparent")]
     public sealed class GameObjectReparentCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

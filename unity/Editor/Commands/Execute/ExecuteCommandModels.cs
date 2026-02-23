@@ -1,4 +1,4 @@
-namespace UniBridge.Editor.Commands.Execute
+namespace Scenic.Editor.Commands.Execute
 {
     public sealed class ExecuteCommandParams
     {

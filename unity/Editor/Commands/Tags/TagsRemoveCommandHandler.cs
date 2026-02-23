@@ -2,9 +2,9 @@ using System;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace UniBridge.Editor.Commands.Tags
+namespace Scenic.Editor.Commands.Tags
 {
-    [UniBridgeCommand("tags.remove")]
+    [ScenicCommand("tags.remove")]
     public sealed class TagsRemoveCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

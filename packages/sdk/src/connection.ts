@@ -142,7 +142,7 @@ export class PipeConnection {
       }
     }
 
-    throw new Error(`Connect timeout (${Math.round(timeout / 1000)}s) — is Unity open with the unibridge plugin loaded?`)
+    throw new Error(`Connect timeout (${Math.round(timeout / 1000)}s) — is Unity open with the scenic plugin loaded?`)
   }
 
   private connectOnce(pipePath: string): Promise<void> {

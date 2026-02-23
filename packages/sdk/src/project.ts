@@ -4,7 +4,7 @@ import { cwd } from 'node:process'
 import { readExecuteEnabled, writeExecuteEnabled } from './config.ts'
 import type { InitOptions, InitResult } from './types.ts'
 
-const PLUGIN_NAME = 'com.msanatan.unibridge'
+const PLUGIN_NAME = 'com.msanatan.scenic'
 
 const SDK_VERSION = (
   JSON.parse(
@@ -13,7 +13,7 @@ const SDK_VERSION = (
 ).version
 
 const DEFAULT_GIT_SOURCE =
-  `https://github.com/msanatan/unibridge.git?path=unity#v${SDK_VERSION}`
+  `https://github.com/msanatan/scenic.git?path=unity#v${SDK_VERSION}`
 
 interface Manifest {
   dependencies?: Record<string, string>

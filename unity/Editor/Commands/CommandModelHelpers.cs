@@ -1,6 +1,6 @@
 using Newtonsoft.Json.Linq;
 
-namespace UniBridge.Editor.Commands
+namespace Scenic.Editor.Commands
 {
     public sealed class PathInstanceSelector
     {

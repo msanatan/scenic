@@ -1,10 +1,10 @@
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.GameObject;
+using Scenic.Editor;
+using Scenic.Editor.Commands.GameObject;
 
-namespace UniBridge.Editor.Tests.Commands.GameObject
+namespace Scenic.Editor.Tests.Commands.GameObject
 {
     [TestFixture]
     public class GameObjectUpdateCommandHandlerTests

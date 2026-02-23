@@ -1,8 +1,8 @@
 using UnityEditor;
 
-namespace UniBridge.Editor.Commands.EditorState
+namespace Scenic.Editor.Commands.EditorState
 {
-    [UniBridgeCommand("editor.pause")]
+    [ScenicCommand("editor.pause")]
     public sealed class EditorPauseCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

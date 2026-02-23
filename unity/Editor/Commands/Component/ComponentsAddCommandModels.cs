@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Components
+namespace Scenic.Editor.Commands.Components
 {
     public sealed class ComponentsAddCommandParams
     {

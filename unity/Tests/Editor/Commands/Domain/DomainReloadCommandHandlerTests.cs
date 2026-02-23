@@ -1,8 +1,8 @@
 using NUnit.Framework;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.Domain;
+using Scenic.Editor;
+using Scenic.Editor.Commands.Domain;
 
-namespace UniBridge.Editor.Tests.Commands.Domain
+namespace Scenic.Editor.Tests.Commands.Domain
 {
     [TestFixture]
     public class DomainReloadCommandHandlerTests

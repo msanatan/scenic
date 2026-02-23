@@ -2,21 +2,21 @@ import { randomUUID } from 'node:crypto'
 import { PipeConnection } from './connection.ts'
 import { pipePath } from './hash.ts'
 import { findUnityProject } from './project.ts'
-import type { ClientOptions, CommandResponse, UniBridgeClient } from './types.ts'
+import type { ClientOptions, CommandResponse, ScenicClient } from './types.ts'
 import { buildClientMethods } from './commands/define.ts'
 import type { CommandRuntime, ExecuteGuard } from './commands/runtime.ts'
 import { allCommands } from './commands/registry.ts'
 
-export class UniBridgeError extends Error {
+export class ScenicError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'UniBridgeError'
+    this.name = 'ScenicError'
   }
 }
 
 function unwrap(response: CommandResponse): unknown {
   if (!response.success) {
-    throw new UniBridgeError(response.error ?? 'Command failed')
+    throw new ScenicError(response.error ?? 'Command failed')
   }
   return response.result
 }
@@ -33,7 +33,7 @@ function createRuntime(
   }
 }
 
-export function createClient(options: ClientOptions = {}): UniBridgeClient {
+export function createClient(options: ClientOptions = {}): ScenicClient {
   const projectPath = options.projectPath ?? findUnityProject()
   const connection = new PipeConnection({
     projectPath,
@@ -52,13 +52,13 @@ export function createClient(options: ClientOptions = {}): UniBridgeClient {
 
   function ensureExecuteEnabled(): void {
     if (!callerExecuteEnabled) {
-      throw new UniBridgeError('Execute is disabled by client or plugin configuration.')
+      throw new ScenicError('Execute is disabled by client or plugin configuration.')
     }
 
     const metadata = connection.serverMetadata()
     const serverExecuteEnabled = metadata?.capabilities?.executeEnabled ?? false
     if (!serverExecuteEnabled) {
-      throw new UniBridgeError('Execute is disabled by client or plugin configuration.')
+      throw new ScenicError('Execute is disabled by client or plugin configuration.')
     }
   }
 

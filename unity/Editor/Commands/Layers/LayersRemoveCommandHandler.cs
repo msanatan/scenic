@@ -1,9 +1,9 @@
 using System;
 using UnityEditor;
 
-namespace UniBridge.Editor.Commands.Layers
+namespace Scenic.Editor.Commands.Layers
 {
-    [UniBridgeCommand("layers.remove")]
+    [ScenicCommand("layers.remove")]
     public sealed class LayersRemoveCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

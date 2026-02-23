@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Scene
+namespace Scenic.Editor.Commands.Scene
 {
     public sealed class SceneListItem
     {

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEditor.TestTools.TestRunner.Api;
 #endif
 
-namespace UniBridge.Editor.Commands.Test
+namespace Scenic.Editor.Commands.Test
 {
     public static class TestService
     {

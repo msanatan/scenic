@@ -1,10 +1,10 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import type { UniBridgeClient } from '../../../packages/sdk/src/index.ts'
+import type { ScenicClient } from '../../../packages/sdk/src/index.ts'
 import { createTestClient } from '../../helpers/sdk-client.ts'
 
 describe('SDK: layers', () => {
-  let client: UniBridgeClient
+  let client: ScenicClient
   const createdLayers: string[] = []
 
   before(() => {
@@ -37,7 +37,7 @@ describe('SDK: layers', () => {
   })
 
   it('adds a layer idempotently', async () => {
-    const name = `UniBridgeLayer_${Date.now()}`
+    const name = `ScenicLayer_${Date.now()}`
     createdLayers.push(name)
 
     const added = await client.layersAdd({ name })
@@ -53,7 +53,7 @@ describe('SDK: layers', () => {
   })
 
   it('removes a layer idempotently', async () => {
-    const name = `UniBridgeLayer_${Date.now()}`
+    const name = `ScenicLayer_${Date.now()}`
     createdLayers.push(name)
 
     await client.layersAdd({ name })

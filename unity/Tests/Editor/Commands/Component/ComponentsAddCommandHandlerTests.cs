@@ -1,10 +1,10 @@
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.Components;
+using Scenic.Editor;
+using Scenic.Editor.Commands.Components;
 
-namespace UniBridge.Editor.Tests.Commands.Components
+namespace Scenic.Editor.Tests.Commands.Components
 {
     [TestFixture]
     public class ComponentsAddCommandHandlerTests

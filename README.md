@@ -1,11 +1,11 @@
-# UniBridge
+# Scenic
 
 Interact with Unity Editor projects using the command line and TypeScript.
 
 ## Packages
 
-- SDK: [`@unibridge/sdk`](./packages/sdk/README.md)
-- CLI: [`@unibridge/cli`](./packages/cli/README.md)
+- SDK: [`@scenicai/sdk`](./packages/sdk/README.md)
+- CLI: [`@scenicai/cli`](./packages/cli/README.md)
 - Unity plugin (UPM package): [`unity`](./unity/README.md)
 
 ## Install
@@ -13,13 +13,13 @@ Interact with Unity Editor projects using the command line and TypeScript.
 CLI:
 
 ```bash
-npm install -g @unibridge/cli
+npm install -g @scenicai/cli
 ```
 
 SDK:
 
 ```bash
-npm install @unibridge/sdk
+npm install @scenicai/sdk
 ```
 
 Unity plugin:
@@ -27,19 +27,19 @@ Unity plugin:
 Use the CLI in the folder of the Unity project and run:
 
 ```bash
-unibridge init
+scenic init
 ```
 
 The `execute` function allows you to execute C# code directly in Unity. It's disabled by default. You can enable it explicitly per project:
 
 ```bash
-unibridge init --enable-execute
+scenic init --enable-execute
 ```
 
 You can also install the plugin using Unity Package Manager (git URL):
 
 ```text
-https://github.com/msanatan/unibridge.git?path=unity
+https://github.com/msanatan/scenic.git?path=unity
 ```
 
 ## Minimum Versions
@@ -49,7 +49,7 @@ https://github.com/msanatan/unibridge.git?path=unity
 
 ## Getting Started
 
-1. Add the Unity plugin to your project via `unibridge init`
+1. Add the Unity plugin to your project via `scenic init`
    - You can also install the package in your Unity project directly with a git URL.
 2. Install either the SDK or CLI depending on your workflow.
 3. Use package-specific docs:

@@ -1,6 +1,6 @@
 using System;
 
-namespace UniBridge.Editor.Commands
+namespace Scenic.Editor.Commands
 {
     public sealed class CommandHandlingException : Exception
     {

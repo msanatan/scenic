@@ -1,10 +1,10 @@
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.Scene;
+using Scenic.Editor;
+using Scenic.Editor.Commands.Scene;
 
-namespace UniBridge.Editor.Tests.Commands.Scene
+namespace Scenic.Editor.Tests.Commands.Scene
 {
     [TestFixture]
     public class SceneHierarchyCommandHandlerTests

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace UniBridge.Editor
+namespace Scenic.Editor
 {
     public sealed class PipeServer
     {
@@ -26,7 +26,7 @@ namespace UniBridge.Editor
         {
             _projectHash = projectHash;
             _socketPath = Path.Combine(StateManager.BaseStateDirectory(), projectHash, "bridge.sock");
-            _windowsPipeName = $"unibridge-{projectHash}";
+            _windowsPipeName = $"scenic-{projectHash}";
         }
 
         public void Start()
@@ -40,7 +40,7 @@ namespace UniBridge.Editor
             _thread = new Thread(Run)
             {
                 IsBackground = true,
-                Name = "UniBridgePipeServer",
+                Name = "ScenicPipeServer",
             };
             _thread.Start();
         }

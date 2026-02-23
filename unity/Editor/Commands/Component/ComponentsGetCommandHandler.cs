@@ -1,12 +1,12 @@
 using Newtonsoft.Json.Linq;
-using UniBridge.Editor.Commands;
-using UniBridge.Editor.Commands.GameObject;
+using Scenic.Editor.Commands;
+using Scenic.Editor.Commands.GameObject;
 using UnityEditor;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.Components
+namespace Scenic.Editor.Commands.Components
 {
-    [UniBridgeCommand("components.get")]
+    [ScenicCommand("components.get")]
     public sealed class ComponentsGetCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

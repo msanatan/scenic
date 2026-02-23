@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace UniBridge.Editor.Commands.Test
+namespace Scenic.Editor.Commands.Test
 {
     public sealed class TestQueryParams
     {

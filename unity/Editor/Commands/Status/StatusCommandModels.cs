@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace UniBridge.Editor.Commands.Status
+namespace Scenic.Editor.Commands.Status
 {
     public sealed class StatusCommandResult
     {

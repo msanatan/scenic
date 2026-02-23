@@ -1,1 +1,1 @@
-Project where we run tests for UniBridge
+Project where we run tests for Scenic

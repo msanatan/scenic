@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.Components
+namespace Scenic.Editor.Commands.Components
 {
     internal static class ComponentSelection
     {

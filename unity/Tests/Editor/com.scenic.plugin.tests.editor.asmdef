@@ -1,7 +1,7 @@
 {
-  "name": "com.msanatan.unibridge.tests.editor",
+  "name": "com.msanatan.scenic.tests.editor",
   "references": [
-    "com.msanatan.unibridge.editor"
+    "com.msanatan.scenic.editor"
   ],
   "includePlatforms": [
     "Editor"

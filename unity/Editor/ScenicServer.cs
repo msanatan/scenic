@@ -5,18 +5,18 @@ using UnityEditor.PackageManager;
 using UnityEngine;
 using PMPackageInfo = UnityEditor.PackageManager.PackageInfo;
 
-namespace UniBridge.Editor
+namespace Scenic.Editor
 {
     [InitializeOnLoad]
-    public static class UniBridgeServer
+    public static class ScenicServer
     {
         private static PipeServer _server;
-        private static UniBridgeSettings _settings;
+        private static ScenicSettings _settings;
         private static string _projectHash;
         private static readonly ConcurrentQueue<CommandRequest> _commandQueue = new ConcurrentQueue<CommandRequest>();
-        private const string SessionResultPrefix = "unibridge_result_";
+        private const string SessionResultPrefix = "scenic_result_";
 
-        static UniBridgeServer()
+        static ScenicServer()
         {
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeReload;
             EditorApplication.quitting += OnQuit;
@@ -32,8 +32,8 @@ namespace UniBridge.Editor
 
             StateManager.SetCurrentProjectHash(_projectHash);
             StateManager.EnsureStateDirectory(_projectHash);
-            _settings = UniBridgeSettings.LoadOrDefault(_projectHash);
-            var pluginVersion = PMPackageInfo.FindForAssembly(typeof(UniBridgeServer).Assembly)?.version ?? "0.0.0";
+            _settings = ScenicSettings.LoadOrDefault(_projectHash);
+            var pluginVersion = PMPackageInfo.FindForAssembly(typeof(ScenicServer).Assembly)?.version ?? "0.0.0";
             StateManager.WriteServerJson(
                 _projectHash,
                 projectPath,
@@ -44,7 +44,7 @@ namespace UniBridge.Editor
             _server = new PipeServer(_projectHash);
             _server.OnCommandReceived += OnCommand;
             _server.Start();
-            UnityEngine.Debug.Log($"UniBridgeServer started for project '{projectPath}' with hash '{_projectHash}'.");
+            UnityEngine.Debug.Log($"ScenicServer started for project '{projectPath}' with hash '{_projectHash}'.");
         }
 
         private static void OnCommand(CommandRequest request)
@@ -123,13 +123,13 @@ namespace UniBridge.Editor
         }
     }
 
-    public sealed class UniBridgeSettings
+    public sealed class ScenicSettings
     {
         public bool ExecuteEnabled = false;
 
-        public static UniBridgeSettings LoadOrDefault(string projectHash)
+        public static ScenicSettings LoadOrDefault(string projectHash)
         {
-            return new UniBridgeSettings
+            return new ScenicSettings
             {
                 ExecuteEnabled = StateManager.ReadExecuteEnabled(projectHash),
             };

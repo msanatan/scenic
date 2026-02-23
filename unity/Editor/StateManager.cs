@@ -6,7 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace UniBridge.Editor
+namespace Scenic.Editor
 {
     public static class StateManager
     {
@@ -45,10 +45,10 @@ namespace UniBridge.Editor
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                return Path.Combine(Path.GetTempPath(), "unibridge");
+                return Path.Combine(Path.GetTempPath(), "scenic");
             }
 
-            return "/tmp/unibridge";
+            return "/tmp/scenic";
         }
 
         public static string ResolveStateDirectory(string hashOrDirectory)

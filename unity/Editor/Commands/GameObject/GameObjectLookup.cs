@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
     internal static class GameObjectLookup
     {

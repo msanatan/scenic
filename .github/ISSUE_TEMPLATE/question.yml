@@ -1,11 +1,11 @@
 name: Question
-description: Ask a question about UniBridge
+description: Ask a question about Scenic
 labels: ["question"]
 body:
   - type: markdown
     attributes:
       value: |
-        Have a question about how UniBridge works or how to use it? Ask away.
+        Have a question about how Scenic works or how to use it? Ask away.
 
   - type: textarea
     id: question
@@ -28,6 +28,6 @@ body:
     attributes:
       label: Related component
       options:
-        - label: SDK (@unibridge/sdk)
-        - label: CLI (@unibridge/cli)
+        - label: SDK (@scenicai/sdk)
+        - label: CLI (@scenicai/cli)
         - label: Unity Plugin

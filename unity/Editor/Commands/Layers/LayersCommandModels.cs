@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Layers
+namespace Scenic.Editor.Commands.Layers
 {
     public sealed class LayersRemoveCommandParams
     {

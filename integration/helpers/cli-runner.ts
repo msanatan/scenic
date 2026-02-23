@@ -4,7 +4,7 @@ import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
 
-export const projectPath = path.resolve(import.meta.dirname, '../../TestProjects/UniBridge3Dv6.3')
+export const projectPath = path.resolve(import.meta.dirname, '../../TestProjects/Scenic3Dv6.3')
 const cliEntrypoint = path.resolve(import.meta.dirname, '../../packages/cli/dist/index.js')
 
 export function getCliEntrypoint(): string {

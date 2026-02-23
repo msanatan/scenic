@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { createClient } from '../../packages/sdk/src/client.ts'
 
-export const projectPath = path.resolve(import.meta.dirname, '../../TestProjects/UniBridge3Dv6.3')
+export const projectPath = path.resolve(import.meta.dirname, '../../TestProjects/Scenic3Dv6.3')
 
 export function createTestClient() {
   return createClient({

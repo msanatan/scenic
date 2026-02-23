@@ -1,9 +1,9 @@
 import { after, before, describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import type { UniBridgeClient } from '../../../packages/sdk/src/index.ts'
+import type { ScenicClient } from '../../../packages/sdk/src/index.ts'
 import { createTestClient } from '../../helpers/sdk-client.ts'
 
-async function waitForPlayMode(client: UniBridgeClient, expected: 'edit' | 'playing' | 'paused'): Promise<void> {
+async function waitForPlayMode(client: ScenicClient, expected: 'edit' | 'playing' | 'paused'): Promise<void> {
   const timeoutMs = 20_000
   const intervalMs = 250
   const start = Date.now()
@@ -21,7 +21,7 @@ async function waitForPlayMode(client: UniBridgeClient, expected: 'edit' | 'play
 }
 
 describe('SDK: editor', () => {
-  let client: UniBridgeClient
+  let client: ScenicClient
 
   before(() => {
     client = createTestClient()

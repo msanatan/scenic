@@ -61,8 +61,8 @@ function main(): void {
     parsed.version = newVersion
 
     const deps = parsed.dependencies as Record<string, string> | undefined
-    if (deps?.['@unibridge/sdk']) {
-      deps['@unibridge/sdk'] = newVersion
+    if (deps?.['@scenicai/sdk']) {
+      deps['@scenicai/sdk'] = newVersion
     }
 
     writeJson(relativePath, parsed)

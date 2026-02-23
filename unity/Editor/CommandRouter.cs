@@ -1,6 +1,6 @@
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor
+namespace Scenic.Editor
 {
     public static class CommandRouter
     {

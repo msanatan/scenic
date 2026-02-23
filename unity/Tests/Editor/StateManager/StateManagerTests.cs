@@ -1,8 +1,8 @@
 using System.IO;
 using NUnit.Framework;
-using UniBridge.Editor;
+using Scenic.Editor;
 
-namespace UniBridge.Editor.Tests
+namespace Scenic.Editor.Tests
 {
     [TestFixture]
     public class StateManagerTests
@@ -12,7 +12,7 @@ namespace UniBridge.Editor.Tests
         [SetUp]
         public void SetUp()
         {
-            _testDir = Path.Combine(Path.GetTempPath(), "unibridge-test-" + Path.GetRandomFileName());
+            _testDir = Path.Combine(Path.GetTempPath(), "scenic-test-" + Path.GetRandomFileName());
             Directory.CreateDirectory(_testDir);
         }
 

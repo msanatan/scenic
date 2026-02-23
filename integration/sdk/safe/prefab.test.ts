@@ -1,10 +1,10 @@
 import { after, before, describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import type { UniBridgeClient } from '../../../packages/sdk/src/index.ts'
+import type { ScenicClient } from '../../../packages/sdk/src/index.ts'
 import { createTestClient } from '../../helpers/sdk-client.ts'
 
 describe('SDK: prefab', () => {
-  let client: UniBridgeClient
+  let client: ScenicClient
   const createdNames: string[] = []
   const prefabPaths: string[] = []
 

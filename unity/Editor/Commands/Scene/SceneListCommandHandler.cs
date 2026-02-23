@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Scene
+namespace Scenic.Editor.Commands.Scene
 {
-    [UniBridgeCommand("scene.list")]
+    [ScenicCommand("scene.list")]
     public sealed class SceneListCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

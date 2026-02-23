@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
-    [UniBridgeCommand("gameobject.update")]
+    [ScenicCommand("gameobject.update")]
     public sealed class GameObjectUpdateCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

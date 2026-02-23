@@ -4,7 +4,7 @@ using System.Reflection;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.Components
+namespace Scenic.Editor.Commands.Components
 {
     internal static class ComponentValueApplier
     {

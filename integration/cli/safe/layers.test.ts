@@ -54,7 +54,7 @@ describe('CLI: layers', () => {
   })
 
   it('adds a layer idempotently', async () => {
-    const name = `UniBridgeLayer_${Date.now()}`
+    const name = `ScenicLayer_${Date.now()}`
     createdLayers.push(name)
 
     const addPayload = (await runCli('layers', 'add', name)) as {
@@ -95,7 +95,7 @@ describe('CLI: layers', () => {
   })
 
   it('removes a layer idempotently', async () => {
-    const name = `UniBridgeLayer_${Date.now()}`
+    const name = `ScenicLayer_${Date.now()}`
     createdLayers.push(name)
 
     const addPayload = (await runCli('layers', 'add', name)) as {

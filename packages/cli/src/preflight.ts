@@ -1,4 +1,4 @@
-import { findUnityProject, isPluginInstalled } from '@unibridge/sdk'
+import { findUnityProject, isPluginInstalled } from '@scenicai/sdk'
 
 export function resolveCommandProject(
   opts: { project?: string; execute?: boolean },
@@ -16,7 +16,7 @@ export function resolveCommandProject(
   }
 
   if (config.requirePlugin && !isPluginInstalled(projectPath)) {
-    throw new Error('com.msanatan.unibridge is not installed. Run `unibridge init` (or `unibridge update`) first.')
+    throw new Error('com.msanatan.scenic is not installed. Run `scenic init` (or `scenic update`) first.')
   }
 
   return projectPath

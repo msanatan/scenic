@@ -1,9 +1,9 @@
 using UnityEditorInternal;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Tags
+namespace Scenic.Editor.Commands.Tags
 {
-    [UniBridgeCommand("tags.get")]
+    [ScenicCommand("tags.get")]
     public sealed class TagsGetCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

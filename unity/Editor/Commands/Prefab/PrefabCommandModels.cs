@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using UniBridge.Editor.Commands;
-using UniBridge.Editor.Commands.GameObject;
+using Scenic.Editor.Commands;
+using Scenic.Editor.Commands.GameObject;
 
-namespace UniBridge.Editor.Commands.Prefab
+namespace Scenic.Editor.Commands.Prefab
 {
     public sealed class PrefabInstantiateCommandParams
     {

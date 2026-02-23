@@ -36,13 +36,13 @@ describe('projectHash', () => {
 describe('pipePath', () => {
   it('returns a unix socket path on non-Windows', () => {
     const path = pipePath('/Users/me/MyGame')
-    assert.match(path, /^\/tmp\/unibridge\/[a-f0-9]{12}\/bridge\.sock$/)
+    assert.match(path, /^\/tmp\/scenic\/[a-f0-9]{12}\/bridge\.sock$/)
   })
 })
 
 describe('stateDir', () => {
   it('returns the temp directory for the project', () => {
     const dir = stateDir('/Users/me/MyGame')
-    assert.match(dir, /^\/tmp\/unibridge\/[a-f0-9]{12}$/)
+    assert.match(dir, /^\/tmp\/scenic\/[a-f0-9]{12}$/)
   })
 })
