@@ -9,11 +9,11 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "scenic",
     "unity",
     "sdk",
-    "typescript",
-    "automation"
+    "automation",
+    "tooling",
+    "ai"
   ],
   "author": {
     "name": "Marcus Sanatan",

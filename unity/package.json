@@ -14,11 +14,11 @@
   },
   "license": "MIT",
   "keywords": [
-    "unity",
-    "editor",
-    "bridge",
+    "tool",
     "cli",
-    "sdk"
+    "sdk",
+    "automation",
+    "ai"
   ],
   "documentationUrl": "https://github.com/msanatan/scenic",
   "changelogUrl": "https://github.com/msanatan/scenic/releases"
