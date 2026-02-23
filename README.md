@@ -66,6 +66,7 @@ Scenic gives you programmatic control over the Unity Editor from the command lin
 | **Components** | List, add, get, update, and remove components on any GameObject. Pass field values as JSON inline or from a file. |
 | **Scenes** | Get the active scene, list all project scenes, inspect the hierarchy as a flat tree, create new scenes, and open existing ones. |
 | **Prefabs** | Instantiate a prefab into the active scene with optional transform and parent. Save a GameObject hierarchy back to a prefab asset. |
+| **ScriptableObjects** | Create ScriptableObject assets, read serialized data, and update fields using JSON patches. |
 | **Editor Control** | Start, pause, and stop Unity play mode. |
 | **Domain Reload** | Trigger an asset refresh and domain reload on demand. |
 | **Logs** | Read Unity Editor console logs, filtered by severity (info, warn, error). |
