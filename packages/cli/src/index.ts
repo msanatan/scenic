@@ -13,6 +13,7 @@ import { registerLogs } from './commands/logs.ts'
 import { registerPrefab } from './commands/prefab.ts'
 import { registerStatus } from './commands/status.ts'
 import { registerScene } from './commands/scene.ts'
+import { registerScriptableObject } from './commands/scriptableobject.ts'
 import { registerTags } from './commands/tags.ts'
 import { registerTest } from './commands/test.ts'
 
@@ -39,6 +40,7 @@ registerLogs(program)
 registerPrefab(program)
 registerStatus(program)
 registerScene(program)
+registerScriptableObject(program)
 registerTags(program)
 registerTest(program)
 

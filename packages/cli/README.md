@@ -110,6 +110,9 @@ scenic scene list --limit 50 --offset 0
 scenic scene hierarchy --limit 200 --offset 0
 scenic scene create Assets/Scenes/NewScene.unity
 scenic scene open Assets/Scenes/SampleScene.unity
+scenic scriptableobject create Assets/Data/EnemyConfig.asset --type Scenic.Editor.Commands.ScriptableObjects.ScenicSampleScriptableObject --values '{"number":5,"label":"Enemy","enabledFlag":true}'
+scenic scriptableobject get Assets/Data/EnemyConfig.asset
+scenic scriptableobject update Assets/Data/EnemyConfig.asset --values '{"number":7.5}'
 ```
 
 Run commands with JSON output:

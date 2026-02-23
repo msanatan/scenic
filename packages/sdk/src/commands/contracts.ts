@@ -65,6 +65,15 @@ export type {
   SceneListResult,
   SceneOpenResult,
 } from './scene/contract.ts'
+export type {
+  ScriptableObjectCreateInput,
+  ScriptableObjectCreateResult,
+  ScriptableObjectGetInput,
+  ScriptableObjectGetResult,
+  ScriptableObjectSummary,
+  ScriptableObjectUpdateInput,
+  ScriptableObjectUpdateResult,
+} from './scriptableobject/contract.ts'
 export type { StatusResult } from './status/contract.ts'
 export type {
   TagItem,
