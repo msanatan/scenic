@@ -79,7 +79,6 @@ namespace Scenic.Editor
 
             var payload = JsonConvert.SerializeObject(new
             {
-                port = (object)null,
                 pid = Process.GetCurrentProcess().Id,
                 unityVersion = UnityEngine.Application.unityVersion,
                 pluginVersion,
