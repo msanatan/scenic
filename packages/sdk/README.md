@@ -1,6 +1,6 @@
 # @scenicai/sdk
 
-TypeScript SDK for interacting with Unity Editor.
+Scenic is a TypeScript SDK for interacting with Unity Editor.
 
 ## Install
 
@@ -100,3 +100,5 @@ await init({
   enableExecute: true,
 })
 ```
+
+Learn more about Scenic [here](https://github.com/msanatan/scenic).

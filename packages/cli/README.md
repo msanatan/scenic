@@ -1,6 +1,6 @@
 # @scenicai/cli
 
-CLI for interacting with Unity Editor projects through Scenic.
+Scenic is a CLI for interacting with the Unity editor.
 
 ## Install
 
@@ -75,54 +75,10 @@ scenic scene hierarchy --limit 200 --offset 0
 scenic editor play
 ```
 
-## Common Commands
-
-```bash
-scenic status
-scenic logs --severity warn --limit 100 --offset 0
-scenic components list --path /Player --limit 20 --offset 0
-scenic components get --instance-id 12345 --component-instance-id 67890
-scenic components add --instance-id 12345 --type UnityEngine.Rigidbody --values '{"mass":5.5,"useGravity":false}'
-scenic components update --instance-id 12345 --component-instance-id 67890 --values '{"mass":7.5}'
-scenic components remove --instance-id 12345 --component-instance-id 67890
-scenic gameobject create Player --dimension 2d --position 0,1,0
-scenic gameobject get --instance-id 12345
-scenic gameobject find Enemy --limit 50 --offset 0
-scenic gameobject create Enemy --parent-instance-id 12345 --primitive cube
-scenic gameobject reparent --instance-id 12345 --parent-instance-id 67890
-scenic gameobject destroy --instance-id 12345
-scenic prefab instantiate Assets/Prefabs/Enemy.prefab --position 0,1,0
-scenic prefab save Assets/Prefabs/EnemyVariant.prefab --instance-id 12345
-scenic layers get --limit 32 --offset 0
-scenic layers add EnemyLayer
-scenic layers remove EnemyLayer
-scenic tags get
-scenic tags add Enemy
-scenic tags remove Enemy
-scenic test list --mode edit --limit 50 --offset 0
-scenic test run --mode edit --filter DomainReloadCommandHandlerTests
-scenic editor play
-scenic editor pause
-scenic editor stop
-scenic domain reload
-scenic scene active
-scenic scene list --limit 50 --offset 0
-scenic scene hierarchy --limit 200 --offset 0
-scenic scene create Assets/Scenes/NewScene.unity
-scenic scene open Assets/Scenes/SampleScene.unity
-scenic scriptableobject create Assets/Data/EnemyConfig.asset --type Scenic.Editor.Commands.ScriptableObjects.ScenicSampleScriptableObject --values '{"number":5,"label":"Enemy","enabledFlag":true}'
-scenic scriptableobject get Assets/Data/EnemyConfig.asset
-scenic scriptableobject update Assets/Data/EnemyConfig.asset --values '{"number":7.5}'
-```
-
 Run commands with JSON output:
 
 ```bash
 scenic --json status
 ```
 
-## Identity
-
-- `gameobject create` responses include `instanceId` and `path`.
-- `scene hierarchy` node entries include `instanceId`, `path`, `parentIndex`, and `siblingIndex`.
-- `instanceId` is session-local and ideal for follow-up commands during an active Unity session.
+Learn more about Scenic [here](https://github.com/msanatan/scenic).
