@@ -1,11 +1,11 @@
-# com.msanatan.unibridge
+# com.msanatan.scenic
 
-UniBridge is a Unity Editor plugin that lets external tools communicate with your open Unity project over a local IPC bridge.
+Scenic is a Unity Editor plugin that lets external tools communicate with your open Unity project over a local IPC bridge.
 
 It is designed to be used with:
 
-- [`@unibridge/cli`](../packages/cli/README.md) for command-line workflows
-- [`@unibridge/sdk`](../packages/sdk/README.md) for TypeScript automation
+- [`@scenicai/cli`](../packages/cli/README.md) for command-line workflows
+- [`@scenicai/sdk`](../packages/sdk/README.md) for TypeScript automation
 
 ## What It Does
 
@@ -19,19 +19,19 @@ It is designed to be used with:
 Install CLI:
 
 ```bash
-npm install -g @unibridge/cli
+npm install -g @scenicai/cli
 ```
 
 From your Unity project root:
 
 ```bash
-unibridge init
+scenic init
 ```
 
 `init` is idempotent. You can also run:
 
 ```bash
-unibridge update
+scenic update
 ```
 
 (`update` is an alias of `init`.)
@@ -41,13 +41,13 @@ unibridge update
 Install SDK:
 
 ```bash
-npm install @unibridge/sdk
+npm install @scenicai/sdk
 ```
 
 Then initialize from code:
 
 ```ts
-import { init } from '@unibridge/sdk'
+import { init } from '@scenicai/sdk'
 
 await init({ projectPath: '/path/to/UnityProject' })
 ```
@@ -59,7 +59,7 @@ Add this to your Unity `Packages/manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.msanatan.unibridge": "https://github.com/msanatan/unibridge.git?path=unity"
+    "com.msanatan.scenic": "https://github.com/msanatan/scenic.git?path=unity"
   }
 }
 ```
@@ -74,9 +74,9 @@ Add this to your Unity `Packages/manifest.json`:
 With Unity open on your project:
 
 ```bash
-unibridge status
+scenic status
 ```
 
 ## OpenUPM
 
-OpenUPM support is planned. Until then, install with the Git URL or use `unibridge init`.
+OpenUPM support is planned. Until then, install with the Git URL or use `scenic init`.

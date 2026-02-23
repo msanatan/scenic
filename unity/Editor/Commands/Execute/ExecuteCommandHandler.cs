@@ -1,6 +1,6 @@
-namespace UniBridge.Editor.Commands.Execute
+namespace Scenic.Editor.Commands.Execute
 {
-    [UniBridgeCommand("execute", RequiresExecuteEnabled = true)]
+    [ScenicCommand("execute", RequiresExecuteEnabled = true)]
     public sealed class ExecuteCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
-    [UniBridgeCommand("gameobject.get")]
+    [ScenicCommand("gameobject.get")]
     public sealed class GameObjectGetCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

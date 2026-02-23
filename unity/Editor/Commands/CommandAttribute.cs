@@ -1,11 +1,11 @@
 using System;
 
-namespace UniBridge.Editor.Commands
+namespace Scenic.Editor.Commands
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public sealed class UniBridgeCommandAttribute : Attribute
+    public sealed class ScenicCommandAttribute : Attribute
     {
-        public UniBridgeCommandAttribute(string name)
+        public ScenicCommandAttribute(string name)
         {
             Name = name;
         }

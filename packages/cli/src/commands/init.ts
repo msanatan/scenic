@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import { init as sdkInit, type InitOptions, type InitResult } from '@unibridge/sdk'
+import { init as sdkInit, type InitOptions, type InitResult } from '@scenicai/sdk'
 import { readExecuteEnabled, writeExecuteEnabled } from '../execute-config.ts'
 import { getGlobalOptions } from '../options.ts'
 import { runWithOutput } from './output.ts'
@@ -50,7 +50,7 @@ export async function handleInit(
     },
     (result, output) => {
       output.log(`Found Unity ${result.unityVersion} at ${result.projectPath}`)
-      output.log(`Installed com.msanatan.unibridge@${result.pluginVersion}`)
+      output.log(`Installed com.msanatan.scenic@${result.pluginVersion}`)
       if (result.executeEnabled) {
         output.log('Execute: enabled')
       } else {
@@ -65,7 +65,7 @@ export function registerInit(program: Command): void {
   program
     .command('init')
     .alias('update')
-    .description('Install or update the unibridge plugin into a Unity project (alias: update)')
+    .description('Install or update the scenic plugin into a Unity project (alias: update)')
     .option('--local <path>', 'Install from a local path')
     .option('--git <url>', 'Install from a custom git URL')
     .option('--enable-execute', 'Enable the execute command for this project')

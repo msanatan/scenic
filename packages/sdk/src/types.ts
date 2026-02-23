@@ -59,7 +59,7 @@ export interface ClientOptions extends TimeoutOptions {
   enableExecute?: boolean
 }
 
-export type UniBridgeClient = CommandMethods<typeof allCommands> & {
+export type ScenicClient = CommandMethods<typeof allCommands> & {
   readonly projectPath: string
   close(): void
 }

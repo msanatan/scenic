@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
     public sealed class GameObjectFindCommandParams
     {

@@ -1,7 +1,7 @@
 {
-  "name": "@unibridge/sdk",
+  "name": "@scenicai/sdk",
   "version": "1.0.0",
-  "description": "UniBridge is a TypeScript SDK for interacting with the Unity Editor.",
+  "description": "Scenic is a TypeScript SDK for interacting with the Unity Editor.",
   "main": "./dist/index.js",
   "scripts": {
     "test": "node --test src/*.test.ts src/**/*.test.ts",
@@ -9,7 +9,7 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "unibridge",
+    "scenic",
     "unity",
     "sdk",
     "typescript",
@@ -23,12 +23,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/msanatan/unibridge.git",
+    "url": "git+https://github.com/msanatan/scenic.git",
     "directory": "packages/sdk"
   },
-  "homepage": "https://github.com/msanatan/unibridge/tree/main/packages/sdk",
+  "homepage": "https://github.com/msanatan/scenic/tree/main/packages/sdk",
   "bugs": {
-    "url": "https://github.com/msanatan/unibridge/issues"
+    "url": "https://github.com/msanatan/scenic/issues"
   },
   "files": [
     "dist",

@@ -1,10 +1,10 @@
-using UniBridge.Editor.Commands;
-using UniBridge.Editor.Commands.GameObject;
+using Scenic.Editor.Commands;
+using Scenic.Editor.Commands.GameObject;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.Components
+namespace Scenic.Editor.Commands.Components
 {
-    [UniBridgeCommand("components.remove")]
+    [ScenicCommand("components.remove")]
     public sealed class ComponentsRemoveCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

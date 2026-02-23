@@ -1,6 +1,6 @@
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Components
+namespace Scenic.Editor.Commands.Components
 {
     internal static class ComponentCommandParamsHelpers
     {

@@ -1,7 +1,7 @@
 using NUnit.Framework;
-using UniBridge.Editor;
+using Scenic.Editor;
 
-namespace UniBridge.Editor.Tests
+namespace Scenic.Editor.Tests
 {
     [TestFixture]
     public class CommandRouterTests

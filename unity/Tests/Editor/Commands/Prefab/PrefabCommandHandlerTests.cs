@@ -3,10 +3,10 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.Prefab;
+using Scenic.Editor;
+using Scenic.Editor.Commands.Prefab;
 
-namespace UniBridge.Editor.Tests.Commands.Prefab
+namespace Scenic.Editor.Tests.Commands.Prefab
 {
     [TestFixture]
     public class PrefabCommandHandlerTests

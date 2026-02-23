@@ -50,7 +50,7 @@ describe('CLI: tags', () => {
   })
 
   it('adds a tag idempotently', async () => {
-    const name = `UniBridgeTag_${Date.now()}`
+    const name = `ScenicTag_${Date.now()}`
     createdTags.push(name)
 
     const addPayload = (await runCli('tags', 'add', name)) as {
@@ -93,7 +93,7 @@ describe('CLI: tags', () => {
   })
 
   it('removes a tag idempotently', async () => {
-    const name = `UniBridgeTag_${Date.now()}`
+    const name = `ScenicTag_${Date.now()}`
     createdTags.push(name)
 
     const addPayload = (await runCli('tags', 'add', name)) as {

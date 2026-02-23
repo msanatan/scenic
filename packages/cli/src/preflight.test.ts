@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { resolveCommandProject } from './preflight.ts'
 
-const projectPath = '/tmp/unibridge-cli-preflight/My Game'
+const projectPath = '/tmp/scenic-cli-preflight/My Game'
 
 beforeEach(() => {
   mkdirSync(`${projectPath}/Assets`, { recursive: true })
@@ -14,21 +14,21 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  rmSync('/tmp/unibridge-cli-preflight', { recursive: true, force: true })
+  rmSync('/tmp/scenic-cli-preflight', { recursive: true, force: true })
 })
 
 describe('resolveCommandProject', () => {
   it('throws when plugin is missing for command execution', () => {
     assert.throws(
       () => resolveCommandProject({ project: projectPath, execute: true }, { requirePlugin: true, requiresExecute: true }),
-      /Run `unibridge init` \(or `unibridge update`\) first/,
+      /Run `scenic init` \(or `scenic update`\) first/,
     )
   })
 
   it('throws when execute is disabled', () => {
     writeFileSync(
       `${projectPath}/Packages/manifest.json`,
-      JSON.stringify({ dependencies: { 'com.msanatan.unibridge': 'file:../unity' } }, null, 2),
+      JSON.stringify({ dependencies: { 'com.msanatan.scenic': 'file:../unity' } }, null, 2),
     )
 
     assert.throws(

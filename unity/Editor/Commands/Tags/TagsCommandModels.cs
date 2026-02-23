@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace UniBridge.Editor.Commands.Tags
+namespace Scenic.Editor.Commands.Tags
 {
     public sealed class TagsGetCommandParams
     {

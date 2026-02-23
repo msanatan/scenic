@@ -4,9 +4,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
-    [UniBridgeCommand("gameobject.find")]
+    [ScenicCommand("gameobject.find")]
     public sealed class GameObjectFindCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

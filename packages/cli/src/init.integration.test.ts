@@ -5,10 +5,10 @@ import { spawnSync } from 'node:child_process'
 import { afterEach, beforeEach, describe, it } from 'node:test'
 import { readExecuteEnabled } from './execute-config.ts'
 
-const fixtureRoot = '/tmp/unibridge-cli-init-integration'
+const fixtureRoot = '/tmp/scenic-cli-init-integration'
 const projectPath = join(fixtureRoot, 'My Game')
 const manifestPath = join(projectPath, 'Packages', 'manifest.json')
-const pluginName = 'com.msanatan.unibridge'
+const pluginName = 'com.msanatan.scenic'
 const cliDir = import.meta.dirname
 
 function runCli(args: string[]) {
@@ -32,7 +32,7 @@ beforeEach(() => {
 
 afterEach(() => {
   rmSync(fixtureRoot, { recursive: true, force: true })
-  rmSync('/tmp/unibridge', { recursive: true, force: true })
+  rmSync('/tmp/scenic', { recursive: true, force: true })
 })
 
 describe('cli init/update integration', () => {

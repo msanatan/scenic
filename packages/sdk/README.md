@@ -1,25 +1,25 @@
-# @unibridge/sdk
+# @scenicai/sdk
 
 TypeScript SDK for interacting with Unity Editor.
 
 ## Install
 
 ```bash
-npm install @unibridge/sdk
+npm install @scenicai/sdk
 ```
 
 ## Requirements
 
 - Node.js `>=22.18.0`
 - A Unity project
-- UniBridge Unity plugin installed in that project
+- Scenic Unity plugin installed in that project
 
 You can install the plugin with the CLI, or by adding this to your Unity `Packages/manifest.json`:
 
 ```json
 {
   "dependencies": {
-    "com.msanatan.unibridge": "https://github.com/msanatan/unibridge.git?path=unity"
+    "com.msanatan.scenic": "https://github.com/msanatan/scenic.git?path=unity"
   }
 }
 ```
@@ -27,7 +27,7 @@ You can install the plugin with the CLI, or by adding this to your Unity `Packag
 ## Quick Start
 
 ```ts
-import { createClient } from '@unibridge/sdk'
+import { createClient } from '@scenicai/sdk'
 
 const client = createClient({ projectPath: '/path/to/UnityProject' })
 
@@ -85,7 +85,7 @@ try {
 ## Install Plugin Programmatically
 
 ```ts
-import { init } from '@unibridge/sdk'
+import { init } from '@scenicai/sdk'
 
 await init({
   projectPath: '/path/to/UnityProject',

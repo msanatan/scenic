@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
-    [UniBridgeCommand("gameobject.create")]
+    [ScenicCommand("gameobject.create")]
     public sealed class GameObjectCreateCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

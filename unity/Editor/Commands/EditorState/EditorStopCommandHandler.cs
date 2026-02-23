@@ -1,8 +1,8 @@
 using UnityEditor;
 
-namespace UniBridge.Editor.Commands.EditorState
+namespace Scenic.Editor.Commands.EditorState
 {
-    [UniBridgeCommand("editor.stop")]
+    [ScenicCommand("editor.stop")]
     public sealed class EditorStopCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

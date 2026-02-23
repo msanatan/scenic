@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.Layers
+namespace Scenic.Editor.Commands.Layers
 {
     internal static class LayerDefinitions
     {

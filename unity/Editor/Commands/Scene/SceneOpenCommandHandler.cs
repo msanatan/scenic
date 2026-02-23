@@ -1,9 +1,9 @@
 using System.IO;
 using UnityEditor.SceneManagement;
 
-namespace UniBridge.Editor.Commands.Scene
+namespace Scenic.Editor.Commands.Scene
 {
-    [UniBridgeCommand("scene.open")]
+    [ScenicCommand("scene.open")]
     public sealed class SceneOpenCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

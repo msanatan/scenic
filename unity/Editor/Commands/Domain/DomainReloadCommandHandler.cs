@@ -1,8 +1,8 @@
 using UnityEditor;
 
-namespace UniBridge.Editor.Commands.Domain
+namespace Scenic.Editor.Commands.Domain
 {
-    [UniBridgeCommand("domain.reload")]
+    [ScenicCommand("domain.reload")]
     public sealed class DomainReloadCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

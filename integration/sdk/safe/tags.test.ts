@@ -1,10 +1,10 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import type { UniBridgeClient } from '../../../packages/sdk/src/index.ts'
+import type { ScenicClient } from '../../../packages/sdk/src/index.ts'
 import { createTestClient } from '../../helpers/sdk-client.ts'
 
 describe('SDK: tags', () => {
-  let client: UniBridgeClient
+  let client: ScenicClient
   const createdTags: string[] = []
 
   before(() => {
@@ -36,7 +36,7 @@ describe('SDK: tags', () => {
   })
 
   it('adds a tag idempotently', async () => {
-    const name = `UniBridgeTag_${Date.now()}`
+    const name = `ScenicTag_${Date.now()}`
     createdTags.push(name)
 
     const added = await client.tagsAdd({ name })
@@ -54,7 +54,7 @@ describe('SDK: tags', () => {
   })
 
   it('removes a tag idempotently', async () => {
-    const name = `UniBridgeTag_${Date.now()}`
+    const name = `ScenicTag_${Date.now()}`
 
     await client.tagsAdd({ name })
     const removed = await client.tagsRemove({ name })

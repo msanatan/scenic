@@ -1,8 +1,8 @@
 using UnityEditor;
 
-namespace UniBridge.Editor.Commands.EditorState
+namespace Scenic.Editor.Commands.EditorState
 {
-    [UniBridgeCommand("editor.play")]
+    [ScenicCommand("editor.play")]
     public sealed class EditorPlayCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

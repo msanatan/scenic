@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 using UnityEditor;
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.Logs
+namespace Scenic.Editor.Commands.Logs
 {
     [InitializeOnLoad]
     public static class LogBuffer

@@ -1,6 +1,6 @@
 using Newtonsoft.Json.Linq;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
     internal static class GameObjectCommandModelHelpers
     {

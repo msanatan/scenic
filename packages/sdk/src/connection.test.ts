@@ -4,7 +4,7 @@ import net from 'node:net'
 import fs from 'node:fs'
 import { PipeConnection } from './connection.ts'
 
-const SOCK_PATH = '/tmp/unibridge-test.sock'
+const SOCK_PATH = '/tmp/scenic-test.sock'
 
 function createMockServer(handler: (data: Buffer) => Buffer) {
   const sockets = new Set<net.Socket>()

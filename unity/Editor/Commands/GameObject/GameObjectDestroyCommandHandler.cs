@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace UniBridge.Editor.Commands.GameObject
+namespace Scenic.Editor.Commands.GameObject
 {
-    [UniBridgeCommand("gameobject.destroy")]
+    [ScenicCommand("gameobject.destroy")]
     public sealed class GameObjectDestroyCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

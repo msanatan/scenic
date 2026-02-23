@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UniBridge.Editor.Commands.Tags
+namespace Scenic.Editor.Commands.Tags
 {
     internal static class TagDefinitions
     {

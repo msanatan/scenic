@@ -1,6 +1,6 @@
-namespace UniBridge.Editor.Commands.Test
+namespace Scenic.Editor.Commands.Test
 {
-    [UniBridgeCommand("test.list")]
+    [ScenicCommand("test.list")]
     public sealed class TestListCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

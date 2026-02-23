@@ -7,5 +7,5 @@ export type {
   InitResult,
   CommandResponse,
   ClientOptions,
-  UniBridgeClient,
+  ScenicClient,
 } from './types.ts'

@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Logs
+namespace Scenic.Editor.Commands.Logs
 {
     public sealed class LogsCommandParams
     {

@@ -2,9 +2,9 @@ using System;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace UniBridge.Editor.Commands.Tags
+namespace Scenic.Editor.Commands.Tags
 {
-    [UniBridgeCommand("tags.add")]
+    [ScenicCommand("tags.add")]
     public sealed class TagsAddCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

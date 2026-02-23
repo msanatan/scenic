@@ -30,10 +30,10 @@ export function projectHash(projectPath: string): string {
 
 function stateBaseDir(): string {
   if (process.platform === 'win32') {
-    return path.join(os.tmpdir(), 'unibridge')
+    return path.join(os.tmpdir(), 'scenic')
   }
 
-  return '/tmp/unibridge'
+  return '/tmp/scenic'
 }
 
 export function stateDir(projectPath: string): string {
@@ -43,7 +43,7 @@ export function stateDir(projectPath: string): string {
 export function pipePath(projectPath: string): string {
   const hash = projectHash(projectPath)
   if (process.platform === 'win32') {
-    return `\\\\.\\pipe\\unibridge-${hash}`
+    return `\\\\.\\pipe\\scenic-${hash}`
   }
 
   return path.join(stateBaseDir(), hash, 'bridge.sock')

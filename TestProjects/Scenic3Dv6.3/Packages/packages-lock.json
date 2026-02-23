@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.msanatan.unibridge": {
+    "com.msanatan.scenic": {
       "version": "file:../../../unity",
       "depth": 0,
       "source": "local",

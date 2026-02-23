@@ -2,9 +2,9 @@ using System.IO;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 
-namespace UniBridge.Editor.Commands.Scene
+namespace Scenic.Editor.Commands.Scene
 {
-    [UniBridgeCommand("scene.create")]
+    [ScenicCommand("scene.create")]
     public sealed class SceneCreateCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

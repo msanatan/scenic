@@ -3,10 +3,10 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditorInternal;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.Tags;
+using Scenic.Editor;
+using Scenic.Editor.Commands.Tags;
 
-namespace UniBridge.Editor.Tests.Commands.Tags
+namespace Scenic.Editor.Tests.Commands.Tags
 {
     [TestFixture]
     public class TagsGetCommandHandlerTests
@@ -55,7 +55,7 @@ namespace UniBridge.Editor.Tests.Commands.Tags
         [Test]
         public void Route_TagsAdd_AddsTagAndReturnsAddedTrue()
         {
-            var tagName = $"UnibridgeTag_{System.Guid.NewGuid():N}";
+            var tagName = $"ScenicTag_{System.Guid.NewGuid():N}";
             _createdTags.Add(tagName);
 
             var response = CommandRouter.Route(
@@ -80,7 +80,7 @@ namespace UniBridge.Editor.Tests.Commands.Tags
         [Test]
         public void Route_TagsAdd_WhenTagExists_ReturnsAddedFalse()
         {
-            var tagName = $"UnibridgeTag_{System.Guid.NewGuid():N}";
+            var tagName = $"ScenicTag_{System.Guid.NewGuid():N}";
             AddTag(tagName);
             _createdTags.Add(tagName);
 
@@ -103,7 +103,7 @@ namespace UniBridge.Editor.Tests.Commands.Tags
         [Test]
         public void Route_TagsRemove_RemovesTagAndReturnsRemovedTrue()
         {
-            var tagName = $"UnibridgeTag_{System.Guid.NewGuid():N}";
+            var tagName = $"ScenicTag_{System.Guid.NewGuid():N}";
             AddTag(tagName);
 
             var response = CommandRouter.Route(
@@ -126,7 +126,7 @@ namespace UniBridge.Editor.Tests.Commands.Tags
         [Test]
         public void Route_TagsRemove_WhenMissing_ReturnsRemovedFalse()
         {
-            var tagName = $"UnibridgeTag_{System.Guid.NewGuid():N}";
+            var tagName = $"ScenicTag_{System.Guid.NewGuid():N}";
             RemoveTag(tagName);
 
             var response = CommandRouter.Route(

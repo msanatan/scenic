@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using UnityEditor;
 
-namespace UniBridge.Editor.Commands.EditorState
+namespace Scenic.Editor.Commands.EditorState
 {
     internal static class EditorStateMode
     {

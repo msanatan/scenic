@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace UniBridge.Editor.Commands
+namespace Scenic.Editor.Commands
 {
     internal sealed class CommandRegistration
     {
@@ -42,7 +42,7 @@ namespace UniBridge.Editor.Commands
                     continue;
                 }
 
-                var attribute = type.GetCustomAttribute<UniBridgeCommandAttribute>();
+                var attribute = type.GetCustomAttribute<ScenicCommandAttribute>();
                 if (attribute == null || string.IsNullOrWhiteSpace(attribute.Name))
                 {
                     continue;

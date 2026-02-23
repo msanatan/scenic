@@ -5,7 +5,7 @@ import path from 'node:path'
 import { stateDir } from './hash.ts'
 import { findUnityProject, init, isPluginInstalled, parseUnityVersion } from './project.ts'
 
-const baseDir = '/tmp/unibridge-sdk-project-tests'
+const baseDir = '/tmp/scenic-sdk-project-tests'
 const testDir = `${baseDir}/test-unity-project`
 const testDirWithSpaces = `${baseDir}/test unity project`
 
@@ -72,19 +72,19 @@ describe('init', () => {
     assert.equal(result.executeEnabled, false)
 
     const manifest = JSON.parse(readFileSync(`${testDir}/Packages/manifest.json`, 'utf-8'))
-    assert.ok(manifest.dependencies['com.msanatan.unibridge'])
+    assert.ok(manifest.dependencies['com.msanatan.scenic'])
   })
 
   it('adds plugin with local source', async () => {
     const result = await init({
       projectPath: testDir,
-      source: { type: 'local', path: '../unibridge/unity' },
+      source: { type: 'local', path: '../scenic/unity' },
     })
     assert.equal(result.pluginSource, 'local')
     assert.equal(result.executeEnabled, false)
 
     const manifest = JSON.parse(readFileSync(`${testDir}/Packages/manifest.json`, 'utf-8'))
-    assert.equal(manifest.dependencies['com.msanatan.unibridge'], 'file:../unibridge/unity')
+    assert.equal(manifest.dependencies['com.msanatan.scenic'], 'file:../scenic/unity')
   })
 
   it('no-ops when plugin is already at correct version', async () => {

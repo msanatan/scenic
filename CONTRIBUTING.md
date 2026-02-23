@@ -1,6 +1,6 @@
-# Contributing to UniBridge
+# Contributing to Scenic
 
-Thanks for your interest in UniBridge. This document explains how contributions work here \- please read it before opening an issue or pull request.
+Thanks for your interest in Scenic. This document explains how contributions work here \- please read it before opening an issue or pull request.
 
 ## Motivation
 
@@ -27,7 +27,7 @@ PRs opened without a corresponding approved issue will be closed.
 
 ## Quality Standards
 
-UniBridge has a small, intentional codebase. Contributions need to meet the same bar as the rest of the project:
+Scenic has a small, intentional codebase. Contributions need to meet the same bar as the rest of the project:
 
 - **Understand the code you're changing.** Read the surrounding context. Follow existing patterns and conventions.
 - **Minimal dependencies** Speed and size are important to this repo, we do our best to add dependencies that are necessary, lightweight and well-maintained.

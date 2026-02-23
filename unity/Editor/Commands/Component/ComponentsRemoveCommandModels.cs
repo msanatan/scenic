@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor.Commands.Components
+namespace Scenic.Editor.Commands.Components
 {
     public sealed class ComponentsRemoveCommandParams
     {

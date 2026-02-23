@@ -1,7 +1,7 @@
 {
-  "name": "@unibridge/cli",
+  "name": "@scenicai/cli",
   "version": "1.0.0",
-  "description": "UniBridge is a CLI for interacting with the Unity Editor.",
+  "description": "Scenic is a CLI for interacting with the Unity Editor.",
   "main": "./dist/index.js",
   "scripts": {
     "test": "node --test src/*.test.ts src/**/*.test.ts",
@@ -9,7 +9,7 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "unibridge",
+    "scenic",
     "unity",
     "cli",
     "automation",
@@ -23,12 +23,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/msanatan/unibridge.git",
+    "url": "git+https://github.com/msanatan/scenic.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/msanatan/unibridge/tree/main/packages/cli",
+  "homepage": "https://github.com/msanatan/scenic/tree/main/packages/cli",
   "bugs": {
-    "url": "https://github.com/msanatan/unibridge/issues"
+    "url": "https://github.com/msanatan/scenic/issues"
   },
   "files": [
     "dist",
@@ -39,10 +39,10 @@
     "access": "public"
   },
   "bin": {
-    "unibridge": "./dist/index.js"
+    "scenic": "./dist/index.js"
   },
   "dependencies": {
-    "@unibridge/sdk": "1.0.0",
+    "@scenicai/sdk": "1.0.0",
     "commander": "^14.0.3"
   }
 }

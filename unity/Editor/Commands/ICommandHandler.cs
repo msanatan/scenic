@@ -1,4 +1,4 @@
-namespace UniBridge.Editor.Commands
+namespace Scenic.Editor.Commands
 {
     public interface ICommandHandler
     {

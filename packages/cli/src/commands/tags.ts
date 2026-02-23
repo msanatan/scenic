@@ -7,7 +7,7 @@ import type {
   TagsGetResult,
   TagsRemoveInput,
   TagsRemoveResult,
-} from '@unibridge/sdk'
+} from '@scenicai/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

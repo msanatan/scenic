@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Reflection;
-using UniBridge.Editor.Commands;
+using Scenic.Editor.Commands;
 
-namespace UniBridge.Editor
+namespace Scenic.Editor
 {
     public static class CSharpExecutor
     {

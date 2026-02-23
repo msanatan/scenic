@@ -1,7 +1,7 @@
 using NUnit.Framework;
-using UniBridge.Editor;
+using Scenic.Editor;
 
-namespace UniBridge.Editor.Tests.Commands.Test
+namespace Scenic.Editor.Tests.Commands.Test
 {
     [TestFixture]
     public class TestRunCommandHandlerTests

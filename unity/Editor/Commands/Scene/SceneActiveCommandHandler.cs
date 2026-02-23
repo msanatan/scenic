@@ -1,8 +1,8 @@
 using UnityEditor.SceneManagement;
 
-namespace UniBridge.Editor.Commands.Scene
+namespace Scenic.Editor.Commands.Scene
 {
-    [UniBridgeCommand("scene.active")]
+    [ScenicCommand("scene.active")]
     public sealed class SceneActiveCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

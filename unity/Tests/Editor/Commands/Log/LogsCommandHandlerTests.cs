@@ -1,12 +1,12 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.Logs;
+using Scenic.Editor;
+using Scenic.Editor.Commands.Logs;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace UniBridge.Editor.Tests.Commands.Logs
+namespace Scenic.Editor.Tests.Commands.Logs
 {
     [TestFixture]
     public class LogsCommandHandlerTests
@@ -14,7 +14,7 @@ namespace UniBridge.Editor.Tests.Commands.Logs
         [Test]
         public void Route_Logs_ReturnsPaginatedResult()
         {
-            Debug.Log("unibridge-logs-page-" + Guid.NewGuid());
+            Debug.Log("scenic-logs-page-" + Guid.NewGuid());
 
             var response = CommandRouter.Route(CreateRequest("logs-page", "{\"limit\":1,\"offset\":0}"), executeEnabled: true);
             Assert.IsTrue(response.Success);
@@ -30,8 +30,8 @@ namespace UniBridge.Editor.Tests.Commands.Logs
         [Test]
         public void Route_Logs_SeverityFilter_ReturnsMatchingSeverity()
         {
-            var warnMessage = "unibridge-logs-warn-" + Guid.NewGuid();
-            var errorMessage = "unibridge-logs-error-" + Guid.NewGuid();
+            var warnMessage = "scenic-logs-warn-" + Guid.NewGuid();
+            var errorMessage = "scenic-logs-error-" + Guid.NewGuid();
             LogAssert.Expect(LogType.Warning, warnMessage);
             LogAssert.Expect(LogType.Error, errorMessage);
             Debug.LogWarning(warnMessage);

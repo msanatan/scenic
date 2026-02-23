@@ -12,7 +12,7 @@ import type {
   ComponentsUpdateResult,
   ComponentsListQuery,
   ComponentsListResult,
-} from '@unibridge/sdk'
+} from '@scenicai/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

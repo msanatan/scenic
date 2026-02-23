@@ -6,7 +6,7 @@ import type {
   PrefabSaveInput,
   PrefabSaveResult,
   PrefabTransformSpace,
-} from '@unibridge/sdk'
+} from '@scenicai/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

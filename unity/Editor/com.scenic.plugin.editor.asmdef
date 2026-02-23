@@ -1,5 +1,5 @@
 {
-  "name": "com.msanatan.unibridge.editor",
+  "name": "com.msanatan.scenic.editor",
   "references": [
     "UnityEditor.TestRunner"
   ],

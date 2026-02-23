@@ -1,9 +1,9 @@
 using NUnit.Framework;
 using UnityEditor;
-using UniBridge.Editor;
-using UniBridge.Editor.Commands.Layers;
+using Scenic.Editor;
+using Scenic.Editor.Commands.Layers;
 
-namespace UniBridge.Editor.Tests.Commands.Layers
+namespace Scenic.Editor.Tests.Commands.Layers
 {
     [TestFixture]
     public class LayersGetCommandHandlerTests
@@ -50,7 +50,7 @@ namespace UniBridge.Editor.Tests.Commands.Layers
         [Test]
         public void Route_LayersAdd_AddsLayerAndReturnsAddedTrue()
         {
-            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            var name = $"ScenicLayer_{System.Guid.NewGuid():N}";
             _createdLayerName = name;
 
             var response = CommandRouter.Route(
@@ -75,7 +75,7 @@ namespace UniBridge.Editor.Tests.Commands.Layers
         [Test]
         public void Route_LayersAdd_WhenLayerExists_ReturnsAddedFalse()
         {
-            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            var name = $"ScenicLayer_{System.Guid.NewGuid():N}";
             AddLayer(name);
             _createdLayerName = name;
 
@@ -98,7 +98,7 @@ namespace UniBridge.Editor.Tests.Commands.Layers
         [Test]
         public void Route_LayersRemove_RemovesLayerAndReturnsRemovedTrue()
         {
-            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            var name = $"ScenicLayer_{System.Guid.NewGuid():N}";
             AddLayer(name);
 
             var response = CommandRouter.Route(
@@ -121,7 +121,7 @@ namespace UniBridge.Editor.Tests.Commands.Layers
         [Test]
         public void Route_LayersRemove_WhenMissing_ReturnsRemovedFalse()
         {
-            var name = $"UniBridgeLayer_{System.Guid.NewGuid():N}";
+            var name = $"ScenicLayer_{System.Guid.NewGuid():N}";
             RemoveLayerByName(name);
 
             var response = CommandRouter.Route(

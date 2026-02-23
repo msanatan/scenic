@@ -30,7 +30,7 @@ function canonicalizeProjectPath(projectPath: string): string {
 
 function stateDir(projectPath: string): string {
   const hash = createHash('sha256').update(canonicalizeProjectPath(projectPath)).digest('hex').slice(0, 12)
-  const baseDir = process.platform === 'win32' ? path.join(os.tmpdir(), 'unibridge') : '/tmp/unibridge'
+  const baseDir = process.platform === 'win32' ? path.join(os.tmpdir(), 'scenic') : '/tmp/scenic'
   return path.join(baseDir, hash)
 }
 
