@@ -71,8 +71,7 @@ namespace Scenic.Editor
             string hashOrDirectory,
             string projectPath,
             string pluginVersion = "0.0.0",
-            int protocolVersion = 1,
-            bool executeEnabled = false)
+            int protocolVersion = 1)
         {
             var directory = ResolveStateDirectory(hashOrDirectory);
             EnsureStateDirectory(directory);
@@ -83,7 +82,6 @@ namespace Scenic.Editor
                 unityVersion = UnityEngine.Application.unityVersion,
                 pluginVersion,
                 protocolVersion,
-                capabilities = new { executeEnabled },
                 projectPath,
             });
 
@@ -103,21 +101,37 @@ namespace Scenic.Editor
         public static bool ReadExecuteEnabled(string hashOrDirectory)
         {
             var directory = ResolveStateDirectory(hashOrDirectory);
-            var path = Path.Combine(directory, "server.json");
-            if (!File.Exists(path))
+
+            var configPath = Path.Combine(directory, "config.json");
+            if (File.Exists(configPath))
             {
-                return false;
+                try
+                {
+                    var json = JObject.Parse(File.ReadAllText(configPath));
+                    return json["executeEnabled"]?.Value<bool>() == true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
 
-            try
+            // Fallback: read from server.json for backward compat with older CLI/SDK
+            var legacyPath = Path.Combine(directory, "server.json");
+            if (File.Exists(legacyPath))
             {
-                var json = JObject.Parse(File.ReadAllText(path));
-                return json["capabilities"]?["executeEnabled"]?.Value<bool>() == true;
+                try
+                {
+                    var json = JObject.Parse(File.ReadAllText(legacyPath));
+                    return json["capabilities"]?["executeEnabled"]?.Value<bool>() == true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
-            catch
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public static string CurrentStateDirectory()

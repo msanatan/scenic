@@ -43,9 +43,6 @@ export interface ServerMetadata {
   unityVersion: string
   pluginVersion: string
   protocolVersion: number
-  capabilities?: {
-    executeEnabled?: boolean
-  }
   projectPath?: string
 }
 

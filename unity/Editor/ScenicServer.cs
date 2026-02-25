@@ -41,7 +41,6 @@ namespace Scenic.Editor
                 _projectHash,
                 projectPath,
                 protocolVersion: 1,
-                executeEnabled: _settings.ExecuteEnabled,
                 pluginVersion: pluginVersion);
 
             _server = new PipeServer(_projectHash);

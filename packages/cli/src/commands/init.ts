@@ -1,6 +1,11 @@
 import type { Command } from 'commander'
-import { init as sdkInit, type InitOptions, type InitResult } from '@scenicai/sdk'
-import { readExecuteEnabled, writeExecuteEnabled } from '../execute-config.ts'
+import {
+  init as sdkInit,
+  readExecuteEnabled,
+  writeExecuteEnabled,
+  type InitOptions,
+  type InitResult,
+} from '@scenicai/sdk'
 import { getGlobalOptions } from '../options.ts'
 import { runWithOutput } from './output.ts'
 

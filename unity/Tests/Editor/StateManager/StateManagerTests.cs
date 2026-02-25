@@ -61,7 +61,7 @@ namespace Scenic.Editor.Tests
         }
 
         [Test]
-        public void ReadExecuteEnabled_ReturnsFalse_WhenServerJsonMissing()
+        public void ReadExecuteEnabled_ReturnsFalse_WhenNoFilesExist()
         {
             Assert.IsFalse(StateManager.ReadExecuteEnabled(_testDir));
         }
@@ -69,16 +69,32 @@ namespace Scenic.Editor.Tests
         [Test]
         public void ReadExecuteEnabled_ReturnsTrue_WhenEnabled()
         {
-            StateManager.WriteServerJson(_testDir, "/Users/me/MyGame", executeEnabled: true);
+            var configPath = Path.Combine(_testDir, "config.json");
+            File.WriteAllText(configPath, "{\"executeEnabled\":true}");
             Assert.IsTrue(StateManager.ReadExecuteEnabled(_testDir));
         }
 
         [Test]
-        public void ReadExecuteEnabled_ReturnsFalse_WhenCapabilitiesMissing()
+        public void ReadExecuteEnabled_ReturnsFalse_WhenConfigDisabled()
         {
-            var path = Path.Combine(_testDir, "server.json");
-            File.WriteAllText(path, "{\"pid\":12345,\"projectPath\":\"/Users/me/MyGame\"}");
+            var configPath = Path.Combine(_testDir, "config.json");
+            File.WriteAllText(configPath, "{\"executeEnabled\":false}");
+            Assert.IsFalse(StateManager.ReadExecuteEnabled(_testDir));
+        }
 
+        [Test]
+        public void ReadExecuteEnabled_FallsBackToServerJson_WhenConfigMissing()
+        {
+            var serverPath = Path.Combine(_testDir, "server.json");
+            File.WriteAllText(serverPath, "{\"capabilities\":{\"executeEnabled\":true}}");
+            Assert.IsTrue(StateManager.ReadExecuteEnabled(_testDir));
+        }
+
+        [Test]
+        public void ReadExecuteEnabled_ReturnsFalse_WhenLegacyLacksCapabilities()
+        {
+            var serverPath = Path.Combine(_testDir, "server.json");
+            File.WriteAllText(serverPath, "{\"pid\":12345,\"projectPath\":\"/Users/me/MyGame\"}");
             Assert.IsFalse(StateManager.ReadExecuteEnabled(_testDir));
         }
     }

@@ -17,9 +17,9 @@ function createFakeProject(path: string, version = '2022.3.10f1') {
   writeFileSync(`${path}/Packages/manifest.json`, JSON.stringify({ dependencies: {} }, null, 2))
 }
 
-function readServerJson(projectPath: string): { capabilities?: { executeEnabled?: boolean } } {
-  return JSON.parse(readFileSync(path.join(stateDir(projectPath), 'server.json'), 'utf-8')) as {
-    capabilities?: { executeEnabled?: boolean }
+function readConfigJson(projectPath: string): { executeEnabled?: boolean } {
+  return JSON.parse(readFileSync(path.join(stateDir(projectPath), 'config.json'), 'utf-8')) as {
+    executeEnabled?: boolean
   }
 }
 
@@ -96,16 +96,16 @@ describe('init', () => {
 
   it('writes executeEnabled false by default', async () => {
     await init({ projectPath: testDir })
-    const serverJson = readServerJson(testDir)
-    assert.equal(serverJson.capabilities?.executeEnabled, false)
+    const configJson = readConfigJson(testDir)
+    assert.equal(configJson.executeEnabled, false)
   })
 
   it('writes executeEnabled true when enabled explicitly', async () => {
     const result = await init({ projectPath: testDir, enableExecute: true })
     assert.equal(result.executeEnabled, true)
 
-    const serverJson = readServerJson(testDir)
-    assert.equal(serverJson.capabilities?.executeEnabled, true)
+    const configJson = readConfigJson(testDir)
+    assert.equal(configJson.executeEnabled, true)
   })
 
   it('preserves executeEnabled when re-running init without explicit option', async () => {
@@ -113,8 +113,8 @@ describe('init', () => {
     const second = await init({ projectPath: testDir })
     assert.equal(second.executeEnabled, true)
 
-    const serverJson = readServerJson(testDir)
-    assert.equal(serverJson.capabilities?.executeEnabled, true)
+    const configJson = readConfigJson(testDir)
+    assert.equal(configJson.executeEnabled, true)
   })
 })
 

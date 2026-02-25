@@ -1,6 +1,5 @@
 import type { Command } from 'commander'
-import { createClient } from '@scenicai/sdk'
-import { readExecuteEnabled } from '../execute-config.ts'
+import { createClient, readExecuteEnabled } from '@scenicai/sdk'
 import { getGlobalOptions } from '../options.ts'
 import { resolveCommandProject } from '../preflight.ts'
 

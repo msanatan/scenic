@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { PipeConnection } from './connection.ts'
+import { readExecuteEnabled } from './config.ts'
 import { pipePath } from './hash.ts'
 import { findUnityProject } from './project.ts'
 import type { ClientOptions, CommandResponse, ScenicClient } from './types.ts'
@@ -55,9 +56,7 @@ export function createClient(options: ClientOptions = {}): ScenicClient {
       throw new ScenicError('Execute is disabled by client or plugin configuration.')
     }
 
-    const metadata = connection.serverMetadata()
-    const serverExecuteEnabled = metadata?.capabilities?.executeEnabled ?? false
-    if (!serverExecuteEnabled) {
+    if (!readExecuteEnabled(projectPath)) {
       throw new ScenicError('Execute is disabled by client or plugin configuration.')
     }
   }

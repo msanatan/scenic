@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { afterEach, beforeEach, describe, it } from 'node:test'
-import { readExecuteEnabled } from './execute-config.ts'
+import { readExecuteEnabled } from '@scenicai/sdk'
 
 const fixtureRoot = '/tmp/scenic-cli-init-integration'
 const projectPath = join(fixtureRoot, 'My Game')
