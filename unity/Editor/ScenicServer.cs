@@ -67,13 +67,30 @@ namespace Scenic.Editor
 
                 if (TryGetCachedResponse(request.Id, out var cachedResponse))
                 {
-                    _server.Send(cachedResponse);
+                    try
+                    {
+                        _server.Send(cachedResponse);
+                        UnityEngine.Debug.Log($"Sent cached response for id: {request.Id}");
+                    }
+                    catch (System.Exception ex)
+                    {
+                        UnityEngine.Debug.LogError($"Failed to send cached response for id: {request.Id}. {ex.Message}");
+                    }
                     continue;
                 }
 
                 var response = CommandRouter.Route(request, _settings.ExecuteEnabled);
                 CacheResponse(response);
-                _server.Send(response);
+                UnityEngine.Debug.Log($"Completed command: {request.Command} id: {request.Id} success: {response.Success}");
+
+                try
+                {
+                    _server.Send(response);
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"Failed to send response for command id: {request.Id}. {ex.Message}");
+                }
             }
         }
 
