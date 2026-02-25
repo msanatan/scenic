@@ -81,4 +81,10 @@ Run commands with JSON output:
 scenic --json status
 ```
 
+List installed Unity packages (including indirect dependencies):
+
+```bash
+scenic packages get --include-indirect --limit 50 --offset 0
+```
+
 Learn more about Scenic [here](https://github.com/msanatan/scenic).

@@ -70,6 +70,7 @@ Scenic gives you programmatic control over the Unity Editor from the command lin
 | **Editor Control** | Start, pause, and stop Unity play mode. |
 | **Domain Reload** | Trigger an asset refresh and domain reload on demand. |
 | **Logs** | Read Unity Editor console logs, filtered by severity (info, warn, error). |
+| **Packages (UPM)** | List installed Unity packages with pagination, optional indirect dependencies, and search by name/display name. |
 | **Tests** | List and run Unity Test Framework tests in edit or play mode, with name filtering. |
 | **Layers & Tags** | Inspect, add, and remove project layers and tags. Built-in layers and tags are protected. |
 | **Execute** | Run arbitrary C# code in the Unity Editor. Disabled by default; opt in with `scenic init --enable-execute`. |
