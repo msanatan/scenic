@@ -87,7 +87,17 @@ namespace Scenic.Editor
                 projectPath,
             });
 
-            File.WriteAllText(Path.Combine(directory, "server.json"), payload);
+            var target = Path.Combine(directory, "server.json");
+            var temp = target + ".tmp";
+            File.WriteAllText(temp, payload);
+            if (File.Exists(target))
+            {
+                File.Replace(temp, target, null);
+            }
+            else
+            {
+                File.Move(temp, target);
+            }
         }
 
         public static bool ReadExecuteEnabled(string hashOrDirectory)
