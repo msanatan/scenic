@@ -16,6 +16,11 @@ namespace Scenic.Editor
 
         static ScenicServer()
         {
+            if (Application.isBatchMode)
+            {
+                return;
+            }
+
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeReload;
             EditorApplication.quitting += OnQuit;
             EditorApplication.update += ProcessCommandQueue;
