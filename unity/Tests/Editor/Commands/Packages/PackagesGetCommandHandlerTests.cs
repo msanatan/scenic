@@ -113,5 +113,62 @@ namespace Scenic.Editor.Tests.Commands.Packages
                 Assert.IsTrue(matchesName || matchesDisplayName);
             }
         }
+
+        [Test]
+        public void Route_PackagesAdd_WhenPackageAlreadyInstalled_ReturnsAddedFalse()
+        {
+            var baselineResponse = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "packages-add-baseline",
+                    Command = "packages.get",
+                    ParamsJson = "{\"limit\":200,\"offset\":0,\"includeIndirect\":false}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(baselineResponse.Success);
+            var baseline = baselineResponse.Result as PackagesGetCommandResult;
+            Assert.IsNotNull(baseline);
+            Assert.Greater(baseline.Packages.Length, 0);
+
+            var existingName = baseline.Packages[0].Name;
+            var addResponse = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "packages-add-existing",
+                    Command = "packages.add",
+                    ParamsJson = $"{{\"name\":\"{existingName}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(addResponse.Success);
+            var result = addResponse.Result as PackagesAddCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Added);
+            Assert.AreEqual(existingName, result.Package.Name);
+            Assert.Greater(result.Total, 0);
+        }
+
+        [Test]
+        public void Route_PackagesRemove_WhenPackageMissing_ReturnsRemovedFalse()
+        {
+            var missingName = $"com.scenic.missing.{Guid.NewGuid():N}";
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "packages-remove-missing",
+                    Command = "packages.remove",
+                    ParamsJson = $"{{\"name\":\"{missingName}\"}}",
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            var result = response.Result as PackagesRemoveCommandResult;
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Removed);
+            Assert.AreEqual(missingName, result.Package.Name);
+            Assert.AreEqual(missingName, result.Package.DisplayName);
+            Assert.GreaterOrEqual(result.Total, 0);
+        }
     }
 }

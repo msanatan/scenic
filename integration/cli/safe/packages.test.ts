@@ -104,4 +104,55 @@ describe('CLI: packages', () => {
       assert.equal(inName || inDisplayName, true)
     }
   })
+
+  it('adds an already-installed package idempotently', async () => {
+    const baselinePayload = (await runCli('packages', 'get', '--limit', '200', '--offset', '0')) as {
+      success: boolean
+      result?: {
+        packages: Array<{ name: string }>
+      }
+      error?: string
+    }
+
+    assert.equal(baselinePayload.success, true)
+    assert.ok((baselinePayload.result?.packages.length ?? 0) > 0)
+    const existingName = baselinePayload.result?.packages[0].name ?? ''
+    assert.ok(existingName.length > 0)
+
+    const addPayload = (await runCli('packages', 'add', existingName)) as {
+      success: boolean
+      result?: {
+        package: { name: string }
+        added: boolean
+        total: number
+      }
+      error?: string
+    }
+
+    assert.equal(addPayload.success, true)
+    assert.equal(addPayload.result?.added, false)
+    assert.equal(addPayload.result?.package.name, existingName)
+    assert.equal(typeof addPayload.result?.total, 'number')
+    assert.ok((addPayload.result?.total ?? 0) > 0)
+  })
+
+  it('removes a missing package idempotently', async () => {
+    const missingName = `com.scenic.missing.${Date.now()}`
+    const removePayload = (await runCli('packages', 'remove', missingName)) as {
+      success: boolean
+      result?: {
+        package: { name: string; displayName: string }
+        removed: boolean
+        total: number
+      }
+      error?: string
+    }
+
+    assert.equal(removePayload.success, true)
+    assert.equal(removePayload.result?.removed, false)
+    assert.equal(removePayload.result?.package.name, missingName)
+    assert.equal(removePayload.result?.package.displayName, missingName)
+    assert.equal(typeof removePayload.result?.total, 'number')
+    assert.ok((removePayload.result?.total ?? 0) >= 0)
+  })
 })

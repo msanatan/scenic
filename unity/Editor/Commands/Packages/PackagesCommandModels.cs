@@ -22,6 +22,50 @@ namespace Scenic.Editor.Commands.Packages
         }
     }
 
+    public sealed class PackagesAddCommandParams
+    {
+        public string Name;
+        public string Version;
+
+        public static PackagesAddCommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var name = CommandModelHelpers.ReadOptionalString(payload, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new CommandHandlingException("params.name is required.");
+            }
+
+            var version = CommandModelHelpers.ReadOptionalString(payload, "version");
+
+            return new PackagesAddCommandParams
+            {
+                Name = name.Trim(),
+                Version = string.IsNullOrWhiteSpace(version) ? null : version.Trim(),
+            };
+        }
+    }
+
+    public sealed class PackagesRemoveCommandParams
+    {
+        public string Name;
+
+        public static PackagesRemoveCommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+            var name = CommandModelHelpers.ReadOptionalString(payload, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new CommandHandlingException("params.name is required.");
+            }
+
+            return new PackagesRemoveCommandParams
+            {
+                Name = name.Trim(),
+            };
+        }
+    }
+
     public sealed class PackageItem
     {
         [JsonProperty("name")]
@@ -53,5 +97,29 @@ namespace Scenic.Editor.Commands.Packages
 
         [JsonProperty("offset")]
         public int Offset;
+    }
+
+    public sealed class PackagesAddCommandResult
+    {
+        [JsonProperty("package")]
+        public PackageItem Package;
+
+        [JsonProperty("added")]
+        public bool Added;
+
+        [JsonProperty("total")]
+        public int Total;
+    }
+
+    public sealed class PackagesRemoveCommandResult
+    {
+        [JsonProperty("package")]
+        public PackageItem Package;
+
+        [JsonProperty("removed")]
+        public bool Removed;
+
+        [JsonProperty("total")]
+        public int Total;
     }
 }

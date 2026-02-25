@@ -34,8 +34,6 @@ const client = createClient({ projectPath: '/path/to/UnityProject' })
 try {
   const status = await client.status()
   console.log('Unity status:', status)
-  const packages = await client.packagesGet({ includeIndirect: true, limit: 20, offset: 0 })
-  console.log('Installed packages:', packages.total)
 
   // Ensure Player tag exists, then create a simple tagged player body.
   await client.tagsAdd({ name: 'Player' })

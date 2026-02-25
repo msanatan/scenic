@@ -35,5 +35,49 @@ export const packagesGetCommand = defineCommand({
   result: PackagesGetResultSchema,
 })
 
+export const PackagesAddInputSchema = v.object({
+  name: v.string(),
+  version: v.optional(v.string()),
+})
+
+export const PackagesAddResultSchema = v.object({
+  package: PackageItemSchema,
+  added: v.boolean(),
+  total: v.number(),
+})
+
+export const packagesAddCommand = defineCommand({
+  method: 'packagesAdd',
+  wire: 'packages.add',
+  params: (input: PackagesAddInput) => ({
+    name: input.name,
+    version: input.version,
+  }),
+  result: PackagesAddResultSchema,
+})
+
+export const PackagesRemoveInputSchema = v.object({
+  name: v.string(),
+})
+
+export const PackagesRemoveResultSchema = v.object({
+  package: PackageItemSchema,
+  removed: v.boolean(),
+  total: v.number(),
+})
+
+export const packagesRemoveCommand = defineCommand({
+  method: 'packagesRemove',
+  wire: 'packages.remove',
+  params: (input: PackagesRemoveInput) => ({
+    name: input.name,
+  }),
+  result: PackagesRemoveResultSchema,
+})
+
 export type PackageItem = v.InferOutput<typeof PackageItemSchema>
 export type PackagesGetResult = InferResult<typeof packagesGetCommand>
+export type PackagesAddInput = v.InferOutput<typeof PackagesAddInputSchema>
+export type PackagesAddResult = InferResult<typeof packagesAddCommand>
+export type PackagesRemoveInput = v.InferOutput<typeof PackagesRemoveInputSchema>
+export type PackagesRemoveResult = InferResult<typeof packagesRemoveCommand>

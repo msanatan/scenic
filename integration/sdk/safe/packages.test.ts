@@ -60,4 +60,26 @@ describe('SDK: packages', () => {
       assert.equal(inName || inDisplayName, true)
     }
   })
+
+  it('adds an already-installed package idempotently', async () => {
+    const baseline = await client.packagesGet({ limit: 200, offset: 0, includeIndirect: false })
+    assert.ok(baseline.packages.length > 0)
+    const existing = baseline.packages[0]
+
+    const result = await client.packagesAdd({ name: existing.name })
+    assert.equal(result.added, false)
+    assert.equal(result.package.name, existing.name)
+    assert.equal(typeof result.total, 'number')
+    assert.ok(result.total > 0)
+  })
+
+  it('removes a missing package idempotently', async () => {
+    const missingName = `com.scenic.missing.${Date.now()}`
+    const result = await client.packagesRemove({ name: missingName })
+    assert.equal(result.removed, false)
+    assert.equal(result.package.name, missingName)
+    assert.equal(result.package.displayName, missingName)
+    assert.equal(typeof result.total, 'number')
+    assert.ok(result.total >= 0)
+  })
 })

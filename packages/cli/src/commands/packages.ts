@@ -1,5 +1,13 @@
 import type { Command } from 'commander'
-import type { PackageItem, PackagesGetQuery, PackagesGetResult } from '@scenicai/sdk'
+import type {
+  PackageItem,
+  PackagesAddInput,
+  PackagesAddResult,
+  PackagesGetQuery,
+  PackagesGetResult,
+  PackagesRemoveInput,
+  PackagesRemoveResult,
+} from '@scenicai/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
@@ -12,6 +20,22 @@ interface PackagesGetOptions {
 
 interface PackagesGetDeps {
   get: (query?: PackagesGetQuery) => Promise<PackagesGetResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface PackagesAddOptions {
+  version?: string
+}
+
+interface PackagesAddDeps {
+  add: (input: PackagesAddInput) => Promise<PackagesAddResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+interface PackagesRemoveDeps {
+  remove: (input: PackagesRemoveInput) => Promise<PackagesRemoveResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
 }
@@ -67,6 +91,55 @@ export async function handlePackagesGet(
   )
 }
 
+export async function handlePackagesAdd(
+  name: string,
+  opts: PackagesAddOptions,
+  jsonOutput: boolean,
+  deps: PackagesAddDeps,
+): Promise<void> {
+  const trimmedName = name.trim()
+  if (trimmedName.length === 0) {
+    throw new Error('Package name is required.')
+  }
+
+  const version = opts.version?.trim()
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.add({
+      name: trimmedName,
+      version: version == null || version.length === 0 ? undefined : version,
+    }),
+    (result, output) => {
+      output.log(`Package: ${formatPackage(result.package)}`)
+      output.log(`Added: ${result.added ? 'yes' : 'no'}`)
+      output.log(`Total: ${result.total}`)
+    },
+  )
+}
+
+export async function handlePackagesRemove(
+  name: string,
+  jsonOutput: boolean,
+  deps: PackagesRemoveDeps,
+): Promise<void> {
+  const trimmedName = name.trim()
+  if (trimmedName.length === 0) {
+    throw new Error('Package name is required.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.remove({ name: trimmedName }),
+    (result, output) => {
+      output.log(`Package: ${formatPackage(result.package)}`)
+      output.log(`Removed: ${result.removed ? 'yes' : 'no'}`)
+      output.log(`Total: ${result.total}`)
+    },
+  )
+}
+
 export function registerPackages(program: Command): void {
   const packages = program
     .command('packages')
@@ -86,6 +159,45 @@ export function registerPackages(program: Command): void {
         async (client, ctx) => {
           await handlePackagesGet(opts, ctx.jsonOutput, {
             get: (query) => client.packagesGet(query),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  packages
+    .command('add <name>')
+    .description('Add a Unity package by name (idempotent); optionally pin a version')
+    .option('--version <version>', 'Specific package version to add')
+    .action(async (name: string, opts: PackagesAddOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handlePackagesAdd(name, opts, ctx.jsonOutput, {
+            add: (input) => client.packagesAdd(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  packages
+    .command('remove <name>')
+    .description('Remove a direct Unity package dependency by name (idempotent)')
+    .action(async (name: string, _opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handlePackagesRemove(name, ctx.jsonOutput, {
+            remove: (input) => client.packagesRemove(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode
