@@ -1,0 +1,52 @@
+using NUnit.Framework;
+using Scenic.Editor;
+using Scenic.Editor.Commands.{{Namespace}};
+
+namespace Scenic.Editor.Tests.Commands.{{Namespace}}
+{
+    [TestFixture]
+    public class {{Namespace}}{{Action}}CommandHandlerTests
+    {
+        [TearDown]
+        public void TearDown()
+        {
+            // TODO: Clean up any created resources
+        }
+
+        [Test]
+        public void Route_{{SdkMethod}}_SuccessPath()
+        {
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "test-{{namespace}}-{{action}}",
+                    Command = "{{wireCommand}}",
+                    ParamsJson = "{}", // TODO: Add valid params JSON
+                },
+                executeEnabled: true);
+
+            Assert.IsTrue(response.Success);
+            Assert.AreEqual("test-{{namespace}}-{{action}}", response.Id);
+
+            var result = response.Result as {{Namespace}}{{Action}}CommandResult;
+            Assert.IsNotNull(result);
+            // TODO: Assert result fields
+        }
+
+        [Test]
+        public void Route_{{SdkMethod}}_ValidationError()
+        {
+            var response = CommandRouter.Route(
+                new CommandRequest
+                {
+                    Id = "test-{{namespace}}-{{action}}-err",
+                    Command = "{{wireCommand}}",
+                    ParamsJson = "{}", // TODO: Add params that trigger validation error
+                },
+                executeEnabled: true);
+
+            Assert.IsFalse(response.Success);
+            // TODO: Assert error message
+        }
+    }
+}

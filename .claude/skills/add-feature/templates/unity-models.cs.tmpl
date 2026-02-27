@@ -1,0 +1,29 @@
+using Newtonsoft.Json;
+
+namespace Scenic.Editor.Commands.{{Namespace}}
+{
+    public sealed class {{Namespace}}{{Action}}CommandParams
+    {
+        // TODO: Add parameter fields with [JsonProperty] attributes
+
+        public static {{Namespace}}{{Action}}CommandParams From(CommandRequest request)
+        {
+            var payload = CommandModelHelpers.ParsePayload(request);
+
+            // TODO: Parse and validate fields from payload
+
+            return new {{Namespace}}{{Action}}CommandParams
+            {
+                // TODO: Assign parsed fields
+            };
+        }
+    }
+
+    public sealed class {{Namespace}}{{Action}}CommandResult
+    {
+        // TODO: Add result fields with [JsonProperty] attributes
+        // Example:
+        // [JsonProperty("fieldName")]
+        // public string FieldName;
+    }
+}

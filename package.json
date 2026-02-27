@@ -22,7 +22,8 @@
     "test:integration:cli:reload": "node --test --test-concurrency=1 'integration/cli/reload/*.test.ts'",
     "test:local": "npm run build && npm run test",
     "smoke:execute": "node packages/cli/dist/index.js execute -p \"TestProjects/Scenic3Dv6.3\" \"UnityEngine.Debug.Log(\\\"scenic smoke test\\\");\"",
-    "bump": "node scripts/bump-version.ts"
+    "bump": "node scripts/bump-version.ts",
+    "scaffold": "node scripts/scaffold-command.ts"
   },
   "repository": {
     "type": "git",

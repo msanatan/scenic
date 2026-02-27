@@ -1,0 +1,21 @@
+
+export const {{SdkMethod}}InputSchema = v.object({
+  // TODO: Define input fields
+})
+
+export const {{SdkMethod}}ResultSchema = v.object({
+  // TODO: Define result fields
+})
+
+export const {{sdkMethod}}Command = defineCommand({
+  method: '{{sdkMethod}}',
+  wire: '{{wireCommand}}',
+  params: (input: {{SdkMethod}}Input) => ({
+    // TODO: Map input fields to wire params
+  }),
+  result: {{SdkMethod}}ResultSchema,{{guard}}
+})
+
+export type {{SdkMethod}}Input = v.InferOutput<typeof {{SdkMethod}}InputSchema>
+export type {{SdkMethod}}Result = InferResult<typeof {{sdkMethod}}Command>
+// --- end ---

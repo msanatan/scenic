@@ -1,0 +1,23 @@
+
+interface {{SdkMethod}}Deps {
+  {{sdkMethod}}: (input: {{SdkMethod}}Input) => Promise<{{SdkMethod}}Result>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+export async function handle{{SdkMethod}}(
+  jsonOutput: boolean,
+  deps: {{SdkMethod}}Deps,
+): Promise<void> {
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.{{sdkMethod}}({
+      // TODO: Pass parsed options to SDK input
+    }),
+    (result, output) => {
+      // TODO: Format human-readable output
+      output.log(JSON.stringify(result, null, 2))
+    },
+  )
+}

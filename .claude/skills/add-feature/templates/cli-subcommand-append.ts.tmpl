@@ -1,0 +1,21 @@
+
+  group
+    .command('{{action}}')
+    .description('TODO: Description for {{wireCommand}}')
+    // TODO: Add .option() and .argument() calls
+    .action(async (_opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handle{{SdkMethod}}(ctx.jsonOutput, {
+            {{sdkMethod}}: (input) => client.{{sdkMethod}}(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+  // ADD_ACTION: subcommand

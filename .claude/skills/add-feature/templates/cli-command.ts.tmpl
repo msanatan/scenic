@@ -1,0 +1,57 @@
+import type { Command } from 'commander'
+import type {
+  {{SdkMethod}}Input,
+  {{SdkMethod}}Result,
+} from '@scenicai/sdk'
+import { runWithOutput } from './output.ts'
+import { withUnityClient } from './with-unity-client.ts'
+
+interface {{SdkMethod}}Deps {
+  {{sdkMethod}}: (input: {{SdkMethod}}Input) => Promise<{{SdkMethod}}Result>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+export async function handle{{SdkMethod}}(
+  jsonOutput: boolean,
+  deps: {{SdkMethod}}Deps,
+): Promise<void> {
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.{{sdkMethod}}({
+      // TODO: Pass parsed options to SDK input
+    }),
+    (result, output) => {
+      // TODO: Format human-readable output
+      output.log(JSON.stringify(result, null, 2))
+    },
+  )
+}
+
+export function register{{Namespace}}(program: Command): void {
+  const group = program
+    .command('{{namespace}}')
+    .description('TODO: Description for {{namespace}} commands')
+
+  group
+    .command('{{action}}')
+    .description('TODO: Description for {{wireCommand}}')
+    // TODO: Add .option() and .argument() calls
+    .action(async (_opts: Record<string, never>, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handle{{SdkMethod}}(ctx.jsonOutput, {
+            {{sdkMethod}}: (input) => client.{{sdkMethod}}(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+  // ADD_ACTION: subcommand
+}

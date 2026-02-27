@@ -1,0 +1,24 @@
+import { describe, it, before, after } from 'node:test'
+import assert from 'node:assert/strict'
+import type { ScenicClient } from '../../../packages/sdk/src/index.ts'
+import { createTestClient } from '../../helpers/sdk-client.ts'
+
+describe('SDK: {{namespace}}', () => {
+  let client: ScenicClient
+
+  before(() => {
+    client = createTestClient()
+  })
+  after(() => {
+    // TODO: Clean up any resources created during tests
+    client.close()
+  })
+
+  it('TODO: {{sdkMethod}} — describe expected behavior', async () => {
+    // TODO: Call client.{{sdkMethod}}(...) and assert result
+    const result = await client.{{sdkMethod}}(/* TODO: input */)
+    assert.ok(result)
+    // TODO: Assert specific fields
+  })
+  // ADD_ACTION: test
+})
