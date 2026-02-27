@@ -10,6 +10,7 @@ import { registerExecute } from './commands/execute.ts'
 import { registerGameObject } from './commands/gameobject.ts'
 import { registerLayers } from './commands/layers.ts'
 import { registerLogs } from './commands/logs.ts'
+import { registerMaterial } from './commands/material.ts'
 import { registerPackages } from './commands/packages.ts'
 import { registerPrefab } from './commands/prefab.ts'
 import { registerStatus } from './commands/status.ts'
@@ -38,6 +39,7 @@ registerExecute(program)
 registerGameObject(program)
 registerLayers(program)
 registerLogs(program)
+registerMaterial(program)
 registerPackages(program)
 registerPrefab(program)
 registerStatus(program)
