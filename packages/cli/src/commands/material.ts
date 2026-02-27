@@ -8,6 +8,7 @@ import type {
   MaterialAssignResult,
 } from '@scenicai/sdk'
 import { runWithOutput } from './output.ts'
+import { parseOptionalInt } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
 interface MaterialCreateDeps {
@@ -89,19 +90,6 @@ interface MaterialAssignDeps {
   materialAssign: (input: MaterialAssignInput) => Promise<MaterialAssignResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
-}
-
-function parseOptionalInt(value: string | undefined, label: string): number | undefined {
-  if (value == null) {
-    return undefined
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isInteger(parsed)) {
-    throw new Error(`${label} must be an integer.`)
-  }
-
-  return parsed
 }
 
 export async function handleMaterialAssign(
