@@ -51,4 +51,39 @@ export const materialGetCommand = defineCommand({
 export type MaterialGetInput = v.InferOutput<typeof MaterialGetInputSchema>
 export type MaterialGetResult = InferResult<typeof materialGetCommand>
 export type MaterialSummary = v.InferOutput<typeof MaterialSummarySchema>
+
+export const MaterialAssignInputSchema = v.object({
+  path: v.optional(v.string()),
+  instanceId: v.optional(v.number()),
+  assetPath: v.string(),
+  rendererIndex: v.optional(v.number()),
+  slot: v.optional(v.number()),
+})
+
+export const MaterialAssignResultSchema = v.object({
+  targetPath: v.string(),
+  targetInstanceId: v.number(),
+  rendererType: v.string(),
+  rendererIndex: v.number(),
+  rendererInstanceId: v.number(),
+  slot: v.number(),
+  material: MaterialSummarySchema,
+})
+
+export const materialAssignCommand = defineCommand({
+  method: 'materialAssign',
+  wire: 'material.assign',
+  params: (input: MaterialAssignInput) => ({
+    path: input.path,
+    instanceId: input.instanceId,
+    assetPath: input.assetPath,
+    rendererIndex: input.rendererIndex,
+    slot: input.slot,
+  }),
+  result: MaterialAssignResultSchema,
+  guard: 'execute',
+})
+
+export type MaterialAssignInput = v.InferOutput<typeof MaterialAssignInputSchema>
+export type MaterialAssignResult = InferResult<typeof materialAssignCommand>
 // --- end ---

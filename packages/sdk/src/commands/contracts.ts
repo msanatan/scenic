@@ -45,6 +45,8 @@ export type {
 } from './layer/contract.ts'
 export type { LogEntry, LogsQuery, LogsResult, LogsSeverity } from './log/contract.ts'
 export type {
+  MaterialAssignInput,
+  MaterialAssignResult,
   MaterialCreateInput,
   MaterialCreateResult,
   MaterialGetInput,

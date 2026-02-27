@@ -4,6 +4,8 @@ import type {
   MaterialCreateResult,
   MaterialGetInput,
   MaterialGetResult,
+  MaterialAssignInput,
+  MaterialAssignResult,
 } from '@scenicai/sdk'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
@@ -53,6 +55,14 @@ interface MaterialGetDeps {
   exit?: (code: number) => void
 }
 
+interface MaterialAssignOptions {
+  path?: string
+  instanceId?: string
+  assetPath?: string
+  rendererIndex?: string
+  slot?: string
+}
+
 export async function handleMaterialGet(
   assetPath: string,
   jsonOutput: boolean,
@@ -75,10 +85,75 @@ export async function handleMaterialGet(
   )
 }
 
+interface MaterialAssignDeps {
+  materialAssign: (input: MaterialAssignInput) => Promise<MaterialAssignResult>
+  console: Pick<Console, 'log' | 'error'>
+  exit?: (code: number) => void
+}
+
+function parseOptionalInt(value: string | undefined, label: string): number | undefined {
+  if (value == null) {
+    return undefined
+  }
+
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isInteger(parsed)) {
+    throw new Error(`${label} must be an integer.`)
+  }
+
+  return parsed
+}
+
+export async function handleMaterialAssign(
+  opts: MaterialAssignOptions,
+  jsonOutput: boolean,
+  deps: MaterialAssignDeps,
+): Promise<void> {
+  const instanceId = parseOptionalInt(opts.instanceId, '--instance-id')
+  const path = opts.path
+  if ((path == null || path.trim().length === 0) && instanceId == null) {
+    throw new Error('Provide target via --path or --instance-id.')
+  }
+  if (path != null && path.trim().length > 0 && instanceId != null) {
+    throw new Error('Use either --path or --instance-id, not both.')
+  }
+  const materialAssetPath = opts.assetPath?.trim()
+  if (materialAssetPath == null || materialAssetPath.length === 0) {
+    throw new Error('Provide --asset-path.')
+  }
+
+  const rendererIndex = parseOptionalInt(opts.rendererIndex, '--renderer-index')
+  const slot = parseOptionalInt(opts.slot, '--slot')
+  if (rendererIndex != null && rendererIndex < 0) {
+    throw new Error('--renderer-index must be a non-negative integer.')
+  }
+  if (slot != null && slot < 0) {
+    throw new Error('--slot must be a non-negative integer.')
+  }
+
+  await runWithOutput(
+    jsonOutput,
+    deps,
+    () => deps.materialAssign({
+      path: path?.trim(),
+      instanceId,
+      assetPath: materialAssetPath,
+      rendererIndex,
+      slot,
+    }),
+    (result, output) => {
+      output.log(`Target:   ${result.targetPath}`)
+      output.log(`Renderer: ${result.rendererType} [index=${result.rendererIndex}, id=${result.rendererInstanceId}]`)
+      output.log(`Slot:     ${result.slot}`)
+      output.log(`Material: ${result.material.assetPath}`)
+    },
+  )
+}
+
 export function registerMaterial(program: Command): void {
   const group = program
     .command('material')
-    .description('Create and inspect Unity material assets')
+    .description('Create, inspect, and assign Unity material assets')
 
   group
     .command('create <assetPath>')
@@ -110,6 +185,30 @@ export function registerMaterial(program: Command): void {
         async (client, ctx) => {
           await handleMaterialGet(assetPath, ctx.jsonOutput, {
             materialGet: (input) => client.materialGet(input),
+            console,
+            exit: (exitCode) => {
+              process.exitCode = exitCode
+            },
+          })
+        },
+      )
+    })
+
+  group
+    .command('assign')
+    .description('Assign a material asset to a Renderer on a target GameObject')
+    .requiredOption('--asset-path <assetPath>', 'Material asset path (for example, Assets/Materials/Foo.mat)')
+    .option('--path <path>', 'Target GameObject path (for example, /Root/Child)')
+    .option('--instance-id <id>', 'Target GameObject instance ID')
+    .option('--renderer-index <index>', 'Renderer component index on target (default: 0)')
+    .option('--slot <index>', 'Material slot index on renderer (default: 0)')
+    .action(async (opts: MaterialAssignOptions, command: Command) => {
+      await withUnityClient(
+        command,
+        { requirePlugin: true },
+        async (client, ctx) => {
+          await handleMaterialAssign(opts, ctx.jsonOutput, {
+            materialAssign: (input) => client.materialAssign(input),
             console,
             exit: (exitCode) => {
               process.exitCode = exitCode

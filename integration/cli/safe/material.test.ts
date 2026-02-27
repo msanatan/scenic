@@ -5,6 +5,7 @@ import { runCli, getCliEntrypoint } from '../../helpers/cli-runner.ts'
 
 describe('CLI: material', () => {
   const createdAssetPaths: string[] = []
+  const createdGameObjectInstanceIds: number[] = []
 
   before(() => {
     assert.ok(
@@ -17,10 +18,13 @@ describe('CLI: material', () => {
     for (const assetPath of createdAssetPaths) {
       await runCli('execute', `UnityEditor.AssetDatabase.DeleteAsset("${assetPath}"); UnityEditor.AssetDatabase.SaveAssets();`)
     }
+    for (const instanceId of createdGameObjectInstanceIds) {
+      await runCli('gameobject', 'destroy', '--instance-id', String(instanceId))
+    }
     await runCli('execute', 'UnityEditor.AssetDatabase.DeleteAsset("Assets/__TempTests__"); UnityEditor.AssetDatabase.SaveAssets();')
   })
 
-  it('creates and gets a material asset', async () => {
+  it('creates, gets, and assigns a material asset', async () => {
     await runCli(
       'execute',
       'if (!UnityEditor.AssetDatabase.IsValidFolder("Assets/__TempTests__")) UnityEditor.AssetDatabase.CreateFolder("Assets", "__TempTests__");',
@@ -67,6 +71,56 @@ describe('CLI: material', () => {
     assert.equal(getPayload.result?.material.name, expectedName)
     assert.equal(getPayload.result?.material.shader, createPayload.result?.material.shader)
     assert.equal(typeof getPayload.result?.material.instanceId, 'number')
+
+    const gameObjectName = `CliMaterialAssign_${Date.now()}`
+    const createGoPayload = (await runCli(
+      'gameobject',
+      'create',
+      gameObjectName,
+      '--dimension',
+      '3d',
+      '--primitive',
+      'cube',
+    )) as {
+      success: boolean
+      result?: {
+        path: string
+        instanceId: number
+      }
+    }
+    assert.equal(createGoPayload.success, true)
+    assert.equal(typeof createGoPayload.result?.instanceId, 'number')
+    if (createGoPayload.result?.instanceId != null) {
+      createdGameObjectInstanceIds.push(createGoPayload.result.instanceId)
+    }
+
+    const assignPayload = (await runCli(
+      'material',
+      'assign',
+      '--instance-id',
+      String(createGoPayload.result?.instanceId),
+      '--asset-path',
+      assetPath,
+      '--slot',
+      '0',
+    )) as {
+      success: boolean
+      result?: {
+        targetPath: string
+        targetInstanceId: number
+        rendererIndex: number
+        slot: number
+        material: {
+          assetPath: string
+        }
+      }
+    }
+    assert.equal(assignPayload.success, true)
+    assert.equal(assignPayload.result?.targetPath, createGoPayload.result?.path)
+    assert.equal(assignPayload.result?.targetInstanceId, createGoPayload.result?.instanceId)
+    assert.equal(assignPayload.result?.rendererIndex, 0)
+    assert.equal(assignPayload.result?.slot, 0)
+    assert.equal(assignPayload.result?.material.assetPath, assetPath)
   })
 
 })
