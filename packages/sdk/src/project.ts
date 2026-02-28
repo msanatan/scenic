@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { cwd } from 'node:process'
-import { readExecuteEnabled, writeExecuteEnabled } from './config.ts'
+import { readExecuteEnabled } from './config.ts'
 import type { InitOptions, InitResult } from './types.ts'
 
 const PLUGIN_NAME = 'com.msanatan.scenic'
@@ -91,8 +91,7 @@ export async function init(options: InitOptions = {}): Promise<InitResult> {
     })
   }
 
-  const executeEnabled = options.enableExecute ?? readExecuteEnabled(projectPath)
-  writeExecuteEnabled(projectPath, executeEnabled)
+  const executeEnabled = readExecuteEnabled(projectPath)
 
   return {
     projectPath,

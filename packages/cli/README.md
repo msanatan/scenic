@@ -37,6 +37,9 @@ The `execute` function allows you to execute C# code directly in Unity. It's dis
 scenic init --enable-execute
 ```
 
+When Unity is running, `init --enable-execute`/`--disable-execute` applies the setting immediately and persists it.
+When Unity is not running, it persists the setting for the next Unity startup.
+
 `update` is an alias for `init` and can be used to re-run this idempotently after SDK/CLI upgrades:
 
 ```bash
@@ -79,6 +82,13 @@ Run commands with JSON output:
 
 ```bash
 scenic --json status
+```
+
+Inspect and update runtime settings:
+
+```bash
+scenic settings get
+scenic settings update --execute-enabled true
 ```
 
 Learn more about Scenic [here](https://github.com/msanatan/scenic).

@@ -83,6 +83,7 @@ export type {
   SceneListResult,
   SceneOpenResult,
 } from './scene/contract.ts'
+export type { SettingsResult, SettingsUpdateInput } from './settings/contract.ts'
 export type {
   ScriptableObjectCreateInput,
   ScriptableObjectCreateResult,

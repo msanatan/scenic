@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Scenic.Editor.Settings;
 
 namespace Scenic.Editor
 {
@@ -100,6 +101,11 @@ namespace Scenic.Editor
 
         public static bool ReadExecuteEnabled(string hashOrDirectory)
         {
+            return ReadSettingsOrDefault(hashOrDirectory).ExecuteEnabled;
+        }
+
+        public static ScenicSettingsModel ReadSettingsOrDefault(string hashOrDirectory)
+        {
             var directory = ResolveStateDirectory(hashOrDirectory);
 
             var configPath = Path.Combine(directory, "config.json");
@@ -108,11 +114,14 @@ namespace Scenic.Editor
                 try
                 {
                     var json = JObject.Parse(File.ReadAllText(configPath));
-                    return json["executeEnabled"]?.Value<bool>() == true;
+                    return new ScenicSettingsModel
+                    {
+                        ExecuteEnabled = json["executeEnabled"]?.Value<bool>() == true,
+                    };
                 }
                 catch
                 {
-                    return false;
+                    return ScenicSettingsModel.Default();
                 }
             }
 
@@ -123,15 +132,43 @@ namespace Scenic.Editor
                 try
                 {
                     var json = JObject.Parse(File.ReadAllText(legacyPath));
-                    return json["capabilities"]?["executeEnabled"]?.Value<bool>() == true;
+                    return new ScenicSettingsModel
+                    {
+                        ExecuteEnabled = json["capabilities"]?["executeEnabled"]?.Value<bool>() == true,
+                    };
                 }
                 catch
                 {
-                    return false;
+                    return ScenicSettingsModel.Default();
                 }
             }
 
-            return false;
+            return ScenicSettingsModel.Default();
+        }
+
+        public static void WriteSettings(string hashOrDirectory, ScenicSettingsModel settings)
+        {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
+            var directory = ResolveStateDirectory(hashOrDirectory);
+            EnsureStateDirectory(directory);
+
+            var target = Path.Combine(directory, "config.json");
+            var temp = target + ".tmp";
+            var payload = JsonConvert.SerializeObject(settings, Formatting.Indented) + Environment.NewLine;
+
+            File.WriteAllText(temp, payload);
+            if (File.Exists(target))
+            {
+                File.Replace(temp, target, null);
+            }
+            else
+            {
+                File.Move(temp, target);
+            }
         }
 
         public static string CurrentStateDirectory()

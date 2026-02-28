@@ -36,6 +36,13 @@ The `execute` function allows you to execute C# code directly in Unity. It's dis
 scenic init --enable-execute
 ```
 
+To inspect or change settings while Unity is running:
+
+```bash
+scenic settings get
+scenic settings update --execute-enabled true
+```
+
 You can also install the plugin using Unity Package Manager (git URL):
 
 ```text

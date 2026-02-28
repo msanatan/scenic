@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { stateDir } from './hash.ts'
+import { writeExecuteEnabled } from './config.ts'
 import { findUnityProject, init, isPluginInstalled, parseUnityVersion } from './project.ts'
 
 const baseDir = '/tmp/scenic-sdk-project-tests'
@@ -18,7 +19,11 @@ function createFakeProject(path: string, version = '2022.3.10f1') {
 }
 
 function readConfigJson(projectPath: string): { executeEnabled?: boolean } {
-  return JSON.parse(readFileSync(path.join(stateDir(projectPath), 'config.json'), 'utf-8')) as {
+  const configPath = path.join(stateDir(projectPath), 'config.json')
+  if (!existsSync(configPath)) {
+    return {}
+  }
+  return JSON.parse(readFileSync(configPath, 'utf-8')) as {
     executeEnabled?: boolean
   }
 }
@@ -94,22 +99,19 @@ describe('init', () => {
     assert.equal(result.executeEnabled, false)
   })
 
-  it('writes executeEnabled false by default', async () => {
+  it('returns executeEnabled false by default', async () => {
     await init({ projectPath: testDir })
-    const configJson = readConfigJson(testDir)
-    assert.equal(configJson.executeEnabled, false)
+    assert.equal(readConfigJson(testDir).executeEnabled, undefined)
   })
 
-  it('writes executeEnabled true when enabled explicitly', async () => {
-    const result = await init({ projectPath: testDir, enableExecute: true })
+  it('returns persisted executeEnabled when present', async () => {
+    writeExecuteEnabled(testDir, true)
+    const result = await init({ projectPath: testDir })
     assert.equal(result.executeEnabled, true)
-
-    const configJson = readConfigJson(testDir)
-    assert.equal(configJson.executeEnabled, true)
   })
 
-  it('preserves executeEnabled when re-running init without explicit option', async () => {
-    await init({ projectPath: testDir, enableExecute: true })
+  it('does not overwrite persisted executeEnabled value', async () => {
+    writeExecuteEnabled(testDir, true)
     const second = await init({ projectPath: testDir })
     assert.equal(second.executeEnabled, true)
 

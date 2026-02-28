@@ -4,7 +4,6 @@ import type { allCommands } from './commands/registry.ts'
 export interface InitOptions {
   projectPath?: string
   source?: GitSource | LocalSource
-  enableExecute?: boolean
 }
 
 export interface GitSource {

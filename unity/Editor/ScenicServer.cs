@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using SettingsService = Scenic.Editor.Settings.SettingsService;
+using SettingsRuntime = Scenic.Editor.Settings.SettingsRuntime;
 
 namespace Scenic.Editor
 {
@@ -9,7 +11,7 @@ namespace Scenic.Editor
     public static class ScenicServer
     {
         private static PipeServer _server;
-        private static ScenicSettings _settings;
+        private static SettingsService _settingsService;
         private static string _projectHash;
         private static readonly ConcurrentQueue<CommandRequest> _commandQueue = new ConcurrentQueue<CommandRequest>();
         private const string SessionResultPrefix = "scenic_result_";
@@ -35,7 +37,9 @@ namespace Scenic.Editor
 
             StateManager.SetCurrentProjectHash(_projectHash);
             StateManager.EnsureStateDirectory(_projectHash);
-            _settings = ScenicSettings.LoadOrDefault(_projectHash);
+            _settingsService = new SettingsService();
+            _settingsService.Initialize(_projectHash);
+            SettingsRuntime.SetService(_settingsService);
             var pluginVersion = PluginVersion.Get();
             StateManager.WriteServerJson(
                 _projectHash,
@@ -83,7 +87,8 @@ namespace Scenic.Editor
                     continue;
                 }
 
-                var response = CommandRouter.Route(request, _settings.ExecuteEnabled);
+                var executeEnabled = _settingsService.Get().ExecuteEnabled;
+                var response = CommandRouter.Route(request, executeEnabled);
                 CacheResponse(response);
                 UnityEngine.Debug.Log($"Completed command: {request.Command} id: {request.Id} success: {response.Success}");
 
@@ -134,24 +139,13 @@ namespace Scenic.Editor
         private static void OnBeforeReload()
         {
             _server?.Stop();
+            SettingsRuntime.ClearService();
         }
 
         private static void OnQuit()
         {
             _server?.Stop();
-        }
-    }
-
-    public sealed class ScenicSettings
-    {
-        public bool ExecuteEnabled = false;
-
-        public static ScenicSettings LoadOrDefault(string projectHash)
-        {
-            return new ScenicSettings
-            {
-                ExecuteEnabled = StateManager.ReadExecuteEnabled(projectHash),
-            };
+            SettingsRuntime.ClearService();
         }
     }
 }

@@ -92,13 +92,15 @@ await init({
 })
 ```
 
-The `execute` function allows you to execute C# code directly in Unity. It's disabled by default. You can enable it by setting this flag when calling `init()`:
+`init()` installs/updates the Unity package and returns current persisted settings.
+To change runtime settings deterministically while Unity is running, use settings commands:
 
 ```ts
-await init({
-  projectPath: '/path/to/UnityProject',
-  enableExecute: true,
-})
+const client = createClient({ projectPath: '/path/to/UnityProject', enableExecute: true })
+await client.settingsUpdate({ executeEnabled: true })
+const settings = await client.settingsGet()
+console.log(settings.executeEnabled)
+client.close()
 ```
 
 Learn more about Scenic [here](https://github.com/msanatan/scenic).

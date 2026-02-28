@@ -14,6 +14,7 @@ import { registerMaterial } from './commands/material.ts'
 import { registerPackages } from './commands/packages.ts'
 import { registerPrefab } from './commands/prefab.ts'
 import { registerStatus } from './commands/status.ts'
+import { registerSettings } from './commands/settings.ts'
 import { registerScene } from './commands/scene.ts'
 import { registerScriptableObject } from './commands/scriptableobject.ts'
 import { registerTags } from './commands/tags.ts'
@@ -43,6 +44,7 @@ registerMaterial(program)
 registerPackages(program)
 registerPrefab(program)
 registerStatus(program)
+registerSettings(program)
 registerScene(program)
 registerScriptableObject(program)
 registerTags(program)
