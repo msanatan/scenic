@@ -11,9 +11,9 @@ Planned capabilities not yet covered by Scenic. Check off items as they ship.
 
 ## Materials & Shaders
 
-- [ ] Create and inspect materials
-- [ ] Assign shaders to materials
-- [ ] Get and set material properties (colors, textures, floats, vectors)
+- [x] Create and inspect materials
+- [x] Assign shaders to materials
+- [x] Get and set material properties (colors, textures, floats, vectors)
 
 ## Animation
 
