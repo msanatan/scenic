@@ -1,7 +1,0 @@
-{
-  "prefab": {
-    "CreateTransform": "PrefabCreateTransform",
-    "TransformSpace": "PrefabTransformSpace",
-    "Vector3Value": "PrefabVector3Value"
-  }
-}

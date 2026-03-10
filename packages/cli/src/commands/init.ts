@@ -6,8 +6,8 @@ import {
   writeExecuteEnabled,
   type InitOptions,
   type InitResult,
-  type SettingsResult,
 } from '@scenicai/sdk'
+import type { SettingsResult } from '@scenicai/sdk/commands/settings'
 import { getGlobalOptions } from '../options.ts'
 import { runWithOutput } from './output.ts'
 

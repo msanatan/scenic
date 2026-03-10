@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { LogsQuery, LogsResult, LogsSeverity } from '@scenicai/sdk'
+import type { LogsQuery, LogsResult, LogsSeverity } from '@scenicai/sdk/commands/log'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

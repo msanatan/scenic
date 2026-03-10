@@ -6,7 +6,7 @@ import type {
   LayersGetResult,
   LayersRemoveInput,
   LayersRemoveResult,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/layer'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

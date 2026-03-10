@@ -7,7 +7,7 @@ import type {
   SceneListQuery,
   SceneListResult,
   SceneOpenResult,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/scene'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

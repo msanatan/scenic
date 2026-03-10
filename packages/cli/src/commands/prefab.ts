@@ -1,12 +1,12 @@
 import type { Command } from 'commander'
 import type {
-  PrefabCreateTransform,
+  CreateTransform as PrefabCreateTransform,
   PrefabInstantiateInput,
   PrefabInstantiateResult,
   PrefabSaveInput,
   PrefabSaveResult,
-  PrefabTransformSpace,
-} from '@scenicai/sdk'
+  TransformSpace as PrefabTransformSpace,
+} from '@scenicai/sdk/commands/prefab'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

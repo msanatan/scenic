@@ -12,7 +12,7 @@ import type {
   ComponentsUpdateResult,
   ComponentsListQuery,
   ComponentsListResult,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/component'
 import { runWithOutput } from './output.ts'
 import { parseOptionalInt } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'

@@ -1,7 +1,6 @@
 export { init, findUnityProject, isPluginInstalled } from './project.ts'
 export { createClient } from './client.ts'
 export { readExecuteEnabled, writeExecuteEnabled } from './config.ts'
-export type * from './commands/contracts.ts'
 export type {
   InitOptions,
   InitResult,

@@ -7,7 +7,7 @@ import type {
   PackagesGetResult,
   PackagesRemoveInput,
   PackagesRemoveResult,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/package'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

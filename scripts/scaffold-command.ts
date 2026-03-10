@@ -133,12 +133,14 @@ function scaffoldCliCommand(names: CommandNames, dryRun: boolean): void {
 
     // Add import types to the existing import block
     const importLine = `  ${names.SdkMethod}Input,\n  ${names.SdkMethod}Result,`
-    const lastImportMatch = updated.match(/} from '@scenicai\/sdk'/)
-    if (lastImportMatch) {
+    const domainImportSuffix = `} from '@scenicai/sdk/commands/${names.namespace}'`
+    if (updated.includes(domainImportSuffix)) {
       updated = updated.replace(
-        "} from '@scenicai/sdk'",
-        `${importLine}\n} from '@scenicai/sdk'`,
+        domainImportSuffix,
+        `${importLine}\n${domainImportSuffix}`,
       )
+    } else {
+      throw new Error(`Expected domain import block not found in ${path.relative(ROOT, cliPath)}: ${domainImportSuffix}`)
     }
 
     // Add handler function before the register function

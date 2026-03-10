@@ -16,7 +16,7 @@ import type {
   GameObjectUpdateResult,
   PrimitiveTypeName,
   TransformSpace,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/gameobject'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
