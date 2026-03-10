@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import type { StatusResult } from '@scenicai/sdk'
+import type { StatusResult } from '@scenicai/sdk/commands/status'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

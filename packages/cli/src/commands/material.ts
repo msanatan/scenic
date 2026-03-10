@@ -14,7 +14,7 @@ import type {
   MaterialPropertiesSetResult,
   MaterialPropertySetValue,
   MaterialVector,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/material'
 import { runWithOutput } from './output.ts'
 import { parseOptionalInt } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'

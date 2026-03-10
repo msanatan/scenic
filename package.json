@@ -5,10 +5,11 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build:sdk && npm run build:cli",
+    "generate": "node scripts/generate-registries.mjs",
+    "build": "npm run generate && npm run build:sdk && npm run build:cli",
     "build:sdk": "npm run build --workspace=@scenicai/sdk",
     "build:cli": "npm run build --workspace=@scenicai/cli",
-    "test": "npm run test:sdk && npm run test:cli",
+    "test": "npm run generate && npm run test:sdk && npm run test:cli",
     "test:sdk": "npm run test --workspace=@scenicai/sdk",
     "test:cli": "npm run test --workspace=@scenicai/cli",
     "test:integration": "npm run build && npm run test:integration:safe && npm run test:integration:reload",

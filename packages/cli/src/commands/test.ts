@@ -5,7 +5,7 @@ import type {
   TestMode,
   TestRunQuery,
   TestRunResult,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/test'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 

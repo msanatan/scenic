@@ -40,7 +40,25 @@
   },
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./commands/define": {
+      "types": "./dist/commands/define.d.ts",
+      "default": "./dist/commands/define.js"
+    },
+    "./commands/registry": {
+      "types": "./dist/commands/registry.d.ts",
+      "default": "./dist/commands/registry.js"
+    },
+    "./commands/runtime": {
+      "types": "./dist/commands/runtime.d.ts",
+      "default": "./dist/commands/runtime.js"
+    },
+    "./commands/*": {
+      "types": "./dist/commands/*/index.d.ts"
+    }
   },
   "dependencies": {
     "valibot": "^1.2.0"

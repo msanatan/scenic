@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
+import { spawnSync } from 'node:child_process'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const TEMPLATES = path.join(ROOT, '.claude', 'skills', 'add-feature', 'templates')
@@ -132,12 +133,14 @@ function scaffoldCliCommand(names: CommandNames, dryRun: boolean): void {
 
     // Add import types to the existing import block
     const importLine = `  ${names.SdkMethod}Input,\n  ${names.SdkMethod}Result,`
-    const lastImportMatch = updated.match(/} from '@scenicai\/sdk'/)
-    if (lastImportMatch) {
+    const domainImportSuffix = `} from '@scenicai/sdk/commands/${names.namespace}'`
+    if (updated.includes(domainImportSuffix)) {
       updated = updated.replace(
-        "} from '@scenicai/sdk'",
-        `${importLine}\n} from '@scenicai/sdk'`,
+        domainImportSuffix,
+        `${importLine}\n${domainImportSuffix}`,
       )
+    } else {
+      throw new Error(`Expected domain import block not found in ${path.relative(ROOT, cliPath)}: ${domainImportSuffix}`)
     }
 
     // Add handler function before the register function
@@ -198,6 +201,26 @@ function scaffoldIntegrationTests(names: CommandNames, dryRun: boolean): void {
   }
 }
 
+function runGenerate(dryRun: boolean): void {
+  if (dryRun) {
+    console.log('  Skipped generate in dry run mode')
+    return
+  }
+
+  console.log('  Running: npm run generate')
+  const result = spawnSync('npm', ['run', 'generate'], {
+    cwd: ROOT,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  })
+
+  if (result.status !== 0) {
+    console.error('')
+    console.error('Error: code generation failed. Run `npm run generate` and fix errors before continuing.')
+    process.exit(result.status ?? 1)
+  }
+}
+
 function main(): void {
   const args = process.argv.slice(2)
   const positional: string[] = []
@@ -222,9 +245,9 @@ function main(): void {
     console.error('Usage: scaffold-command <namespace> <action> [--guard execute] [--dry-run]')
     console.error('')
     console.error('Examples:')
-    console.error('  npx tsx scripts/scaffold-command.ts material create --guard execute')
-    console.error('  npx tsx scripts/scaffold-command.ts material get')
-    console.error('  npx tsx scripts/scaffold-command.ts material get --dry-run')
+    console.error('  node scripts/scaffold-command.ts material create --guard execute')
+    console.error('  node scripts/scaffold-command.ts material get')
+    console.error('  node scripts/scaffold-command.ts material get --dry-run')
     process.exit(1)
   }
 
@@ -242,13 +265,11 @@ function main(): void {
   scaffoldCliCommand(names, dryRun)
   scaffoldUnity(names, dryRun)
   scaffoldIntegrationTests(names, dryRun)
+  runGenerate(dryRun)
 
   console.log(`\nManual steps remaining:`)
-  console.log(`  1. Add ${names.sdkMethod}Command to allCommands in packages/sdk/src/commands/registry.ts`)
-  console.log(`  2. Export types from packages/sdk/src/commands/contracts.ts`)
-  console.log(`  3. Add register${names.Namespace}(program) to packages/cli/src/index.ts`)
-  console.log(`  4. Open Unity Editor to generate .meta files`)
-  console.log(`  5. Fill in TODO markers in generated files`)
+  console.log(`  1. Open Unity Editor to generate .meta files`)
+  console.log(`  2. Fill in TODO markers in generated files`)
   console.log('')
 }
 

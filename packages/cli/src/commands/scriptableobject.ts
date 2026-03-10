@@ -7,7 +7,7 @@ import type {
   ScriptableObjectGetResult,
   ScriptableObjectUpdateInput,
   ScriptableObjectUpdateResult,
-} from '@scenicai/sdk'
+} from '@scenicai/sdk/commands/scriptableobject'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
