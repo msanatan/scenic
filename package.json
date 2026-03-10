@@ -1,6 +1,6 @@
 {
   "name": "@scenicai/monorepo",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "description": "Interact with Unity via TypeScript and the command line!",
   "type": "module",
   "main": "index.js",
