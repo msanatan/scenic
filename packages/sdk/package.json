@@ -57,8 +57,7 @@
       "default": "./dist/commands/runtime.js"
     },
     "./commands/*": {
-      "types": "./dist/commands/*/index.d.ts",
-      "default": "./dist/commands/*/index.js"
+      "types": "./dist/commands/*/index.d.ts"
     }
   },
   "dependencies": {
