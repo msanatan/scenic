@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "generate": "node scripts/generate-registries.mjs",
-    "check:generated": "npm run generate && git diff --exit-code -- packages/sdk/src/commands/registry.ts packages/cli/src/index.ts \"packages/sdk/src/commands/*/index.ts\"",
+    "check:generated": "npm run generate && test -z \"$(git status --porcelain -- packages/sdk/src/commands/registry.ts packages/cli/src/index.ts ':(glob)packages/sdk/src/commands/*/index.ts')\"",
     "build": "npm run generate && npm run build:sdk && npm run build:cli",
     "build:sdk": "npm run build --workspace=@scenicai/sdk",
     "build:cli": "npm run build --workspace=@scenicai/cli",
