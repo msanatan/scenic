@@ -30,10 +30,10 @@ export function projectHash(projectPath: string): string {
 
 function stateBaseDir(): string {
   if (process.platform === 'win32') {
-    return path.join(os.tmpdir(), 'scenic')
+    return path.join(process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local'), 'scenic')
   }
 
-  return '/tmp/scenic'
+  return path.join(os.homedir(), '.scenic')
 }
 
 export function stateDir(projectPath: string): string {

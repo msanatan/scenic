@@ -1,6 +1,9 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
+import os from 'node:os'
 import { pipePath, projectHash, stateDir } from './hash.ts'
+
+const homeDir = os.homedir().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 describe('projectHash', () => {
   it('returns a 12-char hex string', () => {
@@ -35,14 +38,14 @@ describe('projectHash', () => {
 
 describe('pipePath', () => {
   it('returns a unix socket path on non-Windows', () => {
-    const path = pipePath('/Users/me/MyGame')
-    assert.match(path, /^\/tmp\/scenic\/[a-f0-9]{12}\/bridge\.sock$/)
+    const p = pipePath('/Users/me/MyGame')
+    assert.match(p, new RegExp(`^${homeDir}/\\.scenic/[a-f0-9]{12}/bridge\\.sock$`))
   })
 })
 
 describe('stateDir', () => {
-  it('returns the temp directory for the project', () => {
+  it('returns the state directory for the project', () => {
     const dir = stateDir('/Users/me/MyGame')
-    assert.match(dir, /^\/tmp\/scenic\/[a-f0-9]{12}$/)
+    assert.match(dir, new RegExp(`^${homeDir}/\\.scenic/[a-f0-9]{12}$`))
   })
 })
