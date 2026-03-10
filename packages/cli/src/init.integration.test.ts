@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { afterEach, beforeEach, describe, it } from 'node:test'
@@ -32,7 +33,7 @@ beforeEach(() => {
 
 afterEach(() => {
   rmSync(fixtureRoot, { recursive: true, force: true })
-  rmSync('/tmp/scenic', { recursive: true, force: true })
+  rmSync(join(os.homedir(), '.scenic'), { recursive: true, force: true })
 })
 
 describe('cli init/update integration', () => {

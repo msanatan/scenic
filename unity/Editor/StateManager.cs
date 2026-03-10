@@ -46,10 +46,11 @@ namespace Scenic.Editor
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                return Path.Combine(Path.GetTempPath(), "scenic");
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                return Path.Combine(localAppData, "scenic");
             }
 
-            return "/tmp/scenic";
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".scenic");
         }
 
         public static string ResolveStateDirectory(string hashOrDirectory)
