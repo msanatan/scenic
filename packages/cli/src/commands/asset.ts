@@ -25,7 +25,7 @@ import type {
   AssetLabelsRemoveResult,
 } from '@scenicai/sdk/commands/asset'
 import { runWithOutput } from './output.ts'
-import { parseOptionalInt } from './parse.ts'
+import { normalizeLabels, parseOptionalInt } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
 interface AssetFindOptions {
@@ -56,7 +56,7 @@ export async function handleAssetFind(
     () => deps.assetFind({
       query: query?.trim(),
       type: opts.type?.trim(),
-      labels: opts.label,
+      labels: opts.label ? normalizeLabels(opts.label) : undefined,
       limit,
       offset,
     }),
@@ -342,7 +342,7 @@ export async function handleAssetLabelsAdd(
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.assetLabelsAdd({ assetPath: assetPath.trim(), labels }),
+    () => deps.assetLabelsAdd({ assetPath: assetPath.trim(), labels: normalizeLabels(labels) }),
     (result, output) => {
       output.log(`AssetPath: ${result.assetPath}`)
       output.log(`Added:     ${result.added.length}`)
@@ -369,7 +369,7 @@ export async function handleAssetLabelsRemove(
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.assetLabelsRemove({ assetPath: assetPath.trim(), labels }),
+    () => deps.assetLabelsRemove({ assetPath: assetPath.trim(), labels: normalizeLabels(labels) }),
     (result, output) => {
       output.log(`AssetPath: ${result.assetPath}`)
       output.log(`Removed:   ${result.removed.length}`)
