@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { program } from 'commander'
+import { registerAsset } from './commands/asset.ts'
 import { registerComponents } from './commands/components.ts'
 import { registerDomain } from './commands/domain.ts'
 import { registerEditor } from './commands/editor.ts'
@@ -33,6 +34,7 @@ program
   .option('--json', 'Output result as JSON')
   .option('--no-execute', 'Disable execute tool for this invocation')
 
+registerAsset(program)
 registerComponents(program)
 registerDomain(program)
 registerEditor(program)
