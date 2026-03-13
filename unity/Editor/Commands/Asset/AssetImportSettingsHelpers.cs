@@ -48,7 +48,7 @@ namespace Scenic.Editor.Commands.Asset
                 var value = ReadPropertyValue(iterator);
                 if (value != null)
                 {
-                    result[iterator.name] = value;
+                    result[iterator.propertyPath] = value;
                 }
             }
             while (iterator.NextVisible(false));
