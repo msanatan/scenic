@@ -89,21 +89,21 @@ export async function handlePrefabInstantiate(
   jsonOutput: boolean,
   deps: PrefabInstantiateDeps,
 ): Promise<void> {
-  if (opts.parent != null && opts.parentInstanceId != null) {
-    throw new Error('Use either --parent or --parent-instance-id, not both.')
-  }
-
-  const input: PrefabInstantiateInput = {
-    prefabPath,
-    parentPath: opts.parent,
-    parentInstanceId: parseInstanceId(opts.parentInstanceId, '--parent-instance-id'),
-    transform: parseTransform(opts),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.instantiate(input),
+    () => {
+      if (opts.parent != null && opts.parentInstanceId != null) {
+        throw new Error('Use either --parent or --parent-instance-id, not both.')
+      }
+      const input: PrefabInstantiateInput = {
+        prefabPath,
+        parentPath: opts.parent,
+        parentInstanceId: parseInstanceId(opts.parentInstanceId, '--parent-instance-id'),
+        transform: parseTransform(opts),
+      }
+      return deps.instantiate(input)
+    },
     (result, output) => {
       output.log(`Instantiated: ${result.path}`)
       output.log(`Id:           ${result.instanceId}`)
@@ -119,20 +119,20 @@ export async function handlePrefabSave(
   jsonOutput: boolean,
   deps: PrefabSaveDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide either --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.save({ prefabPath, path, instanceId }),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide either --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      return deps.save({ prefabPath, path, instanceId })
+    },
     (result, output) => {
       output.log(`Saved:        ${result.prefabPath}`)
       output.log(`Source:       ${result.sourcePath}`)

@@ -284,16 +284,17 @@ export async function handleAssetImportSettingsSet(
   jsonOutput: boolean,
   deps: AssetImportSettingsSetDeps,
 ): Promise<void> {
-  const properties = parseImportSettingsValues(opts.values, opts.valuesFile) as
-    Record<string, string | number | boolean>
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.assetImportSettingsSet({
-      assetPath: assetPath.trim(),
-      properties,
-    }),
+    () => {
+      const properties = parseImportSettingsValues(opts.values, opts.valuesFile) as
+        Record<string, string | number | boolean>
+      return deps.assetImportSettingsSet({
+        assetPath: assetPath.trim(),
+        properties,
+      })
+    },
     (result, output) => {
       output.log(`AssetPath:    ${result.assetPath}`)
       output.log(`ImporterType: ${result.importerType}`)

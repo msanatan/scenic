@@ -204,23 +204,23 @@ export async function handleGameObjectCreate(
   jsonOutput: boolean,
   deps: GameObjectCreateDeps,
 ): Promise<void> {
-  if (opts.parent != null && opts.parentInstanceId != null) {
-    throw new Error('Use either --parent or --parent-instance-id, not both.')
-  }
-
-  const input: GameObjectCreateInput = {
-    name,
-    parent: opts.parent,
-    parentInstanceId: parseParentInstanceId(opts.parentInstanceId),
-    dimension: parseDimension(opts.dimension),
-    primitive: parsePrimitive(opts.primitive),
-    transform: parseTransform(opts),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.create(input),
+    () => {
+      if (opts.parent != null && opts.parentInstanceId != null) {
+        throw new Error('Use either --parent or --parent-instance-id, not both.')
+      }
+      const input: GameObjectCreateInput = {
+        name,
+        parent: opts.parent,
+        parentInstanceId: parseParentInstanceId(opts.parentInstanceId),
+        dimension: parseDimension(opts.dimension),
+        primitive: parsePrimitive(opts.primitive),
+        transform: parseTransform(opts),
+      }
+      return deps.create(input)
+    },
     (result, output) => {
       output.log(`Created: ${result.path}`)
       output.log(`Id:      ${result.instanceId}`)
@@ -235,20 +235,20 @@ export async function handleGameObjectDestroy(
   jsonOutput: boolean,
   deps: GameObjectDestroyDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide either --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.destroy({ path, instanceId }),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide either --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      return deps.destroy({ path, instanceId })
+    },
     (result, output) => {
       output.log(`Destroyed: ${result.path}`)
       output.log(`Id:        ${result.instanceId}`)
@@ -262,37 +262,35 @@ export async function handleGameObjectUpdate(
   jsonOutput: boolean,
   deps: GameObjectUpdateDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide either --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
-  const transform = parseTransform(opts)
-  const isStatic = parseBoolean(opts.isStatic, '--is-static')
-  const hasAnyUpdate = opts.name != null || opts.tag != null || opts.layer != null || isStatic != null || transform != null
-  if (!hasAnyUpdate) {
-    throw new Error('Provide at least one update field.')
-  }
-
-  const input: GameObjectUpdateInput = {
-    path,
-    instanceId,
-    name: opts.name,
-    tag: opts.tag,
-    layer: opts.layer,
-    isStatic,
-    transform,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.update(input),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide either --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      const transform = parseTransform(opts)
+      const isStatic = parseBoolean(opts.isStatic, '--is-static')
+      const hasAnyUpdate = opts.name != null || opts.tag != null || opts.layer != null || isStatic != null || transform != null
+      if (!hasAnyUpdate) {
+        throw new Error('Provide at least one update field.')
+      }
+      const input: GameObjectUpdateInput = {
+        path,
+        instanceId,
+        name: opts.name,
+        tag: opts.tag,
+        layer: opts.layer,
+        isStatic,
+        transform,
+      }
+      return deps.update(input)
+    },
     (result, output) => {
       output.log(`Updated: ${result.path}`)
       output.log(`Id:      ${result.instanceId}`)
@@ -309,41 +307,39 @@ export async function handleGameObjectReparent(
   jsonOutput: boolean,
   deps: GameObjectReparentDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id for target, not both.')
-  }
-
-  const parentInstanceId = parseInstanceId(opts.parentInstanceId, '--parent-instance-id')
-  const parentPath = opts.parent
-  const toRoot = opts.toRoot === true
-
-  if (toRoot && (parentPath != null || parentInstanceId != null)) {
-    throw new Error('Use either --to-root or a parent selector, not both.')
-  }
-  if (!toRoot && (parentPath == null && parentInstanceId == null)) {
-    throw new Error('Provide destination via --parent/--parent-instance-id, or set --to-root.')
-  }
-  if (parentPath != null && parentInstanceId != null) {
-    throw new Error('Use either --parent or --parent-instance-id, not both.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.reparent({
-      path,
-      instanceId,
-      parentPath,
-      parentInstanceId,
-      toRoot,
-      worldPositionStays: opts.worldPositionStays === true,
-    }),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id for target, not both.')
+      }
+      const parentInstanceId = parseInstanceId(opts.parentInstanceId, '--parent-instance-id')
+      const parentPath = opts.parent
+      const toRoot = opts.toRoot === true
+      if (toRoot && (parentPath != null || parentInstanceId != null)) {
+        throw new Error('Use either --to-root or a parent selector, not both.')
+      }
+      if (!toRoot && (parentPath == null && parentInstanceId == null)) {
+        throw new Error('Provide destination via --parent/--parent-instance-id, or set --to-root.')
+      }
+      if (parentPath != null && parentInstanceId != null) {
+        throw new Error('Use either --parent or --parent-instance-id, not both.')
+      }
+      return deps.reparent({
+        path,
+        instanceId,
+        parentPath,
+        parentInstanceId,
+        toRoot,
+        worldPositionStays: opts.worldPositionStays === true,
+      })
+    },
     (result, output) => {
       output.log(`Reparented: ${result.path}`)
       output.log(`Id:        ${result.instanceId}`)
@@ -358,20 +354,20 @@ export async function handleGameObjectGet(
   jsonOutput: boolean,
   deps: GameObjectGetDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get({ path, instanceId }),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId, '--instance-id')
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      return deps.get({ path, instanceId })
+    },
     (result, output) => {
       output.log(`GameObject: ${result.path}`)
       output.log(`Id:         ${result.instanceId}`)
@@ -391,22 +387,22 @@ export async function handleGameObjectFind(
   jsonOutput: boolean,
   deps: GameObjectFindDeps,
 ): Promise<void> {
-  if (query.trim().length === 0) {
-    throw new Error('Provide a non-empty query.')
-  }
-
-  const input: GameObjectFindQuery = {
-    query,
-    scenePath: opts.scenePath,
-    includeInactive: opts.includeInactive === true,
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.find(input),
+    () => {
+      if (query.trim().length === 0) {
+        throw new Error('Provide a non-empty query.')
+      }
+      const input: GameObjectFindQuery = {
+        query,
+        scenePath: opts.scenePath,
+        includeInactive: opts.includeInactive === true,
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.find(input)
+    },
     (result, output) => {
       output.log(`Matches: ${result.gameObjects.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const item of result.gameObjects) {

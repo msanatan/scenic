@@ -40,15 +40,16 @@ export async function handleLayersGet(
   jsonOutput: boolean,
   deps: LayersGetDeps,
 ): Promise<void> {
-  const query: LayersGetQuery = {
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get(query),
+    () => {
+      const query: LayersGetQuery = {
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.get(query)
+    },
     (result, output) => {
       output.log(`Layers: ${result.layers.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const layer of result.layers) {

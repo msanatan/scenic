@@ -45,15 +45,16 @@ export async function handleTagsGet(
   jsonOutput: boolean,
   deps: TagsGetDeps,
 ): Promise<void> {
-  const query: TagsGetQuery = {
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get(query),
+    () => {
+      const query: TagsGetQuery = {
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.get(query)
+    },
     (result, output) => {
       output.log(`Tags: ${result.tags.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const tag of result.tags) {
