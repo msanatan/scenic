@@ -14,7 +14,7 @@ import type {
   ComponentsListResult,
 } from '@scenicai/sdk/commands/component'
 import { runWithOutput } from './output.ts'
-import { parseOptionalInt } from './parse.ts'
+import { parseIntWithMinimum, parseOptionalInt } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
 interface ComponentsListOptions {
@@ -89,27 +89,6 @@ interface ComponentsUpdateDeps {
   update: (input: ComponentsUpdateInput) => Promise<ComponentsUpdateResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
-}
-
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-
-  return parsed
 }
 
 function parseInstanceId(value: string | undefined): number | undefined {

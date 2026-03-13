@@ -19,6 +19,7 @@ import type {
 } from '@scenicai/sdk/commands/gameobject'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
+import { parseIntWithMinimum } from './parse.ts'
 
 interface GameObjectCreateOptions {
   parent?: string
@@ -195,25 +196,6 @@ function parseBoolean(value: string | undefined, label: string): boolean | undef
     return false
   }
   throw new Error(`${label} must be true or false.`)
-}
-
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isInteger(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-  return parsed
 }
 
 export async function handleGameObjectCreate(

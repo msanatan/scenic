@@ -22,8 +22,12 @@ export function parseIntWithMinimum(
     return defaultValue
   }
 
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
+  const parsed = Number.parseInt(value.trim(), 10)
+  if (!Number.isInteger(parsed)) {
+    throw new Error(`${label} must be an integer.`)
+  }
+
+  if (parsed < minimum) {
     if (minimum <= 0) {
       throw new Error(`${label} must be a non-negative integer.`)
     }

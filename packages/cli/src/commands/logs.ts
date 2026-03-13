@@ -2,6 +2,7 @@ import type { Command } from 'commander'
 import type { LogsQuery, LogsResult, LogsSeverity } from '@scenicai/sdk/commands/log'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
+import { parseIntWithMinimum } from './parse.ts'
 
 interface LogsCommandOptions {
   severity?: LogsSeverity
@@ -13,27 +14,6 @@ interface LogsDeps {
   logs: (query?: LogsQuery) => Promise<LogsResult>
   console: Pick<Console, 'log' | 'error'>
   exit?: (code: number) => void
-}
-
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-
-  return parsed
 }
 
 function parseSeverity(value: string | undefined): LogsSeverity | undefined {
