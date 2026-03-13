@@ -58,6 +58,11 @@ namespace Scenic.Editor.Commands.Asset
 
         public static string[] ApplyProperties(SerializedObject serialized, JObject properties)
         {
+            if (properties == null)
+            {
+                throw new CommandHandlingException("Import settings payload is required.");
+            }
+
             var applied = new List<string>();
 
             foreach (var kvp in properties)
