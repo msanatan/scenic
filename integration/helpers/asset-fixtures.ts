@@ -1,7 +1,8 @@
 import path from 'node:path'
 
 export const TEMP_DIR = 'Assets/__TempTests__'
-export const FIXTURE_ASSET_PATH = 'Packages/com.msanatan.scenic/Tests/Fixtures/ScenicTestFixture.txt'
+export const FIXTURE_TEXT_PATH = 'Assets/TestAssets/TextFileForTesting.txt'
+export const FIXTURE_MATERIAL_PATH = 'Assets/TestAssets/RedMaterial.mat'
 
 export type AssetFixtureOps = {
   copy: (src: string, dest: string) => Promise<void>
@@ -9,7 +10,7 @@ export type AssetFixtureOps = {
 
 export function makeAssetFixtures(ops: AssetFixtureOps, createdAssets: string[]) {
   function findCopyableAsset(): { assetPath: string; ext: string } {
-    return { assetPath: FIXTURE_ASSET_PATH, ext: path.extname(FIXTURE_ASSET_PATH) }
+    return { assetPath: FIXTURE_TEXT_PATH, ext: path.extname(FIXTURE_TEXT_PATH) }
   }
 
   async function createTempAsset(prefix = 'TempAsset'): Promise<string> {

@@ -2,7 +2,7 @@ import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import type { ScenicClient } from '../../../packages/sdk/src/index.ts'
 import { createTestClient } from '../../helpers/sdk-client.ts'
-import { FIXTURE_ASSET_PATH, TEMP_DIR, makeAssetFixtures } from '../../helpers/asset-fixtures.ts'
+import { FIXTURE_TEXT_PATH, TEMP_DIR, makeAssetFixtures } from '../../helpers/asset-fixtures.ts'
 
 describe('SDK: asset', () => {
   let client: ScenicClient
@@ -51,15 +51,16 @@ describe('SDK: asset', () => {
     const result = await client.assetFind({ type: 'Material', limit: 5 })
 
     assert.ok(Array.isArray(result.assets))
+    assert.ok(result.assets.length > 0, 'Expected at least one Material asset')
     for (const asset of result.assets) {
       assert.equal(asset.type, 'Material')
     }
   })
 
   it('assetGet returns metadata for an existing asset', async () => {
-    const result = await client.assetGet({ assetPath: FIXTURE_ASSET_PATH })
+    const result = await client.assetGet({ assetPath: FIXTURE_TEXT_PATH })
 
-    assert.equal(result.assetPath, FIXTURE_ASSET_PATH)
+    assert.equal(result.assetPath, FIXTURE_TEXT_PATH)
     assert.ok(result.guid.length > 0)
     assert.ok(result.type.length > 0)
     assert.ok(result.name.length > 0)
@@ -109,16 +110,16 @@ describe('SDK: asset', () => {
   })
 
   it('assetImport reimports an asset', async () => {
-    const result = await client.assetImport({ assetPath: FIXTURE_ASSET_PATH })
+    const result = await client.assetImport({ assetPath: FIXTURE_TEXT_PATH })
 
-    assert.equal(result.assetPath, FIXTURE_ASSET_PATH)
+    assert.equal(result.assetPath, FIXTURE_TEXT_PATH)
     assert.ok(result.importerType.includes('Importer'))
   })
 
   it('assetImportSettingsGet reads importer properties', async () => {
-    const result = await client.assetImportSettingsGet({ assetPath: FIXTURE_ASSET_PATH })
+    const result = await client.assetImportSettingsGet({ assetPath: FIXTURE_TEXT_PATH })
 
-    assert.equal(result.assetPath, FIXTURE_ASSET_PATH)
+    assert.equal(result.assetPath, FIXTURE_TEXT_PATH)
     assert.ok(result.importerType.includes('Importer'))
     assert.ok(result.properties !== null && typeof result.properties === 'object')
   })

@@ -2,7 +2,7 @@ import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { runCli, getCliEntrypoint } from '../../helpers/cli-runner.ts'
-import { TEMP_DIR, FIXTURE_ASSET_PATH, makeAssetFixtures } from '../../helpers/asset-fixtures.ts'
+import { TEMP_DIR, FIXTURE_TEXT_PATH, makeAssetFixtures } from '../../helpers/asset-fixtures.ts'
 
 describe('CLI: asset', () => {
   const createdAssets: string[] = []
@@ -67,13 +67,14 @@ describe('CLI: asset', () => {
     }
 
     assert.equal(payload.success, true)
+    assert.ok((payload.result?.assets?.length ?? 0) > 0, 'Expected at least one Material asset')
     for (const asset of payload.result?.assets ?? []) {
       assert.equal(asset.type, 'Material')
     }
   })
 
   it('asset get returns metadata', async () => {
-    const payload = (await runCli('asset', 'get', FIXTURE_ASSET_PATH)) as {
+    const payload = (await runCli('asset', 'get', FIXTURE_TEXT_PATH)) as {
       success: boolean
       result?: {
         assetPath: string
@@ -86,7 +87,7 @@ describe('CLI: asset', () => {
     }
 
     assert.equal(payload.success, true)
-    assert.equal(payload.result?.assetPath, FIXTURE_ASSET_PATH)
+    assert.equal(payload.result?.assetPath, FIXTURE_TEXT_PATH)
     assert.ok(payload.result!.guid.length > 0)
     assert.ok(payload.result!.type.length > 0)
     assert.ok(payload.result!.name.length > 0)
@@ -134,24 +135,24 @@ describe('CLI: asset', () => {
   })
 
   it('asset import reimports an asset', async () => {
-    const payload = (await runCli('asset', 'import', FIXTURE_ASSET_PATH)) as {
+    const payload = (await runCli('asset', 'import', FIXTURE_TEXT_PATH)) as {
       success: boolean
       result?: { assetPath: string; importerType: string }
     }
 
     assert.equal(payload.success, true)
-    assert.equal(payload.result?.assetPath, FIXTURE_ASSET_PATH)
+    assert.equal(payload.result?.assetPath, FIXTURE_TEXT_PATH)
     assert.ok(payload.result!.importerType.includes('Importer'))
   })
 
   it('asset import-settings get reads importer properties', async () => {
-    const payload = (await runCli('asset', 'import-settings', 'get', FIXTURE_ASSET_PATH)) as {
+    const payload = (await runCli('asset', 'import-settings', 'get', FIXTURE_TEXT_PATH)) as {
       success: boolean
       result?: { assetPath: string; importerType: string; properties: Record<string, unknown> }
     }
 
     assert.equal(payload.success, true)
-    assert.equal(payload.result?.assetPath, FIXTURE_ASSET_PATH)
+    assert.equal(payload.result?.assetPath, FIXTURE_TEXT_PATH)
     assert.ok(payload.result!.importerType.includes('Importer'))
     assert.ok(payload.result!.properties !== null && typeof payload.result!.properties === 'object')
   })
