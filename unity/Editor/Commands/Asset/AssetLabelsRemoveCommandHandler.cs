@@ -31,6 +31,7 @@ namespace Scenic.Editor.Commands.Asset
                     existing.RemoveAt(i);
                 }
             }
+            removed.Reverse();
 
             if (removed.Count > 0)
             {
