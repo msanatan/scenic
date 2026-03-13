@@ -34,14 +34,32 @@ namespace Scenic.Editor.Commands.Asset
                 return ImportAssetOptions.Default;
             }
 
-            if (Enum.TryParse<ImportAssetOptions>(options, true, out var parsed))
+            var validNames = Enum.GetNames(typeof(ImportAssetOptions));
+            var tokens = options.Split(',');
+
+            foreach (var token in tokens)
             {
-                return parsed;
+                var trimmed = token.Trim();
+                var found = false;
+                foreach (var name in validNames)
+                {
+                    if (string.Equals(trimmed, name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    throw new CommandHandlingException(
+                        $"Invalid import options value: {options}. " +
+                        $"Valid values: {string.Join(", ", validNames)}.");
+                }
             }
 
-            throw new CommandHandlingException(
-                $"Invalid import options value: {options}. " +
-                "Valid values: Default, ForceUpdate, ForceSynchronousImport, ImportRecursive, DontDownloadFromCacheServer, ForceUncompressedImport.");
+            Enum.TryParse<ImportAssetOptions>(options, true, out var parsed);
+            return parsed;
         }
     }
 }
