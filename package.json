@@ -9,6 +9,8 @@
     "build": "npm run generate && npm run build:sdk && npm run build:cli",
     "build:sdk": "npm run build --workspace=@scenicai/sdk",
     "build:cli": "npm run build --workspace=@scenicai/cli",
+    "local": "node packages/cli/dist/index.js -p \"TestProjects/Scenic3Dv6.3\"",
+    "local:init": "node packages/cli/dist/index.js -p \"TestProjects/Scenic3Dv6.3\" init --enable-execute --local \"../../../unity\"",
     "test": "npm run generate && npm run test:sdk && npm run test:cli",
     "test:sdk": "npm run test --workspace=@scenicai/sdk",
     "test:cli": "npm run test --workspace=@scenicai/cli",
