@@ -23,6 +23,14 @@ namespace Scenic.Editor.Commands.Asset
                     $"params.{paramName} must be a project asset path starting with 'Assets/'.");
             }
 
+            // We reject paths with ".." to prevent directory traversal outside the project, even though AssetDatabase APIs should reject those paths.
+            var segments = path.Split('/');
+            if (System.Array.Exists(segments, segment => segment == ".." || segment == "."))
+            {
+                throw new CommandHandlingException(
+                    $"params.{paramName} must be a project asset path starting with 'Assets/' and cannot contain '../'.");
+            }
+
             return path;
         }
 
