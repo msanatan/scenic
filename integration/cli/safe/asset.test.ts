@@ -104,7 +104,7 @@ describe('CLI: asset', () => {
 
     const copyPath = `${TEMP_DIR}/CliCopy_${Date.now()}${ext}`
     const movePath = `${TEMP_DIR}/CliMove_${Date.now()}${ext}`
-    createdAssets.push(movePath)
+    createdAssets.push(copyPath, movePath)
 
     const copyPayload = (await runCli('asset', 'copy', source, copyPath)) as {
       success: boolean
