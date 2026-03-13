@@ -26,9 +26,12 @@ namespace Scenic.Editor.Commands.Asset
                 foreach (var name in filter)
                 {
                     var property = serialized.FindProperty(name);
-                    if (property != null)
+                    if (property == null) continue;
+
+                    var value = ReadPropertyValue(property);
+                    if (value != null)
                     {
-                        result[name] = ReadPropertyValue(property);
+                        result[name] = value;
                     }
                 }
                 return result;
@@ -42,7 +45,11 @@ namespace Scenic.Editor.Commands.Asset
 
             do
             {
-                result[iterator.name] = ReadPropertyValue(iterator);
+                var value = ReadPropertyValue(iterator);
+                if (value != null)
+                {
+                    result[iterator.name] = value;
+                }
             }
             while (iterator.NextVisible(false));
 
@@ -84,7 +91,7 @@ namespace Scenic.Editor.Commands.Asset
                 case SerializedPropertyType.Enum:
                     return property.enumValueIndex;
                 default:
-                    return property.propertyType.ToString();
+                    return null;
             }
         }
 
