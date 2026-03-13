@@ -56,6 +56,7 @@ namespace Scenic.Editor.Tests.Commands.Asset
             var material = new UnityEngine.Material(shader) { name = "AssetCopySource" };
             AssetDatabase.CreateAsset(material, SourcePath);
             AssetDatabase.SaveAssets();
+            var sourceGuid = AssetDatabase.AssetPathToGUID(SourcePath);
 
             var response = CommandRouter.Route(
                 new CommandRequest
@@ -72,6 +73,7 @@ namespace Scenic.Editor.Tests.Commands.Asset
             Assert.IsNotNull(result);
             Assert.AreEqual(SourcePath, result.SourcePath);
             Assert.AreEqual(DestPath, result.NewPath);
+            Assert.AreEqual(sourceGuid, AssetDatabase.AssetPathToGUID(SourcePath));
             Assert.AreNotEqual(AssetDatabase.AssetPathToGUID(SourcePath), result.Guid);
             Assert.AreEqual(result.Guid, AssetDatabase.AssetPathToGUID(DestPath));
         }
