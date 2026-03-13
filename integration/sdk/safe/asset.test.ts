@@ -2,7 +2,7 @@ import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import type { ScenicClient } from '../../../packages/sdk/src/index.ts'
 import { createTestClient } from '../../helpers/sdk-client.ts'
-import { TEMP_DIR, makeAssetFixtures } from '../../helpers/asset-fixtures.ts'
+import { FIXTURE_ASSET_PATH, TEMP_DIR, makeAssetFixtures } from '../../helpers/asset-fixtures.ts'
 
 describe('SDK: asset', () => {
   let client: ScenicClient
@@ -57,13 +57,9 @@ describe('SDK: asset', () => {
   })
 
   it('assetGet returns metadata for an existing asset', async () => {
-    const findResult = await client.assetFind({ limit: 1 })
-    assert.ok(findResult.assets.length > 0, 'Need at least one asset')
+    const result = await client.assetGet({ assetPath: FIXTURE_ASSET_PATH })
 
-    const assetPath = findResult.assets[0].assetPath
-    const result = await client.assetGet({ assetPath })
-
-    assert.equal(result.assetPath, assetPath)
+    assert.equal(result.assetPath, FIXTURE_ASSET_PATH)
     assert.ok(result.guid.length > 0)
     assert.ok(result.type.length > 0)
     assert.ok(result.name.length > 0)
@@ -113,24 +109,16 @@ describe('SDK: asset', () => {
   })
 
   it('assetImport reimports an asset', async () => {
-    const findResult = await client.assetFind({ limit: 1 })
-    assert.ok(findResult.assets.length > 0)
+    const result = await client.assetImport({ assetPath: FIXTURE_ASSET_PATH })
 
-    const assetPath = findResult.assets[0].assetPath
-    const result = await client.assetImport({ assetPath })
-
-    assert.equal(result.assetPath, assetPath)
+    assert.equal(result.assetPath, FIXTURE_ASSET_PATH)
     assert.ok(result.importerType.includes('Importer'))
   })
 
   it('assetImportSettingsGet reads importer properties', async () => {
-    const findResult = await client.assetFind({ limit: 1 })
-    assert.ok(findResult.assets.length > 0)
+    const result = await client.assetImportSettingsGet({ assetPath: FIXTURE_ASSET_PATH })
 
-    const assetPath = findResult.assets[0].assetPath
-    const result = await client.assetImportSettingsGet({ assetPath })
-
-    assert.equal(result.assetPath, assetPath)
+    assert.equal(result.assetPath, FIXTURE_ASSET_PATH)
     assert.ok(result.importerType.includes('Importer'))
     assert.ok(result.properties !== null && typeof result.properties === 'object')
   })
