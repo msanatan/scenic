@@ -56,6 +56,7 @@ namespace Scenic.Editor.Tests.Commands.Asset
             var material = new UnityEngine.Material(shader) { name = "AssetMoveSource" };
             AssetDatabase.CreateAsset(material, SourcePath);
             AssetDatabase.SaveAssets();
+            var sourceGuid = AssetDatabase.AssetPathToGUID(SourcePath);
 
             var response = CommandRouter.Route(
                 new CommandRequest
@@ -73,7 +74,8 @@ namespace Scenic.Editor.Tests.Commands.Asset
             Assert.AreEqual(SourcePath, result.OldPath);
             Assert.AreEqual(DestPath, result.NewPath);
             Assert.IsEmpty(AssetDatabase.AssetPathToGUID(SourcePath));
-            Assert.AreEqual(result.Guid, AssetDatabase.AssetPathToGUID(DestPath));
+            Assert.AreEqual(sourceGuid, result.Guid);
+            Assert.AreEqual(sourceGuid, AssetDatabase.AssetPathToGUID(DestPath));
         }
 
         [Test]
