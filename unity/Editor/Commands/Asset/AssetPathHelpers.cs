@@ -28,7 +28,7 @@ namespace Scenic.Editor.Commands.Asset
             if (System.Array.Exists(segments, segment => segment == ".." || segment == "."))
             {
                 throw new CommandHandlingException(
-                    $"params.{paramName} must be a project asset path starting with 'Assets/' and cannot contain '../'.");
+                    $"params.{paramName} must be a project asset path starting with 'Assets/' and cannot contain relative segments like '.' or '..'.");
             }
 
             return path;
