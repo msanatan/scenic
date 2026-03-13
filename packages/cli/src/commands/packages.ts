@@ -10,6 +10,7 @@ import type {
 } from '@scenicai/sdk/commands/package'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
+import { parseIntWithMinimum } from './parse.ts'
 
 interface PackagesGetOptions {
   limit?: string
@@ -40,27 +41,6 @@ interface PackagesRemoveDeps {
   exit?: (code: number) => void
 }
 
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-
-  return parsed
-}
-
 function formatPackage(pkg: PackageItem): string {
   return `${pkg.name}@${pkg.version} [display=${pkg.displayName}, source=${pkg.source}, direct=${pkg.isDirectDependency ? 'yes' : 'no'}]`
 }
@@ -70,18 +50,19 @@ export async function handlePackagesGet(
   jsonOutput: boolean,
   deps: PackagesGetDeps,
 ): Promise<void> {
-  const search = opts.search?.trim()
-  const query: PackagesGetQuery = {
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-    includeIndirect: opts.includeIndirect ?? false,
-    search: search == null || search.length === 0 ? undefined : search,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get(query),
+    () => {
+      const search = opts.search?.trim()
+      const query: PackagesGetQuery = {
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+        includeIndirect: opts.includeIndirect ?? false,
+        search: search == null || search.length === 0 ? undefined : search,
+      }
+      return deps.get(query)
+    },
     (result, output) => {
       output.log(`Packages: ${result.packages.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const pkg of result.packages) {
@@ -97,19 +78,20 @@ export async function handlePackagesAdd(
   jsonOutput: boolean,
   deps: PackagesAddDeps,
 ): Promise<void> {
-  const trimmedName = name.trim()
-  if (trimmedName.length === 0) {
-    throw new Error('Package name is required.')
-  }
-
-  const version = opts.version?.trim()
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.add({
-      name: trimmedName,
-      version: version == null || version.length === 0 ? undefined : version,
-    }),
+    () => {
+      const trimmedName = name.trim()
+      if (trimmedName.length === 0) {
+        throw new Error('Package name is required.')
+      }
+      const version = opts.version?.trim()
+      return deps.add({
+        name: trimmedName,
+        version: version == null || version.length === 0 ? undefined : version,
+      })
+    },
     (result, output) => {
       output.log(`Package: ${formatPackage(result.package)}`)
       output.log(`Added: ${result.added ? 'yes' : 'no'}`)
@@ -123,15 +105,16 @@ export async function handlePackagesRemove(
   jsonOutput: boolean,
   deps: PackagesRemoveDeps,
 ): Promise<void> {
-  const trimmedName = name.trim()
-  if (trimmedName.length === 0) {
-    throw new Error('Package name is required.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.remove({ name: trimmedName }),
+    () => {
+      const trimmedName = name.trim()
+      if (trimmedName.length === 0) {
+        throw new Error('Package name is required.')
+      }
+      return deps.remove({ name: trimmedName })
+    },
     (result, output) => {
       output.log(`Package: ${formatPackage(result.package)}`)
       output.log(`Removed: ${result.removed ? 'yes' : 'no'}`)

@@ -85,24 +85,24 @@ export async function handleScriptableObjectCreate(
   jsonOutput: boolean,
   deps: ScriptableObjectCreateDeps,
 ): Promise<void> {
-  if (assetPath.trim().length === 0) {
-    throw new Error('Asset path is required.')
-  }
-  if (opts.type == null || opts.type.trim().length === 0) {
-    throw new Error('Provide --type.')
-  }
-
-  const input: ScriptableObjectCreateInput = {
-    assetPath: assetPath.trim(),
-    type: opts.type.trim(),
-    initialValues: parseValues(opts.values, opts.valuesFile, 'initial values', false),
-    strict: opts.strict === true,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.create(input),
+    () => {
+      if (assetPath.trim().length === 0) {
+        throw new Error('Asset path is required.')
+      }
+      if (opts.type == null || opts.type.trim().length === 0) {
+        throw new Error('Provide --type.')
+      }
+      const input: ScriptableObjectCreateInput = {
+        assetPath: assetPath.trim(),
+        type: opts.type.trim(),
+        initialValues: parseValues(opts.values, opts.valuesFile, 'initial values', false),
+        strict: opts.strict === true,
+      }
+      return deps.create(input)
+    },
     (result, output) => {
       output.log(`Created: ${result.asset.assetPath}`)
       output.log(`Type:    ${result.asset.type}`)
@@ -118,14 +118,15 @@ export async function handleScriptableObjectGet(
   jsonOutput: boolean,
   deps: ScriptableObjectGetDeps,
 ): Promise<void> {
-  if (assetPath.trim().length === 0) {
-    throw new Error('Asset path is required.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get({ assetPath: assetPath.trim() }),
+    () => {
+      if (assetPath.trim().length === 0) {
+        throw new Error('Asset path is required.')
+      }
+      return deps.get({ assetPath: assetPath.trim() })
+    },
     (result, output) => {
       output.log(`Asset: ${result.asset.assetPath}`)
       output.log(`Type:  ${result.asset.type}`)
@@ -141,20 +142,20 @@ export async function handleScriptableObjectUpdate(
   jsonOutput: boolean,
   deps: ScriptableObjectUpdateDeps,
 ): Promise<void> {
-  if (assetPath.trim().length === 0) {
-    throw new Error('Asset path is required.')
-  }
-
-  const input: ScriptableObjectUpdateInput = {
-    assetPath: assetPath.trim(),
-    values: parseValues(opts.values, opts.valuesFile, 'values', true) ?? {},
-    strict: opts.strict === true,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.update(input),
+    () => {
+      if (assetPath.trim().length === 0) {
+        throw new Error('Asset path is required.')
+      }
+      const input: ScriptableObjectUpdateInput = {
+        assetPath: assetPath.trim(),
+        values: parseValues(opts.values, opts.valuesFile, 'values', true) ?? {},
+        strict: opts.strict === true,
+      }
+      return deps.update(input)
+    },
     (result, output) => {
       output.log(`Updated: ${result.asset.assetPath}`)
       output.log(`Type:    ${result.asset.type}`)

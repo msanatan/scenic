@@ -9,6 +9,7 @@ import type {
   TagsRemoveResult,
 } from '@scenicai/sdk/commands/tag'
 import { runWithOutput } from './output.ts'
+import { parseIntWithMinimum, parseName } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
 interface TagsGetOptions {
@@ -38,41 +39,22 @@ function formatTag(tag: TagItem): string {
   return `${tag.name}${tag.isBuiltIn ? ' (built-in)' : ''}`
 }
 
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-
-  return parsed
-}
 
 export async function handleTagsGet(
   opts: TagsGetOptions,
   jsonOutput: boolean,
   deps: TagsGetDeps,
 ): Promise<void> {
-  const query: TagsGetQuery = {
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get(query),
+    () => {
+      const query: TagsGetQuery = {
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.get(query)
+    },
     (result, output) => {
       output.log(`Tags: ${result.tags.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const tag of result.tags) {
@@ -87,14 +69,10 @@ export async function handleTagsAdd(
   jsonOutput: boolean,
   deps: TagsAddDeps,
 ): Promise<void> {
-  if (name.trim().length === 0) {
-    throw new Error('Tag name is required.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.add({ name: name.trim() }),
+    () => deps.add({ name: parseName(name, 'Tag name') }),
     (result, output) => {
       output.log(`Tag:   ${formatTag(result.tag)}`)
       output.log(`Added: ${result.added ? 'yes' : 'no'}`)
@@ -108,14 +86,10 @@ export async function handleTagsRemove(
   jsonOutput: boolean,
   deps: TagsRemoveDeps,
 ): Promise<void> {
-  if (name.trim().length === 0) {
-    throw new Error('Tag name is required.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.remove({ name: name.trim() }),
+    () => deps.remove({ name: parseName(name, 'Tag name') }),
     (result, output) => {
       output.log(`Tag:     ${formatTag(result.tag)}`)
       output.log(`Removed: ${result.removed ? 'yes' : 'no'}`)

@@ -8,6 +8,7 @@ import type {
   LayersRemoveResult,
 } from '@scenicai/sdk/commands/layer'
 import { runWithOutput } from './output.ts'
+import { parseIntWithMinimum, parseName } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
 interface LayersGetOptions {
@@ -33,41 +34,22 @@ interface LayersRemoveDeps {
   exit?: (code: number) => void
 }
 
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-
-  return parsed
-}
 
 export async function handleLayersGet(
   opts: LayersGetOptions,
   jsonOutput: boolean,
   deps: LayersGetDeps,
 ): Promise<void> {
-  const query: LayersGetQuery = {
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get(query),
+    () => {
+      const query: LayersGetQuery = {
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.get(query)
+    },
     (result, output) => {
       output.log(`Layers: ${result.layers.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const layer of result.layers) {
@@ -83,15 +65,10 @@ export async function handleLayersAdd(
   jsonOutput: boolean,
   deps: LayersAddDeps,
 ): Promise<void> {
-  const trimmed = name.trim()
-  if (trimmed.length === 0) {
-    throw new Error('Layer name is required.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.add({ name: trimmed }),
+    () => deps.add({ name: parseName(name, 'Layer name', 64) }),
     (result, output) => {
       const nameValue = result.layer.name.length > 0 ? result.layer.name : '<empty>'
       output.log(`Layer: #${result.layer.index} ${nameValue}`)
@@ -106,15 +83,10 @@ export async function handleLayersRemove(
   jsonOutput: boolean,
   deps: LayersRemoveDeps,
 ): Promise<void> {
-  const trimmed = name.trim()
-  if (trimmed.length === 0) {
-    throw new Error('Layer name is required.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.remove({ name: trimmed }),
+    () => deps.remove({ name: parseName(name, 'Layer name') }),
     (result, output) => {
       const nameValue = result.layer.name.length > 0 ? result.layer.name : '<empty>'
       output.log(`Layer:   #${result.layer.index} ${nameValue}`)

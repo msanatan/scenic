@@ -13,15 +13,13 @@ interface CommandNames {
   wireCommand: string
   sdkMethod: string
   SdkMethod: string
-  guard: string
-  requiresExecute: string
 }
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-function deriveNames(namespace: string, action: string, guardFlag: boolean): CommandNames {
+function deriveNames(namespace: string, action: string): CommandNames {
   return {
     namespace,
     action,
@@ -30,8 +28,6 @@ function deriveNames(namespace: string, action: string, guardFlag: boolean): Com
     wireCommand: `${namespace}.${action}`,
     sdkMethod: `${namespace}${capitalize(action)}`,
     SdkMethod: `${capitalize(namespace)}${capitalize(action)}`,
-    guard: guardFlag ? "\n  guard: 'execute'," : '',
-    requiresExecute: guardFlag ? ', RequiresExecuteEnabled = true' : '',
   }
 }
 
@@ -224,14 +220,10 @@ function runGenerate(dryRun: boolean): void {
 function main(): void {
   const args = process.argv.slice(2)
   const positional: string[] = []
-  let guardFlag = false
   let dryRun = false
 
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--guard' && args[i + 1] === 'execute') {
-      guardFlag = true
-      i++
-    } else if (args[i] === '--dry-run') {
+    if (args[i] === '--dry-run') {
       dryRun = true
     } else if (!args[i].startsWith('--')) {
       positional.push(args[i])
@@ -242,10 +234,10 @@ function main(): void {
   }
 
   if (positional.length !== 2) {
-    console.error('Usage: scaffold-command <namespace> <action> [--guard execute] [--dry-run]')
+    console.error('Usage: scaffold-command <namespace> <action> [--dry-run]')
     console.error('')
     console.error('Examples:')
-    console.error('  node scripts/scaffold-command.ts material create --guard execute')
+    console.error('  node scripts/scaffold-command.ts material create')
     console.error('  node scripts/scaffold-command.ts material get')
     console.error('  node scripts/scaffold-command.ts material get --dry-run')
     process.exit(1)
@@ -257,7 +249,7 @@ function main(): void {
     process.exit(1)
   }
 
-  const names = deriveNames(namespace, action, guardFlag)
+  const names = deriveNames(namespace, action)
 
   console.log(`\nScaffolding: ${names.wireCommand}${dryRun ? ' (dry run)' : ''}\n`)
 

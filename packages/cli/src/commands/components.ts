@@ -14,7 +14,7 @@ import type {
   ComponentsListResult,
 } from '@scenicai/sdk/commands/component'
 import { runWithOutput } from './output.ts'
-import { parseOptionalInt } from './parse.ts'
+import { parseIntWithMinimum, parseOptionalInt } from './parse.ts'
 import { withUnityClient } from './with-unity-client.ts'
 
 interface ComponentsListOptions {
@@ -91,27 +91,6 @@ interface ComponentsUpdateDeps {
   exit?: (code: number) => void
 }
 
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-
-  return parsed
-}
-
 function parseInstanceId(value: string | undefined): number | undefined {
   if (value == null) {
     return undefined
@@ -168,28 +147,27 @@ export async function handleComponentsList(
   jsonOutput: boolean,
   deps: ComponentsListDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId)
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
-  const query: ComponentsListQuery = {
-    path,
-    instanceId,
-    type: opts.type,
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.list(query),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId)
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      const query: ComponentsListQuery = {
+        path,
+        instanceId,
+        type: opts.type,
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.list(query)
+    },
     (result, output) => {
       output.log(`Components: ${result.components.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const component of result.components) {
@@ -204,31 +182,30 @@ export async function handleComponentsAdd(
   jsonOutput: boolean,
   deps: ComponentsAddDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId)
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-  if (opts.type == null || opts.type.trim().length === 0) {
-    throw new Error('Provide --type.')
-  }
-
-  const input: ComponentsAddInput = {
-    path,
-    instanceId,
-    type: opts.type,
-    initialValues: parseInitialValues(opts),
-    strict: opts.strict === true,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.add(input),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId)
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      if (opts.type == null || opts.type.trim().length === 0) {
+        throw new Error('Provide --type.')
+      }
+      const input: ComponentsAddInput = {
+        path,
+        instanceId,
+        type: opts.type,
+        initialValues: parseInitialValues(opts),
+        strict: opts.strict === true,
+      }
+      return deps.add(input)
+    },
     (result, output) => {
       output.log(`Added: ${result.type}`)
       output.log(`Id:    ${result.instanceId}`)
@@ -243,39 +220,37 @@ export async function handleComponentsGet(
   jsonOutput: boolean,
   deps: ComponentsGetDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId)
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
-  const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
-  const index = parseOptionalInt(opts.index, '--index')
-  const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
-  const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
-  if (selectorCount !== 1) {
-    throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
-  }
-  if (index != null && index < 0) {
-    throw new Error('--index must be a non-negative integer.')
-  }
-
-  const query: ComponentsGetQuery = {
-    path,
-    instanceId,
-    componentInstanceId,
-    index,
-    type,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.get(query),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId)
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
+      const index = parseOptionalInt(opts.index, '--index')
+      const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
+      const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
+      if (selectorCount !== 1) {
+        throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
+      }
+      if (index != null && index < 0) {
+        throw new Error('--index must be a non-negative integer.')
+      }
+      const query: ComponentsGetQuery = {
+        path,
+        instanceId,
+        componentInstanceId,
+        index,
+        type,
+      }
+      return deps.get(query)
+    },
     (result, output) => {
       output.log(`Component: ${result.component.type}`)
       output.log(`Id:        ${result.component.instanceId}`)
@@ -292,39 +267,37 @@ export async function handleComponentsRemove(
   jsonOutput: boolean,
   deps: ComponentsRemoveDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId)
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
-  const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
-  const index = parseOptionalInt(opts.index, '--index')
-  const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
-  const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
-  if (selectorCount !== 1) {
-    throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
-  }
-  if (index != null && index < 0) {
-    throw new Error('--index must be a non-negative integer.')
-  }
-
-  const input: ComponentsRemoveInput = {
-    path,
-    instanceId,
-    componentInstanceId,
-    index,
-    type,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.remove(input),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId)
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
+      const index = parseOptionalInt(opts.index, '--index')
+      const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
+      const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
+      if (selectorCount !== 1) {
+        throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
+      }
+      if (index != null && index < 0) {
+        throw new Error('--index must be a non-negative integer.')
+      }
+      const input: ComponentsRemoveInput = {
+        path,
+        instanceId,
+        componentInstanceId,
+        index,
+        type,
+      }
+      return deps.remove(input)
+    },
     (result, output) => {
       output.log(`Removed: ${result.type}`)
       output.log(`Id:      ${result.instanceId}`)
@@ -338,49 +311,46 @@ export async function handleComponentsUpdate(
   jsonOutput: boolean,
   deps: ComponentsUpdateDeps,
 ): Promise<void> {
-  const instanceId = parseInstanceId(opts.instanceId)
-  const path = opts.path
-
-  if ((path == null || path.length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-
-  const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
-  const index = parseOptionalInt(opts.index, '--index')
-  const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
-  const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
-  if (selectorCount !== 1) {
-    throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
-  }
-  if (index != null && index < 0) {
-    throw new Error('--index must be a non-negative integer.')
-  }
-
-  const values = parseInitialValues({
-    values: opts.values,
-    valuesFile: opts.valuesFile,
-  })
-  if (values == null) {
-    throw new Error('Provide --values or --values-file.')
-  }
-
-  const input: ComponentsUpdateInput = {
-    path,
-    instanceId,
-    componentInstanceId,
-    index,
-    type,
-    values,
-    strict: opts.strict === true,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.update(input),
+    () => {
+      const instanceId = parseInstanceId(opts.instanceId)
+      const path = opts.path
+      if ((path == null || path.length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      const componentInstanceId = parseOptionalInt(opts.componentInstanceId, '--component-instance-id')
+      const index = parseOptionalInt(opts.index, '--index')
+      const type = opts.type == null || opts.type.trim().length === 0 ? undefined : opts.type.trim()
+      const selectorCount = Number(componentInstanceId != null) + Number(index != null) + Number(type != null)
+      if (selectorCount !== 1) {
+        throw new Error('Provide exactly one selector: --component-instance-id, --index, or --type.')
+      }
+      if (index != null && index < 0) {
+        throw new Error('--index must be a non-negative integer.')
+      }
+      const values = parseInitialValues({
+        values: opts.values,
+        valuesFile: opts.valuesFile,
+      })
+      if (values == null) {
+        throw new Error('Provide --values or --values-file.')
+      }
+      const input: ComponentsUpdateInput = {
+        path,
+        instanceId,
+        componentInstanceId,
+        index,
+        type,
+        values,
+        strict: opts.strict === true,
+      }
+      return deps.update(input)
+    },
     (result, output) => {
       output.log(`Updated: ${result.type}`)
       output.log(`Id:      ${result.instanceId}`)

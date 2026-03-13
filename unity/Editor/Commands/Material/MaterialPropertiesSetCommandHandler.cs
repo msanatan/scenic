@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Material
 {
-    [ScenicCommand("material.properties.set", RequiresExecuteEnabled = true)]
+    [ScenicCommand("material.properties.set")]
     public sealed class MaterialPropertiesSetCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

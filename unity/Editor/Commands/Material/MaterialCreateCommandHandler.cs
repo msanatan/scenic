@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Material
 {
-    [ScenicCommand("material.create", RequiresExecuteEnabled = true)]
+    [ScenicCommand("material.create")]
     public sealed class MaterialCreateCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

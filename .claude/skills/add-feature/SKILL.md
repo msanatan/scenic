@@ -16,7 +16,6 @@ Add a new command to Scenic following the three-tier architecture: Unity plugin 
 3. List the **actions** needed (e.g., `create`, `get`, `update`, `remove`, `list`, `search`).
 4. For each action, decide:
    - Wire command name: `<namespace>.<action>`
-   - Whether it mutates state (needs `--guard execute`)
    - Request fields (params) and response fields (result)
 5. If the scope is ambiguous, ask the user before proceeding.
 
@@ -25,15 +24,15 @@ Add a new command to Scenic following the three-tier architecture: Unity plugin 
 Run the scaffolding script once per action:
 
 ```bash
-npm run scaffold -- <namespace> <action> [--guard execute]
+npm run scaffold -- <namespace> <action>
 ```
 
 Examples:
 ```bash
-npm run scaffold -- material create --guard execute
+npm run scaffold -- material create
 npm run scaffold -- material get
-npm run scaffold -- material update --guard execute
-npm run scaffold -- material remove --guard execute
+npm run scaffold -- material update
+npm run scaffold -- material remove
 ```
 
 Use `--dry-run` first to preview what will be created. After scaffolding, verify all expected files exist.
@@ -78,7 +77,6 @@ Fill in the contract at `packages/sdk/src/commands/<namespace>/contract.ts`:
 - Define Valibot schemas for input and result that match the Unity model fields exactly.
 - Field names in schemas must be camelCase, matching the `[JsonProperty]` values in C#.
 - Fill in the `params` mapping function to convert typed input to wire params.
-- Use `guard: 'execute'` for state-changing commands.
 
 Reference: `packages/sdk/src/commands/layer/contract.ts`
 

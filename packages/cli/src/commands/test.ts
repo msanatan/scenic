@@ -8,6 +8,7 @@ import type {
 } from '@scenicai/sdk/commands/test'
 import { runWithOutput } from './output.ts'
 import { withUnityClient } from './with-unity-client.ts'
+import { parseIntWithMinimum } from './parse.ts'
 
 interface TestCommandOptions {
   mode?: string
@@ -36,27 +37,6 @@ function parseMode(value: string | undefined): TestMode | undefined {
     return value
   }
   throw new Error('--mode must be one of: edit, play.')
-}
-
-function parseIntWithMinimum(
-  value: string | undefined,
-  label: string,
-  defaultValue: number,
-  minimum: number,
-): number {
-  if (value == null) {
-    return defaultValue
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  if (!Number.isFinite(parsed) || parsed < minimum) {
-    if (minimum <= 0) {
-      throw new Error(`${label} must be a non-negative integer.`)
-    }
-    throw new Error(`${label} must be an integer >= ${minimum}.`)
-  }
-
-  return parsed
 }
 
 function parseQuery(opts: TestCommandOptions): TestListQuery {

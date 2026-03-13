@@ -25,7 +25,7 @@ export const materialCreateCommand = defineCommand({
     shader: input.shader,
   }),
   result: MaterialCreateResultSchema,
-  guard: 'execute',
+
 })
 
 export type MaterialCreateInput = v.InferOutput<typeof MaterialCreateInputSchema>
@@ -81,7 +81,7 @@ export const materialAssignCommand = defineCommand({
     slot: input.slot,
   }),
   result: MaterialAssignResultSchema,
-  guard: 'execute',
+
 })
 
 export type MaterialAssignInput = v.InferOutput<typeof MaterialAssignInputSchema>
@@ -157,7 +157,7 @@ export const materialPropertiesSetCommand = defineCommand({
     strict: input.strict,
   }),
   result: MaterialPropertiesSetResultSchema,
-  guard: 'execute',
+
 })
 
 export type MaterialPropertyType = v.InferOutput<typeof MaterialPropertyTypeSchema>

@@ -35,20 +35,20 @@ export async function handleMaterialCreate(
   jsonOutput: boolean,
   deps: MaterialCreateDeps,
 ): Promise<void> {
-  if (assetPath.trim().length === 0) {
-    throw new Error('Asset path is required.')
-  }
-
-  const shader = opts.shader?.trim()
-  const input: MaterialCreateInput = {
-    assetPath: assetPath.trim(),
-    shader: shader != null && shader.length > 0 ? shader : undefined,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.materialCreate(input),
+    () => {
+      if (assetPath.trim().length === 0) {
+        throw new Error('Asset path is required.')
+      }
+      const shader = opts.shader?.trim()
+      const input: MaterialCreateInput = {
+        assetPath: assetPath.trim(),
+        shader: shader != null && shader.length > 0 ? shader : undefined,
+      }
+      return deps.materialCreate(input)
+    },
     (result, output) => {
       output.log(`Created: ${result.material.assetPath}`)
       output.log(`Name:    ${result.material.name}`)
@@ -87,14 +87,15 @@ export async function handleMaterialGet(
   jsonOutput: boolean,
   deps: MaterialGetDeps,
 ): Promise<void> {
-  if (assetPath.trim().length === 0) {
-    throw new Error('Asset path is required.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.materialGet({ assetPath: assetPath.trim() }),
+    () => {
+      if (assetPath.trim().length === 0) {
+        throw new Error('Asset path is required.')
+      }
+      return deps.materialGet({ assetPath: assetPath.trim() })
+    },
     (result, output) => {
       output.log(`Asset:  ${result.material.assetPath}`)
       output.log(`Name:   ${result.material.name}`)
@@ -167,38 +168,38 @@ export async function handleMaterialAssign(
   jsonOutput: boolean,
   deps: MaterialAssignDeps,
 ): Promise<void> {
-  const instanceId = parseOptionalInt(opts.instanceId, '--instance-id')
-  const path = opts.path
-  if ((path == null || path.trim().length === 0) && instanceId == null) {
-    throw new Error('Provide target via --path or --instance-id.')
-  }
-  if (path != null && path.trim().length > 0 && instanceId != null) {
-    throw new Error('Use either --path or --instance-id, not both.')
-  }
-  const materialAssetPath = opts.assetPath?.trim()
-  if (materialAssetPath == null || materialAssetPath.length === 0) {
-    throw new Error('Provide --asset-path.')
-  }
-
-  const rendererIndex = parseOptionalInt(opts.rendererIndex, '--renderer-index')
-  const slot = parseOptionalInt(opts.slot, '--slot')
-  if (rendererIndex != null && rendererIndex < 0) {
-    throw new Error('--renderer-index must be a non-negative integer.')
-  }
-  if (slot != null && slot < 0) {
-    throw new Error('--slot must be a non-negative integer.')
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.materialAssign({
-      path: path?.trim(),
-      instanceId,
-      assetPath: materialAssetPath,
-      rendererIndex,
-      slot,
-    }),
+    () => {
+      const instanceId = parseOptionalInt(opts.instanceId, '--instance-id')
+      const path = opts.path
+      if ((path == null || path.trim().length === 0) && instanceId == null) {
+        throw new Error('Provide target via --path or --instance-id.')
+      }
+      if (path != null && path.trim().length > 0 && instanceId != null) {
+        throw new Error('Use either --path or --instance-id, not both.')
+      }
+      const materialAssetPath = opts.assetPath?.trim()
+      if (materialAssetPath == null || materialAssetPath.length === 0) {
+        throw new Error('Provide --asset-path.')
+      }
+      const rendererIndex = parseOptionalInt(opts.rendererIndex, '--renderer-index')
+      const slot = parseOptionalInt(opts.slot, '--slot')
+      if (rendererIndex != null && rendererIndex < 0) {
+        throw new Error('--renderer-index must be a non-negative integer.')
+      }
+      if (slot != null && slot < 0) {
+        throw new Error('--slot must be a non-negative integer.')
+      }
+      return deps.materialAssign({
+        path: path?.trim(),
+        instanceId,
+        assetPath: materialAssetPath,
+        rendererIndex,
+        slot,
+      })
+    },
     (result, output) => {
       output.log(`Target:   ${result.targetPath}`)
       output.log(`Renderer: ${result.rendererType} [index=${result.rendererIndex}, id=${result.rendererInstanceId}]`)
@@ -214,15 +215,16 @@ export async function handleMaterialPropertiesGet(
   jsonOutput: boolean,
   deps: MaterialPropertiesGetDeps,
 ): Promise<void> {
-  if (assetPath.trim().length === 0) {
-    throw new Error('Asset path is required.')
-  }
-
-  const names = opts.names?.map((name) => name.trim()).filter((name) => name.length > 0)
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.materialPropertiesGet({ assetPath: assetPath.trim(), names }),
+    () => {
+      if (assetPath.trim().length === 0) {
+        throw new Error('Asset path is required.')
+      }
+      const names = opts.names?.map((name) => name.trim()).filter((name) => name.length > 0)
+      return deps.materialPropertiesGet({ assetPath: assetPath.trim(), names })
+    },
     (result, output) => {
       output.log(`Material: ${result.material.assetPath}`)
       output.log(`Properties: ${Object.keys(result.properties).length}`)
@@ -274,20 +276,20 @@ export async function handleMaterialPropertiesSet(
   jsonOutput: boolean,
   deps: MaterialPropertiesSetDeps,
 ): Promise<void> {
-  if (assetPath.trim().length === 0) {
-    throw new Error('Asset path is required.')
-  }
-
-  const input: MaterialPropertiesSetInput = {
-    assetPath: assetPath.trim(),
-    values: parseValues(opts.values, opts.valuesFile),
-    strict: opts.strict === true,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.materialPropertiesSet(input),
+    () => {
+      if (assetPath.trim().length === 0) {
+        throw new Error('Asset path is required.')
+      }
+      const input: MaterialPropertiesSetInput = {
+        assetPath: assetPath.trim(),
+        values: parseValues(opts.values, opts.valuesFile),
+        strict: opts.strict === true,
+      }
+      return deps.materialPropertiesSet(input)
+    },
     (result, output) => {
       output.log(`Updated: ${result.material.assetPath}`)
       output.log(`Applied: ${result.appliedProperties.length}`)
