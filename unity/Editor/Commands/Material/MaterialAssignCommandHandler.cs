@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Scenic.Editor.Commands.Material
 {
-    [ScenicCommand("material.assign", RequiresExecuteEnabled = true)]
+    [ScenicCommand("material.assign")]
     public sealed class MaterialAssignCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

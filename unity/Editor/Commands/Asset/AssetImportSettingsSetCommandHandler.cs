@@ -2,7 +2,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Asset
 {
-    [ScenicCommand("asset.importSettings.set", RequiresExecuteEnabled = true)]
+    [ScenicCommand("asset.importSettings.set")]
     public sealed class AssetImportSettingsSetCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

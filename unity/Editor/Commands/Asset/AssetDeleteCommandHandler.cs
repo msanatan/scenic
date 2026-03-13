@@ -2,7 +2,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Asset
 {
-    [ScenicCommand("asset.delete", RequiresExecuteEnabled = true)]
+    [ScenicCommand("asset.delete")]
     public sealed class AssetDeleteCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

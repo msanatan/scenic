@@ -13,7 +13,7 @@ export const {{sdkMethod}}Command = defineCommand({
   params: (input: {{SdkMethod}}Input) => ({
     // TODO: Map input fields to wire params
   }),
-  result: {{SdkMethod}}ResultSchema,{{guard}}
+  result: {{SdkMethod}}ResultSchema,
 })
 
 export type {{SdkMethod}}Input = v.InferOutput<typeof {{SdkMethod}}InputSchema>

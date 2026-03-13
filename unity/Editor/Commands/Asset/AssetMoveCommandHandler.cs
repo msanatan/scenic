@@ -2,7 +2,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Asset
 {
-    [ScenicCommand("asset.move", RequiresExecuteEnabled = true)]
+    [ScenicCommand("asset.move")]
     public sealed class AssetMoveCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

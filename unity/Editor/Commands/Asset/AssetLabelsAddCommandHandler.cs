@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Asset
 {
-    [ScenicCommand("asset.labels.add", RequiresExecuteEnabled = true)]
+    [ScenicCommand("asset.labels.add")]
     public sealed class AssetLabelsAddCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

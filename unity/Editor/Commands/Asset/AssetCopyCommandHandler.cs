@@ -2,7 +2,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Asset
 {
-    [ScenicCommand("asset.copy", RequiresExecuteEnabled = true)]
+    [ScenicCommand("asset.copy")]
     public sealed class AssetCopyCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

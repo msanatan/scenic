@@ -81,7 +81,7 @@ export const assetMoveCommand = defineCommand({
     newPath: input.newPath,
   }),
   result: AssetMoveResultSchema,
-  guard: 'execute',
+
 })
 
 export type AssetMoveInput = v.InferOutput<typeof AssetMoveInputSchema>
@@ -106,7 +106,7 @@ export const assetCopyCommand = defineCommand({
     newPath: input.newPath,
   }),
   result: AssetCopyResultSchema,
-  guard: 'execute',
+
 })
 
 export type AssetCopyInput = v.InferOutput<typeof AssetCopyInputSchema>
@@ -128,7 +128,7 @@ export const assetDeleteCommand = defineCommand({
     assetPath: input.assetPath,
   }),
   result: AssetDeleteResultSchema,
-  guard: 'execute',
+
 })
 
 export type AssetDeleteInput = v.InferOutput<typeof AssetDeleteInputSchema>
@@ -152,7 +152,7 @@ export const assetImportCommand = defineCommand({
     options: input.options,
   }),
   result: AssetImportResultSchema,
-  guard: 'execute',
+
 })
 
 export type AssetImportInput = v.InferOutput<typeof AssetImportInputSchema>
@@ -201,7 +201,7 @@ export const assetImportSettingsSetCommand = defineCommand({
     properties: input.properties,
   }),
   result: AssetImportSettingsSetResultSchema,
-  guard: 'execute',
+
 })
 
 export type AssetImportSettingsSetInput = v.InferOutput<typeof AssetImportSettingsSetInputSchema>
@@ -247,7 +247,7 @@ export const assetLabelsAddCommand = defineCommand({
     labels: input.labels,
   }),
   result: AssetLabelsAddResultSchema,
-  guard: 'execute',
+
 })
 
 export type AssetLabelsAddInput = v.InferOutput<typeof AssetLabelsAddInputSchema>
@@ -272,7 +272,7 @@ export const assetLabelsRemoveCommand = defineCommand({
     labels: input.labels,
   }),
   result: AssetLabelsRemoveResultSchema,
-  guard: 'execute',
+
 })
 
 export type AssetLabelsRemoveInput = v.InferOutput<typeof AssetLabelsRemoveInputSchema>

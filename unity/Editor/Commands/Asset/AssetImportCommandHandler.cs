@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Asset
 {
-    [ScenicCommand("asset.import", RequiresExecuteEnabled = true)]
+    [ScenicCommand("asset.import")]
     public sealed class AssetImportCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

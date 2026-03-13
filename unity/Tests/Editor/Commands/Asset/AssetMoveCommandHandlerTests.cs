@@ -92,21 +92,5 @@ namespace Scenic.Editor.Tests.Commands.Asset
             Assert.IsNotNull(response.Error);
             StringAssert.Contains("newpath", response.Error.ToLower());
         }
-
-        [Test]
-        public void Route_AssetMove_ExecuteGuard()
-        {
-            var response = CommandRouter.Route(
-                new CommandRequest
-                {
-                    Id = "test-asset-move-guard",
-                    Command = "asset.move",
-                    ParamsJson = $"{{\"assetPath\":\"{SourcePath}\",\"newPath\":\"{DestPath}\"}}",
-                },
-                executeEnabled: false);
-
-            Assert.IsFalse(response.Success);
-            Assert.IsNotNull(response.Error);
-        }
     }
 }

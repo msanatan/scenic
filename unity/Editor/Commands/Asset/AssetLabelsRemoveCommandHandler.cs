@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Scenic.Editor.Commands.Asset
 {
-    [ScenicCommand("asset.labels.remove", RequiresExecuteEnabled = true)]
+    [ScenicCommand("asset.labels.remove")]
     public sealed class AssetLabelsRemoveCommandHandler : ICommandHandler
     {
         public object Handle(CommandRequest request)

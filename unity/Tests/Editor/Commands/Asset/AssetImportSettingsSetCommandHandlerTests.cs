@@ -110,21 +110,5 @@ namespace Scenic.Editor.Tests.Commands.Asset
             Assert.IsNotNull(response.Error);
             StringAssert.Contains("properties", response.Error.ToLower());
         }
-
-        [Test]
-        public void Route_AssetImportSettingsSet_ExecuteGuard()
-        {
-            var response = CommandRouter.Route(
-                new CommandRequest
-                {
-                    Id = "test-import-settings-set-guard",
-                    Command = "asset.importSettings.set",
-                    ParamsJson = $"{{\"assetPath\":\"{TestAssetPath}\",\"properties\":{{\"m_UserData\":\"test\"}}}}",
-                },
-                executeEnabled: false);
-
-            Assert.IsFalse(response.Success);
-            Assert.IsNotNull(response.Error);
-        }
     }
 }

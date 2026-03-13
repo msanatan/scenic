@@ -111,21 +111,5 @@ namespace Scenic.Editor.Tests.Commands.Asset
             Assert.IsNotNull(response.Error);
             StringAssert.Contains("labels", response.Error.ToLower());
         }
-
-        [Test]
-        public void Route_AssetLabelsAdd_ExecuteGuard()
-        {
-            var response = CommandRouter.Route(
-                new CommandRequest
-                {
-                    Id = "test-labels-add-guard",
-                    Command = "asset.labels.add",
-                    ParamsJson = $"{{\"assetPath\":\"{TestAssetPath}\",\"labels\":[\"TestLabel\"]}}",
-                },
-                executeEnabled: false);
-
-            Assert.IsFalse(response.Success);
-            Assert.IsNotNull(response.Error);
-        }
     }
 }
