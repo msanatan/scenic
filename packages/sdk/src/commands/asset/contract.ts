@@ -163,10 +163,12 @@ export const AssetImportSettingsGetInputSchema = v.object({
   properties: v.optional(v.array(v.string())),
 })
 
+const ImporterPropertyValueSchema = v.union([v.number(), v.boolean(), v.string()])
+
 export const AssetImportSettingsGetResultSchema = v.object({
   assetPath: v.string(),
   importerType: v.string(),
-  properties: v.record(v.string(), v.unknown()),
+  properties: v.record(v.string(), ImporterPropertyValueSchema),
 })
 
 export const assetImportSettingsGetCommand = defineCommand({
@@ -184,7 +186,10 @@ export type AssetImportSettingsGetResult = InferResult<typeof assetImportSetting
 
 export const AssetImportSettingsSetInputSchema = v.object({
   assetPath: v.string(),
-  properties: v.record(v.string(), v.unknown()),
+  properties: v.pipe(
+    v.record(v.string(), ImporterPropertyValueSchema),
+    v.check((r) => Object.keys(r).length > 0, 'properties must not be empty'),
+  ),
 })
 
 export const AssetImportSettingsSetResultSchema = v.object({
@@ -230,7 +235,7 @@ export type AssetLabelsGetResult = InferResult<typeof assetLabelsGetCommand>
 
 export const AssetLabelsAddInputSchema = v.object({
   assetPath: v.string(),
-  labels: v.array(v.string()),
+  labels: v.pipe(v.array(v.string()), v.minLength(1)),
 })
 
 export const AssetLabelsAddResultSchema = v.object({
@@ -255,7 +260,7 @@ export type AssetLabelsAddResult = InferResult<typeof assetLabelsAddCommand>
 
 export const AssetLabelsRemoveInputSchema = v.object({
   assetPath: v.string(),
-  labels: v.array(v.string()),
+  labels: v.pipe(v.array(v.string()), v.minLength(1)),
 })
 
 export const AssetLabelsRemoveResultSchema = v.object({

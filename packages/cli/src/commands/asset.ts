@@ -284,7 +284,8 @@ export async function handleAssetImportSettingsSet(
   jsonOutput: boolean,
   deps: AssetImportSettingsSetDeps,
 ): Promise<void> {
-  const properties = parseImportSettingsValues(opts.values, opts.valuesFile)
+  const properties = parseImportSettingsValues(opts.values, opts.valuesFile) as
+    Record<string, string | number | boolean>
 
   await runWithOutput(
     jsonOutput,
