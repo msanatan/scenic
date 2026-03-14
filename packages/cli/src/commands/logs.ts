@@ -31,18 +31,19 @@ export async function handleLogs(
   jsonOutput: boolean,
   deps: LogsDeps,
 ): Promise<void> {
-  const limit = parseIntWithMinimum(opts.limit, '--limit', 50, 1)
-  const offset = parseIntWithMinimum(opts.offset, '--offset', 0, 0)
-  const query: LogsQuery = {
-    severity: parseSeverity(opts.severity),
-    limit,
-    offset,
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.logs(query),
+    () => {
+      const limit = parseIntWithMinimum(opts.limit, '--limit', 50, 1)
+      const offset = parseIntWithMinimum(opts.offset, '--offset', 0, 0)
+      const query: LogsQuery = {
+        severity: parseSeverity(opts.severity),
+        limit,
+        offset,
+      }
+      return deps.logs(query)
+    },
     (result, output) => {
       output.log(`Logs: ${result.logs.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const entry of result.logs) {

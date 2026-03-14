@@ -53,12 +53,13 @@ export async function handleTestList(
   jsonOutput: boolean,
   deps: TestListDeps,
 ): Promise<void> {
-  const query = parseQuery(opts)
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.list(query),
+    () => {
+      const query = parseQuery(opts)
+      return deps.list(query)
+    },
     (result, output) => {
       output.log(`Tests: ${result.tests.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const test of result.tests) {
@@ -73,12 +74,13 @@ export async function handleTestRun(
   jsonOutput: boolean,
   deps: TestRunDeps,
 ): Promise<void> {
-  const query: TestRunQuery = parseQuery(opts)
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.run(query),
+    () => {
+      const query: TestRunQuery = parseQuery(opts)
+      return deps.run(query)
+    },
     (result, output) => {
       output.log(`Ran ${result.total} tests`)
       output.log(`Passed: ${result.passed}  Failed: ${result.failed}  Skipped: ${result.skipped}  Inconclusive: ${result.inconclusive}`)
