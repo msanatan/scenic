@@ -47,19 +47,20 @@ export async function handleAssetFind(
   jsonOutput: boolean,
   deps: AssetFindDeps,
 ): Promise<void> {
-  const limit = parseOptionalInt(opts.limit, 'limit')
-  const offset = parseOptionalInt(opts.offset, 'offset')
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.assetFind({
-      query: query?.trim(),
-      type: opts.type?.trim(),
-      labels: opts.label ? normalizeLabels(opts.label) : undefined,
-      limit,
-      offset,
-    }),
+    () => {
+      const limit = parseOptionalInt(opts.limit, 'limit')
+      const offset = parseOptionalInt(opts.offset, 'offset')
+      return deps.assetFind({
+        query: query?.trim(),
+        type: opts.type?.trim(),
+        labels: opts.label ? normalizeLabels(opts.label) : undefined,
+        limit,
+        offset,
+      })
+    },
     (result, output) => {
       output.log(`Assets: ${result.assets.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const asset of result.assets) {
@@ -215,15 +216,16 @@ export async function handleAssetImportSettingsGet(
   jsonOutput: boolean,
   deps: AssetImportSettingsGetDeps,
 ): Promise<void> {
-  const properties = opts.property?.map((p) => p.trim()).filter((p) => p.length > 0)
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.assetImportSettingsGet({
-      assetPath: assetPath.trim(),
-      properties: properties != null && properties.length > 0 ? properties : undefined,
-    }),
+    () => {
+      const properties = opts.property?.map((p) => p.trim()).filter((p) => p.length > 0);
+      return deps.assetImportSettingsGet({
+        assetPath: assetPath.trim(),
+        properties: properties != null && properties.length > 0 ? properties : undefined,
+      })
+    },
     (result, output) => {
       output.log(`AssetPath:    ${result.assetPath}`)
       output.log(`ImporterType: ${result.importerType}`)

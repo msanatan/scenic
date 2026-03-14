@@ -85,16 +85,17 @@ export async function handleSceneList(
   jsonOutput: boolean,
   deps: SceneListDeps,
 ): Promise<void> {
-  const query: SceneListQuery = {
-    filter: opts.filter,
-    limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.list(query),
+    () => {
+      const query: SceneListQuery = {
+        filter: opts.filter,
+        limit: parseIntWithMinimum(opts.limit, '--limit', 50, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.list(query)
+    },
     (result, output) => {
       output.log(`Scenes: ${result.scenes.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const scene of result.scenes) {
@@ -109,15 +110,16 @@ export async function handleSceneHierarchy(
   jsonOutput: boolean,
   deps: SceneHierarchyDeps,
 ): Promise<void> {
-  const query: SceneHierarchyQuery = {
-    limit: parseIntWithMinimum(opts.limit, '--limit', 200, 1),
-    offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
-  }
-
   await runWithOutput(
     jsonOutput,
     deps,
-    () => deps.hierarchy(query),
+    () => {
+      const query: SceneHierarchyQuery = {
+        limit: parseIntWithMinimum(opts.limit, '--limit', 200, 1),
+        offset: parseIntWithMinimum(opts.offset, '--offset', 0, 0),
+      }
+      return deps.hierarchy(query)
+    },
     (result, output) => {
       output.log(`Hierarchy: ${result.nodes.length} of ${result.total} (limit ${result.limit}, offset ${result.offset})`)
       for (const node of result.nodes) {
