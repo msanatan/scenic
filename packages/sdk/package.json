@@ -1,6 +1,6 @@
 {
   "name": "@scenicai/sdk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Scenic is a TypeScript SDK for interacting with the Unity Editor.",
   "main": "./dist/index.js",
   "scripts": {
